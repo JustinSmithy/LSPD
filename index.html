@@ -16,6 +16,9 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:var(--bg);color:var(--tp);line-height:1.5;min-height:100vh}
+/* full-page fixed background image (like Vice) */
+.pfbg{position:fixed;inset:0;z-index:-2;background-size:cover;background-position:center;pointer-events:none;display:none}
+.pfbg::after{content:'';position:fixed;inset:0;background:linear-gradient(180deg,rgba(7,10,15,.72),rgba(7,10,15,.9));z-index:-1}
 a{color:var(--gold2);text-decoration:none}
 .nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:6px;padding:12px 22px;background:rgba(7,10,15,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
 .nb-title{font-weight:800;letter-spacing:1px}
@@ -42,6 +45,8 @@ a{color:var(--gold2);text-decoration:none}
 .hero-inner{position:relative;padding:40px 24px;text-align:center;max-width:920px}
 .hero-eyebrow{display:inline-block;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold2);margin-bottom:18px;padding:6px 16px;border:1px solid var(--border);border-radius:30px;background:rgba(15,18,25,.5);backdrop-filter:blur(6px)}
 .hero-inner h1{font-size:4rem;font-weight:900;letter-spacing:4px;line-height:1.02;text-shadow:0 4px 30px rgba(0,0,0,.7)}
+.hero-inner h1{font-size:clamp(2.2rem,5vw,3.6rem);letter-spacing:2px}
+.hero-inner h1 span{color:var(--gold2)}
 .hero-inner h1 .sub{display:block;font-size:1.5rem;font-weight:800;letter-spacing:10px;color:var(--gold2);margin-top:6px}
 .hero-inner .tagline{color:#dbe1ee;max-width:560px;margin:18px auto 0;font-size:15px}
 .hstats{display:flex;justify-content:center;align-items:stretch;flex-wrap:wrap;margin:34px auto 0;
@@ -51,6 +56,48 @@ a{color:var(--gold2);text-decoration:none}
 .hs-num{font-size:2rem;font-weight:800;color:var(--gold2)}
 .hs-lbl{font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px}
 @media(max-width:620px){.hero-inner h1{font-size:2.6rem;letter-spacing:2px}.hero-inner h1 .sub{font-size:1rem;letter-spacing:6px}.hs{border-right:none;border-bottom:1px solid var(--border)}}
+/* hero connected stat strip (Vice-style) */
+.hero-strip{display:flex;gap:1px;background:var(--border);border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-top:32px;backdrop-filter:blur(6px)}
+.hero-strip .hs{background:rgba(13,17,26,.86);padding:18px 36px;text-align:center;flex:1;border:none}
+.hero-strip .hs-num{font-size:1.9rem;font-weight:800;color:var(--gold2)}
+.hero-strip .hs-lbl{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ts);margin-top:4px}
+@media(max-width:620px){.hero-strip{flex-direction:column}}
+
+/* accent band */
+.band{text-align:center;padding:15px 2rem;margin-top:0;
+  background:linear-gradient(90deg,rgba(47,107,255,.04),rgba(47,107,255,.14) 50%,rgba(47,107,255,.04));
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.band span{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold2);font-weight:700}
+
+/* sections */
+.sec{padding:3.5rem 2rem;max-width:1100px;margin:0 auto}
+.kicker{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold2);margin-bottom:10px}
+.sec-h2{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;margin-bottom:1rem}
+.sec-p{color:#c4cbda;font-size:15px;line-height:1.8;margin-bottom:2.5rem}
+.sec-hd{margin:2.5rem 0 1.4rem}
+/* value/division cards */
+.vcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1.1rem;max-width:960px;margin:0 auto 2rem}
+.vcard{background:rgba(19,24,34,.9);border:1px solid var(--border-d);border-radius:12px;padding:1.6rem 1.4rem;text-align:center;cursor:pointer;transition:.16s}
+.vcard:hover{border-color:var(--gold);transform:translateY(-3px)}
+.vc-ic{font-size:30px;margin-bottom:.7rem}
+.vc-t{font-weight:700;font-size:15px;margin-bottom:.4rem}
+.vc-d{font-size:13px;color:var(--ts);line-height:1.6}
+/* stat grid */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--border-d);border-radius:10px;overflow:hidden;border:1px solid var(--border-d);margin-bottom:2.5rem}
+.scx{background:rgba(19,24,34,.92);padding:1.5rem}
+.scx-lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--ts);margin-bottom:8px}
+.scx-val{font-size:1.7rem;font-weight:800}
+.scx-val.gold{color:var(--gold2)}.scx-val.red{color:#ff9b9b}.scx-val.green{color:#9be8b8}
+/* records table wrap */
+.tbl-wrap{background:rgba(19,24,34,.92);border:1px solid var(--border-d);border-radius:10px;overflow:hidden}
+.tbl-head{padding:1rem 1.4rem;border-bottom:1px solid var(--border-d);display:flex;align-items:center;justify-content:space-between}
+.tbl-head h3{font-size:14px;font-weight:600}
+/* slogan footer */
+.slogan{border-top:1px solid var(--border-d);padding:2.6rem 2rem;text-align:center;background:rgba(10,13,19,.6)}
+.sl-eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--ts);margin-bottom:8px}
+.sl-main{font-size:14px;color:var(--gold2);font-weight:700;letter-spacing:1px}
+.sl-sub{font-size:11px;color:var(--ts);margin-top:6px;letter-spacing:.5px}
+
 /* section divider */
 .divider{display:flex;align-items:center;justify-content:center;gap:14px;margin:46px 0 26px;color:var(--gold2);font-size:11px;letter-spacing:4px;text-transform:uppercase}
 .divider::before,.divider::after{content:"";height:1px;width:80px;background:linear-gradient(90deg,transparent,var(--border))}
@@ -114,6 +161,7 @@ tr:hover td{background:var(--bg2)}
 </style>
 </head>
 <body>
+<div class="pfbg" id="pfbg"></div>
 
 <nav class="nav">
   <div class="shield">🛡️</div>
@@ -132,34 +180,63 @@ tr:hover td{background:var(--bg2)}
   <div class="hero">
     <div class="hero-bg"></div>
     <div class="hero-inner">
-      <div class="hero-eyebrow">Los Santos Police Department · Operations</div>
-      <h1>LSPD<span class="sub">OPERATIONS</span></h1>
-      <p class="tagline">Professionalism. Respect. Integrity. Dedication to Duty. The official operations hub for enforcement records, divisional intelligence, and command oversight.</p>
-      <div class="hstats">
-        <div class="hs"><div class="hs-num" id="hs-arrests">—</div><div class="hs-lbl">Arrests Made</div></div>
+      <div class="hero-eyebrow">Los Santos Police Department · Operations Division</div>
+      <h1>Department<br><span>Operations Hub</span></h1>
+      <p class="tagline">Real-time enforcement records, divisional intelligence, and command oversight for the Los Santos Police Department.</p>
+      <div class="hero-strip">
         <div class="hs"><div class="hs-num" id="hs-logs">—</div><div class="hs-lbl">Logs Filed</div></div>
         <div class="hs"><div class="hs-num" id="hs-value">—</div><div class="hs-lbl">Value Seized</div></div>
+        <div class="hs"><div class="hs-num" id="hs-arrests">—</div><div class="hs-lbl">Arrests Made</div></div>
         <div class="hs"><div class="hs-num" id="hs-officers">—</div><div class="hs-lbl">Active Officers</div></div>
       </div>
-      <button class="btn primary" id="pub-apply-cta" style="margin-top:28px;font-size:15px;padding:13px 34px">Apply to a Division →</button>
     </div>
   </div>
 
-  <div class="divider">The Divisions</div>
-  <div>
-    <div class="grid cols-4">
-      <div class="divcard card" data-div="SWAT" style="margin:0"><div class="ic">🎯</div><h3>SWAT</h3><p>High-risk tactical ops & warrant service.</p></div>
-      <div class="divcard card" data-div="Traffic Enforcement" style="margin:0"><div class="ic">🚦</div><h3>Traffic Enforcement</h3><p>Highway patrol, pursuit & transport enforcement.</p></div>
-      <div class="divcard card" data-div="FTO" style="margin:0"><div class="ic">🎓</div><h3>FTO</h3><p>Field Training — onboarding new officers.</p></div>
-      <div class="divcard card" data-vice="1" style="margin:0"><div class="ic">🕶️</div><h3>VICE</h3><p>Drug Enforcement Division ↗ vice-unit.com</p></div>
+  <!-- accent band -->
+  <div class="band"><span>✦ &nbsp; Protecting Our Community · Together We Serve &nbsp; ✦</span></div>
+
+  <!-- mission + divisions -->
+  <div class="sec" style="padding-bottom:0">
+    <div style="max-width:760px;margin:0 auto;text-align:center">
+      <div class="kicker">The Department</div>
+      <h2 class="sec-h2">One department, specialised divisions</h2>
+      <p class="sec-p">The Los Santos Police Department runs the streets through coordinated, specialised divisions — from tactical response to highway enforcement and field training. Every arrest, seizure, and command action is documented here, building a transparent record of the work that keeps the city safe.</p>
+    </div>
+    <div class="vcards">
+      <div class="vcard divcard" data-div="SWAT"><div class="vc-ic">🎯</div><div class="vc-t">SWAT</div><div class="vc-d">High-risk tactical operations, warrant service, and crisis response.</div></div>
+      <div class="vcard divcard" data-div="Traffic Enforcement"><div class="vc-ic">🚦</div><div class="vc-t">Traffic Enforcement</div><div class="vc-d">Highway patrol, pursuit management, and transport-related enforcement.</div></div>
+      <div class="vcard divcard" data-div="FTO"><div class="vc-ic">🎓</div><div class="vc-t">FTO</div><div class="vc-d">Field Training — onboarding, mentoring, and certifying new officers.</div></div>
+      <div class="vcard divcard" data-vice="1"><div class="vc-ic">🕶️</div><div class="vc-t">VICE ↗</div><div class="vc-d">Drug Enforcement Division — runs on its own portal at vice-unit.com.</div></div>
+    </div>
+    <div style="text-align:center;padding-bottom:1rem">
+      <button class="btn primary" id="pub-apply-cta" style="font-size:15px;padding:12px 32px">Apply to a Division →</button>
+      <div style="font-size:12px;color:var(--ts);margin-top:10px">Already applied? <span id="pub-status-link" style="color:var(--gold2);cursor:pointer;text-decoration:underline">Check your status</span>.</div>
     </div>
   </div>
 
-  <div class="divider">Recent Records</div>
-  <div class="card">
-    <div id="pub-recent" style="color:var(--ts);font-size:13px">Loading…</div>
+  <!-- stat grid + records -->
+  <div class="sec">
+    <div class="sg">
+      <div class="scx"><div class="scx-lbl">Total Logs</div><div class="scx-val gold" id="pub-logs">—</div></div>
+      <div class="scx"><div class="scx-lbl">Arrests Made</div><div class="scx-val red" id="pub-arrests">—</div></div>
+      <div class="scx"><div class="scx-lbl">Value Seized</div><div class="scx-val gold" id="pub-value">—</div></div>
+      <div class="scx"><div class="scx-lbl">Active Officers</div><div class="scx-val green" id="pub-officers">—</div></div>
+    </div>
+    <div class="sec-hd"><div class="kicker">Recent Activity</div><h2 class="sec-h2" style="font-size:1.4rem">Latest Enforcement Records</h2></div>
+    <div class="tbl-wrap">
+      <div class="tbl-head"><h3>Public Registry</h3><span class="pill bg-blue">Public Record</span></div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th>Date</th><th>Type</th><th>Items</th><th>Value</th><th>Arrests</th><th>Location</th></tr></thead>
+        <tbody id="pub-table"><tr><td colspan="6" style="text-align:center;color:var(--ts);padding:2rem">Loading records…</td></tr></tbody>
+      </table></div>
+    </div>
   </div>
-  <div class="foot">LSPD · OPERATIONS · OFFICIAL USE ONLY</div>
+
+  <div class="slogan">
+    <div class="sl-eyebrow">Los Santos Police Department · Operations</div>
+    <div class="sl-main">Protecting Our Community · Upholding Justice With Honor</div>
+    <div class="sl-sub">Professionalism. Respect. Integrity. Dedication to Duty.</div>
+  </div>
 </div>
 
 <!-- ════════ APPLY ════════ -->
@@ -395,9 +472,11 @@ const SUPABASE_URL='https://bmamckgbanaudewanylf.supabase.co';
 const SUPABASE_KEY='sb_publishable_WXuN9DQa14hhCeCQ5gkcMA_N5sO5y80';
 const BUCKET='mugshots';
 const VICE_URL='https://vice-unit.com';
-// Banner image: paste a hosted URL here (e.g. a Supabase Storage public URL),
-// or leave as 'lspd-banner.png' to use a local file beside index.html.
-const BANNER_URL='lspd-banner.png';
+// ── BACKGROUND IMAGE ──────────────────────────────────────────────
+// This is the ONLY line you edit to set the site background (same method
+// the Vice site uses). Upload your LSPD image to https://postimg.cc ,
+// copy the "Direct link" it gives you, and paste it between the quotes:
+const BANNER_URL='https://i.postimg.cc/s2fz31Ph/content-(36).jpg';
 const SUPER_RANKS=['Sergeant','Lieutenant','Captain'];
 let _sb=null; function db(){if(!_sb)_sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);return _sb;}
 let me=null,officer=null,charts={};
@@ -414,13 +493,14 @@ function clearMsg(id){const el=$(id);if(el)el.innerHTML='';}
 const isSuper=()=>officer&&(officer.role==='admin'||SUPER_RANKS.includes(officer.rank));
 
 // ══════════ NAV ══════════
-function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const pg=$('pg-'+name);if(pg)pg.classList.add('active');if(name==='public')loadPublicStats();window.scrollTo(0,0);}
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const pg=$('pg-'+name);if(pg)pg.classList.add('active');const bg=$('pfbg');if(bg)bg.style.display=(name==='public'||name==='apply'||name==='faq')?'block':'none';if(name==='public')loadPublicStats();window.scrollTo(0,0);}
 $('nav-public').onclick=()=>showPage('public');
 $('nav-apply').onclick=()=>showPage('apply');
 $('nav-faq').onclick=()=>showPage('faq');
 $('nav-login').onclick=()=>showPage('login');
 $('nav-dash').onclick=()=>{showPage('dash');loadDash();};
 $('pub-apply-cta').onclick=()=>showPage('apply');
+{const sl=$('pub-status-link');if(sl)sl.onclick=()=>{showPage('apply');setTimeout(()=>$('chk-name')&&$('chk-name').focus(),60);};}
 $('nav-logout').onclick=async()=>{await db().auth.signOut();location.reload();};
 document.querySelectorAll('.divcard').forEach(c=>c.onclick=()=>{
   if(c.dataset.vice){window.open(VICE_URL,'_blank');return;}
@@ -443,10 +523,16 @@ document.querySelectorAll('.sb-btn').forEach(b=>b.onclick=()=>{
 async function loadPublicStats(){
   const {data:logs}=await db().from('seizure_logs').select('value,arrests');
   const {data:offs}=await db().from('officers').select('id').eq('verified',true);
-  if(logs){$('hs-logs').textContent=logs.length;$('hs-arrests').textContent=logs.reduce((a,l)=>a+(l.arrests||0),0);$('hs-value').textContent=fmtVal(logs.reduce((a,l)=>a+(Number(l.value)||0),0));}
-  if(offs)$('hs-officers').textContent=offs.length;
-  const {data:recent}=await db().from('seizure_logs').select('*').order('created_at',{ascending:false}).limit(6);
-  if(recent)$('pub-recent').innerHTML=recent.length?recent.map(l=>'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-d)"><span><span class="pill '+typeCls(l)+'">'+typeLabel(l)+'</span> '+esc(l.location||itemStr(l))+'</span><span style="color:var(--tt)">'+fmtDate(l.created_at)+'</span></div>').join(''):'No records yet.';
+  if(logs){
+    const nLogs=logs.length,nArr=logs.reduce((a,l)=>a+(l.arrests||0),0),sVal=fmtVal(logs.reduce((a,l)=>a+(Number(l.value)||0),0));
+    const set=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
+    set('hs-logs',nLogs);set('hs-arrests',nArr);set('hs-value',sVal);
+    set('pub-logs',nLogs);set('pub-arrests',nArr);set('pub-value',sVal);
+  }
+  if(offs){const set=(id,v)=>{const e=$(id);if(e)e.textContent=v;};set('hs-officers',offs.length);set('pub-officers',offs.length);}
+  const {data:recent}=await db().from('seizure_logs').select('*').order('created_at',{ascending:false}).limit(8);
+  const tb=$('pub-table');
+  if(tb)tb.innerHTML=(recent&&recent.length)?recent.map(l=>'<tr><td>'+fmtDate(l.created_at)+'</td><td><span class="pill '+typeCls(l)+'">'+typeLabel(l)+'</span></td><td>'+esc(itemStr(l))+'</td><td>'+fmtVal(l.value)+'</td><td>'+(l.arrests||0)+'</td><td>'+esc(l.location||'—')+'</td></tr>').join(''):'<tr><td colspan="6" style="text-align:center;color:var(--ts);padding:2rem">No records yet.</td></tr>';
 }
 
 // ══════════ APPLICATIONS (public) ══════════
@@ -641,8 +727,12 @@ window.delOff=async id=>{if(!confirm('Remove this officer?'))return;await db().f
 
 // ══════════ INIT ══════════
 (async()=>{
-  const hb=document.querySelector('.hero-bg');
-  if(hb&&/^https?:\/\//.test(BANNER_URL))hb.style.backgroundImage="linear-gradient(180deg,rgba(7,10,15,.45),rgba(7,10,15,.92)),url('"+BANNER_URL+"')";
+  if(/^https?:\/\//.test(BANNER_URL)||/\.(png|jpe?g|webp)$/i.test(BANNER_URL)){
+    const hb=document.querySelector('.hero-bg');
+    if(hb)hb.style.backgroundImage="radial-gradient(1100px 460px at 50% -8%,rgba(47,107,255,.30),transparent 60%),linear-gradient(180deg,rgba(7,10,15,.30),rgba(7,10,15,.96)),url('"+BANNER_URL+"')";
+    const pf=$('pfbg');if(pf)pf.style.backgroundImage="url('"+BANNER_URL+"')";
+  }
+  $('pfbg').style.display='block';
   loadPublicStats();const {data}=await db().auth.getSession();if(data?.session){me=data.session.user;await loadProfile();}})();
 </script>
 </body>
