@@ -3,117 +3,104 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>LSPD — Divisional Operations Portal</title>
+<title>LSPD Operations — Los Santos Police Department</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 :root{
-  --bg:#0a0c0f; --bg2:#11141a; --card:#151922; --card2:#1b202b;
-  --border:#232936; --border-d:#1a1f29;
-  --tp:#eef0f5; --ts:#9aa0b0; --tt:#6b7280;
-  --gold:#3b82f6; --gold2:#60a5fa;       /* LSPD blue accent */
+  --bg:#070a0f; --bg2:#0e1219; --card:#131822; --card2:#1a2030;
+  --border:#222b3a; --border-d:#171d28;
+  --tp:#eef2f8; --ts:#9aa3b5; --tt:#6b7484;
+  --gold:#2f6bff; --gold2:#6aa3ff;     /* LSPD blue */
   --red:#ef4444; --green:#22c55e; --blue:#3b82f6;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:var(--bg);color:var(--tp);line-height:1.5;min-height:100vh}
 a{color:var(--gold2);text-decoration:none}
-.hidden{display:none!important}
-
-/* nav */
-.nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:6px;padding:12px 22px;background:rgba(10,12,15,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
-.nb-title{font-weight:800;letter-spacing:.5px}
+.nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:6px;padding:12px 22px;background:rgba(7,10,15,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.nb-title{font-weight:800;letter-spacing:1px}
 .nb-sub{font-size:11px;color:var(--ts);letter-spacing:1px;text-transform:uppercase}
 .nav-spacer{flex:1}
 .nav button{background:none;border:none;color:var(--ts);font-size:13px;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer}
 .nav button:hover{color:var(--tp);background:var(--card)}
-
-/* page */
-.page{display:none;max-width:1100px;margin:0 auto;padding:32px 22px 80px}
+.page{display:none;max-width:1140px;margin:0 auto;padding:28px 22px 80px}
 .page.active{display:block}
+.shield{width:50px;height:50px;border-radius:12px;background:linear-gradient(135deg,var(--gold),#10204a);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 4px 16px rgba(47,107,255,.35)}
 
-/* shield mark */
-.shield{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,var(--gold),#1e3a8a);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;box-shadow:0 4px 16px rgba(59,130,246,.35)}
-
-/* hero */
-.hero{text-align:center;padding:60px 0 30px}
-.hero-eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold2);margin-bottom:14px}
-.hero h1{font-size:2.6rem;font-weight:800;margin-bottom:14px}
-.hero p{color:var(--ts);max-width:620px;margin:0 auto;font-size:15px}
-.hstats{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:34px 0}
-.hs{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 26px;min-width:140px}
-.hs-num{font-size:1.9rem;font-weight:800;color:var(--gold2)}
-.hs-lbl{font-size:12px;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+/* HERO with banner */
+.hero{position:relative;border-radius:18px;overflow:hidden;margin-bottom:22px;border:1px solid var(--border)}
+.hero-bg{position:absolute;inset:0;background:#0a0e16 center/cover no-repeat;background-image:linear-gradient(180deg,rgba(7,10,15,.45),rgba(7,10,15,.92)),url('lspd-banner.png')}
+.hero-inner{position:relative;padding:60px 24px 34px;text-align:center}
+.hero-eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold2);margin-bottom:12px}
+.hero-inner h1{font-size:2.7rem;font-weight:900;letter-spacing:2px;text-shadow:0 2px 20px rgba(0,0,0,.6)}
+.hero-inner p{color:#cdd4e2;max-width:600px;margin:10px auto 0;font-size:15px}
+.hstats{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:26px}
+.hs{background:rgba(15,18,25,.78);border:1px solid var(--border);border-radius:14px;padding:16px 24px;min-width:130px;backdrop-filter:blur(4px)}
+.hs-num{font-size:1.8rem;font-weight:800;color:var(--gold2)}
+.hs-lbl{font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
 
 .btn{background:var(--card);border:1px solid var(--border);color:var(--tp);font-weight:700;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:14px}
 .btn:hover{border-color:var(--gold)}
-.btn.primary{background:linear-gradient(135deg,var(--gold),#1e40af);border:none}
-.btn.primary:hover{filter:brightness(1.08)}
+.btn.primary{background:linear-gradient(135deg,var(--gold),#16306e);border:none;color:#fff}
+.btn.primary:hover{filter:brightness(1.1)}
 .btn.danger{border-color:#5a2330;color:#ffb4b4}
-
+.btn.sm{padding:5px 10px;font-size:12px}
 .section-title{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold2);margin-bottom:8px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
 .grid{display:grid;gap:14px}
-@media(min-width:680px){.cols-3{grid-template-columns:repeat(3,1fr)}.cols-2{grid-template-columns:repeat(2,1fr)}}
-
-/* division cards */
+@media(min-width:680px){.cols-4{grid-template-columns:repeat(4,1fr)}.cols-3{grid-template-columns:repeat(3,1fr)}.cols-2{grid-template-columns:repeat(2,1fr)}}
 .divcard{cursor:pointer;transition:.15s;text-align:center}
 .divcard:hover{border-color:var(--gold);transform:translateY(-2px)}
-.divcard .ic{font-size:34px;margin-bottom:8px}
-.divcard h3{font-size:18px;margin-bottom:6px}
+.divcard .ic{font-size:32px;margin-bottom:8px}
+.divcard h3{font-size:17px;margin-bottom:6px}
 .divcard p{font-size:13px;color:var(--ts)}
-
-/* forms */
 .fgrp{margin-bottom:14px}
 .flbl{display:block;font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--ts);margin-bottom:6px}
 .fi{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--tp);border-radius:9px;padding:10px 12px;font-size:14px;font-family:inherit}
 .fi:focus{outline:none;border-color:var(--gold)}
-textarea.fi{min-height:90px;resize:vertical}
-.sbtn{width:100%;background:linear-gradient(135deg,var(--gold),#1e40af);border:none;color:#fff;font-weight:700;padding:13px;border-radius:10px;cursor:pointer;font-size:15px;margin-top:6px}
-.sbtn:hover{filter:brightness(1.08)}
+textarea.fi{min-height:84px;resize:vertical}
+.sbtn{width:100%;background:linear-gradient(135deg,var(--gold),#16306e);border:none;color:#fff;font-weight:700;padding:13px;border-radius:10px;cursor:pointer;font-size:15px;margin-top:6px}
+.sbtn:hover{filter:brightness(1.1)}
 .msg{padding:10px 12px;border-radius:9px;font-size:13px;margin-top:10px}
 .msg-ok{background:rgba(34,197,94,.12);color:#7ee2a8;border:1px solid rgba(34,197,94,.3)}
 .msg-err{background:rgba(239,68,68,.12);color:#ffb4b4;border:1px solid rgba(239,68,68,.3)}
-
 .tag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 9px;border-radius:20px;background:var(--card2);color:var(--ts);border:1px solid var(--border)}
 .pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
 .bg-red{background:rgba(239,68,68,.15);color:#ff9b9b}
 .bg-blue{background:rgba(59,130,246,.15);color:#9bc4ff}
-.bg-gold{background:rgba(96,165,250,.15);color:#bcd6ff}
+.bg-gold{background:rgba(106,163,255,.15);color:#bcd6ff}
 .bg-green{background:rgba(34,197,94,.15);color:#9be8b8}
 .bg-grey{background:var(--card2);color:var(--ts)}
-
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;color:var(--ts);font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:9px;border-bottom:1px solid var(--border)}
 td{padding:10px 9px;border-bottom:1px solid var(--border-d)}
 tr:hover td{background:var(--bg2)}
-
-/* sidebar dash */
-.dash-wrap{display:grid;grid-template-columns:200px 1fr;gap:18px;max-width:1180px;margin:0 auto;padding:22px}
-@media(max-width:760px){.dash-wrap{grid-template-columns:1fr}}
+.dash-wrap{display:grid;grid-template-columns:210px 1fr;gap:18px;max-width:1200px;margin:0 auto;padding:22px}
+@media(max-width:780px){.dash-wrap{grid-template-columns:1fr}}
 .sb-btn{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;color:var(--ts);font-size:13px;font-weight:600;padding:10px 12px;border-radius:9px;cursor:pointer;text-align:left}
 .sb-btn:hover{background:var(--card);color:var(--tp)}
 .sb-btn.active{background:var(--card2);color:var(--tp)}
 .sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
 .sc-lbl{font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:1px}
 .sc-val{font-size:1.7rem;font-weight:800;margin-top:4px}
-.sc-val.red{color:#ff9b9b}.sc-val.blue{color:var(--gold2)}.sc-val.green{color:#9be8b8}
+.sc-val.red{color:#ff9b9b}.sc-val.blue{color:var(--gold2)}.sc-val.green{color:#9be8b8}.sc-val.gold{color:#bcd6ff}
 .dtab{display:none}.dtab.active{display:block}
 .rm{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ffb4b4;border-radius:7px;width:30px;height:30px;cursor:pointer}
 .arr-row{display:grid;grid-template-columns:1fr 1fr 36px;gap:8px;margin-bottom:8px;align-items:start}
 @media(max-width:560px){.arr-row{grid-template-columns:1fr}}
-
+.lb-rank{font-weight:800;color:var(--gold2);width:34px}
 .faq-item{border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
 .faq-q{padding:14px 16px;font-weight:700;cursor:pointer;font-size:14px}
 .faq-a{padding:0 16px;max-height:0;overflow:hidden;color:var(--ts);font-size:13px;transition:.2s;line-height:1.7}
-.faq-item.open .faq-a{max-height:400px;padding:0 16px 16px}
+.faq-item.open .faq-a{max-height:440px;padding:0 16px 16px}
 .foot{text-align:center;color:var(--tt);font-size:11px;letter-spacing:1px;padding:30px 0;border-top:1px solid var(--border-d);margin-top:30px}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="nav">
   <div class="shield">🛡️</div>
-  <div style="margin-left:10px"><div class="nb-title">LSPD</div><div class="nb-sub">Divisional Operations</div></div>
+  <div style="margin-left:10px"><div class="nb-title">LSPD OPERATIONS</div><div class="nb-sub">Los Santos Police Department</div></div>
   <div class="nav-spacer"></div>
   <button id="nav-public">Home</button>
   <button id="nav-apply">Apply</button>
@@ -126,33 +113,28 @@ tr:hover td{background:var(--bg2)}
 <!-- ════════ PUBLIC ════════ -->
 <div id="pg-public" class="page active">
   <div class="hero">
-    <div class="hero-eyebrow">Los Santos Police Department · Specialised Divisions</div>
-    <h1>LSPD Divisional Operations</h1>
-    <p>Real-time enforcement records and divisional intelligence for the Los Santos Police Department's specialised units — SWAT, Traffic Enforcement, and Field Training.</p>
-    <div class="hstats">
-      <div class="hs"><div class="hs-num" id="hs-arrests">—</div><div class="hs-lbl">Arrests Made</div></div>
-      <div class="hs"><div class="hs-num" id="hs-logs">—</div><div class="hs-lbl">Logs Filed</div></div>
-      <div class="hs"><div class="hs-num" id="hs-value">—</div><div class="hs-lbl">Value Seized</div></div>
-      <div class="hs"><div class="hs-num" id="hs-officers">—</div><div class="hs-lbl">Active Officers</div></div>
+    <div class="hero-bg"></div>
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Professionalism · Respect · Integrity · Dedication to Duty</div>
+      <h1>LSPD OPERATIONS</h1>
+      <p>Official operations portal for the Los Santos Police Department — enforcement records, divisional intelligence, and command oversight.</p>
+      <div class="hstats">
+        <div class="hs"><div class="hs-num" id="hs-arrests">—</div><div class="hs-lbl">Arrests Made</div></div>
+        <div class="hs"><div class="hs-num" id="hs-logs">—</div><div class="hs-lbl">Logs Filed</div></div>
+        <div class="hs"><div class="hs-num" id="hs-value">—</div><div class="hs-lbl">Value Seized</div></div>
+        <div class="hs"><div class="hs-num" id="hs-officers">—</div><div class="hs-lbl">Active Officers</div></div>
+      </div>
+      <button class="btn primary" id="pub-apply-cta" style="margin-top:24px;font-size:15px;padding:12px 30px">Apply to a Division →</button>
     </div>
-    <button class="btn primary" id="pub-apply-cta" style="font-size:15px;padding:12px 30px">Apply to a Division →</button>
   </div>
 
   <div class="card">
-    <div class="section-title">The Divisions</div>
-    <div class="grid cols-3" style="margin-top:14px">
-      <div class="divcard card" data-div="SWAT" style="margin:0">
-        <div class="ic">🎯</div><h3>SWAT</h3>
-        <p>High-risk tactical operations, warrant service, and crisis response.</p>
-      </div>
-      <div class="divcard card" data-div="Traffic Enforcement" style="margin:0">
-        <div class="ic">🚦</div><h3>Traffic Enforcement</h3>
-        <p>Highway patrol, pursuit, and transport-related enforcement.</p>
-      </div>
-      <div class="divcard card" data-div="FTO" style="margin:0">
-        <div class="ic">🎓</div><h3>FTO</h3>
-        <p>Field Training — onboarding and certifying new officers.</p>
-      </div>
+    <div class="section-title">Divisions</div>
+    <div class="grid cols-4" style="margin-top:14px">
+      <div class="divcard card" data-div="SWAT" style="margin:0"><div class="ic">🎯</div><h3>SWAT</h3><p>High-risk tactical ops & warrant service.</p></div>
+      <div class="divcard card" data-div="Traffic Enforcement" style="margin:0"><div class="ic">🚦</div><h3>Traffic Enforcement</h3><p>Highway patrol, pursuit & transport enforcement.</p></div>
+      <div class="divcard card" data-div="FTO" style="margin:0"><div class="ic">🎓</div><h3>FTO</h3><p>Field Training — onboarding new officers.</p></div>
+      <div class="divcard card" data-vice="1" style="margin:0"><div class="ic">🕶️</div><h3>VICE</h3><p>Drug Enforcement Division ↗ vice-unit.com</p></div>
     </div>
   </div>
 
@@ -160,45 +142,38 @@ tr:hover td{background:var(--bg2)}
     <div class="section-title">Recent Public Records</div>
     <div id="pub-recent" style="margin-top:12px;color:var(--ts);font-size:13px">Loading…</div>
   </div>
-  <div class="foot">LSPD · DIVISIONAL OPERATIONS · OFFICIAL USE ONLY</div>
+  <div class="foot">LSPD · OPERATIONS · OFFICIAL USE ONLY</div>
 </div>
 
-<!-- ════════ APPLY (one form, pick division) ════════ -->
+<!-- ════════ APPLY ════════ -->
 <div id="pg-apply" class="page">
   <div style="text-align:center;margin-bottom:20px">
     <div class="shield" style="margin:0 auto 12px">🛡️</div>
     <h1 style="font-size:1.8rem">Divisional Application</h1>
-    <p style="color:var(--ts);font-size:14px;max-width:480px;margin:6px auto 0">Select the division you are applying to and complete the form. All fields are in-character.</p>
+    <p style="color:var(--ts);font-size:14px;max-width:480px;margin:6px auto 0">Select your division and complete the form. All fields are in-character.</p>
   </div>
-
   <div class="card" style="max-width:640px;margin:0 auto">
-    <div class="fgrp">
-      <label class="flbl">Division *</label>
+    <div class="fgrp"><label class="flbl">Division *</label>
       <select class="fi" id="app-division">
         <option value="">Select a division…</option>
-        <option>SWAT</option>
-        <option>Traffic Enforcement</option>
-        <option>FTO</option>
+        <option>SWAT</option><option>Traffic Enforcement</option><option>FTO</option>
       </select>
+      <div style="font-size:12px;color:var(--ts);margin-top:6px">Applying to <b>VICE</b>? <a href="https://vice-unit.com" target="_blank">Apply at vice-unit.com ↗</a></div>
     </div>
     <div class="grid cols-2">
-      <div class="fgrp"><label class="flbl">Character Name *</label><input class="fi" id="app-name" placeholder="John Doe" /></div>
-      <div class="fgrp"><label class="flbl">Discord Handle *</label><input class="fi" id="app-discord" placeholder="username" /></div>
+      <div class="fgrp"><label class="flbl">Character Name *</label><input class="fi" id="app-name" /></div>
+      <div class="fgrp"><label class="flbl">Discord Handle *</label><input class="fi" id="app-discord" /></div>
     </div>
-    <div class="fgrp"><label class="flbl">Login Email (used for your officer account) *</label><input class="fi" id="app-email" type="email" placeholder="you@example.com" /></div>
-    <div class="fgrp"><label class="flbl">Relevant Experience *</label><textarea class="fi" id="app-exp" placeholder="Prior units, certifications, time on the force…"></textarea></div>
-    <div class="fgrp"><label class="flbl" id="app-why-lbl">Why do you want to join this division? *</label><textarea class="fi" id="app-why" placeholder="Tell us IC why your character is the right fit…"></textarea></div>
-    <div class="fgrp"><label class="flbl">Character Backstory</label><textarea class="fi" id="app-backstory" placeholder="Optional IC background…"></textarea></div>
+    <div class="fgrp"><label class="flbl">Login Email (for your officer account) *</label><input class="fi" id="app-email" type="email" /></div>
+    <div class="fgrp"><label class="flbl">Relevant Experience *</label><textarea class="fi" id="app-exp"></textarea></div>
+    <div class="fgrp"><label class="flbl">Why this division? *</label><textarea class="fi" id="app-why"></textarea></div>
+    <div class="fgrp"><label class="flbl">Backstory</label><textarea class="fi" id="app-backstory"></textarea></div>
     <button class="sbtn" id="app-submit">Submit Application</button>
     <div id="app-msg"></div>
   </div>
-
   <div class="card" style="max-width:640px;margin:18px auto 0">
     <div class="section-title">Check Your Application</div>
-    <div class="grid cols-2" style="margin-top:10px">
-      <input class="fi" id="chk-name" placeholder="Character name" />
-      <button class="btn" id="chk-btn">Check Status</button>
-    </div>
+    <div class="grid cols-2" style="margin-top:10px"><input class="fi" id="chk-name" placeholder="Character name" /><button class="btn" id="chk-btn">Check Status</button></div>
     <div id="chk-result" style="margin-top:12px"></div>
   </div>
 </div>
@@ -206,38 +181,32 @@ tr:hover td{background:var(--bg2)}
 <!-- ════════ FAQ ════════ -->
 <div id="pg-faq" class="page">
   <h1 style="font-size:1.8rem;margin-bottom:6px">FAQ</h1>
-  <p style="color:var(--ts);font-size:14px;margin-bottom:20px">How the LSPD divisional system works.</p>
-  <div class="faq-item"><div class="faq-q">How do I get access to the portal?</div><div class="faq-a">Submit a divisional application. Once an admin approves it, register an officer account with the email you used. Your account is then verified and you gain dashboard access.</div></div>
-  <div class="faq-item"><div class="faq-q">What is a Transport / Trafficking Arrest?</div><div class="faq-a">Used when you arrest someone for <strong>Transporting Illegal Goods</strong> but no drugs or firearms were physically recovered — for example the goods were already delivered or disposed of. Choose <strong>Trafficking Arrest (No Seizure)</strong> as the log type, add the arrested person, and make sure <strong>Transporting Illegal Goods</strong> is one of their charges. No normal seizure is required. Items show as "Contraband / Undisclosed Goods" on public records.</div></div>
-  <div class="faq-item"><div class="faq-q">How do I log an arrest or seizure?</div><div class="faq-a">Dashboard → Log Activity. Choose the type, add seized items (street value totals automatically), set the location, then add arrested persons with their charges and evidence. Submit and it appears on the records list.</div></div>
-  <div class="faq-item"><div class="faq-q">How do mugshots work?</div><div class="faq-a">When you log an arrest, the system matches the name to an existing suspect file and attaches the mugshot. You can also add suspects manually in the Suspects tab and upload a photo.</div></div>
-  <div class="faq-item"><div class="faq-q">Who is an admin?</div><div class="faq-a">The first officer to register becomes admin automatically. Admins approve applications, verify officers, and can promote others.</div></div>
+  <p style="color:var(--ts);font-size:14px;margin-bottom:20px">How LSPD Operations works.</p>
+  <div class="faq-item"><div class="faq-q">How do I get portal access?</div><div class="faq-a">Submit a divisional application. An admin approves it, then you register an officer account with the same email and get verified for dashboard access.</div></div>
+  <div class="faq-item"><div class="faq-q">How do I log an arrest or seizure?</div><div class="faq-a">Dashboard → Log Activity. Choose Arrest, a seizure type, or both. Add charges, location, evidence and arrested persons, then submit. Records appear immediately and feed the leaderboard and analysis.</div></div>
+  <div class="faq-item"><div class="faq-q">What is the Command Log?</div><div class="faq-a">Supervisors and command staff record Off-Duty notices, Reassignments, and High-Speed pursuit reports. It is only visible to Sergeant rank and above (and admins).</div></div>
+  <div class="faq-item"><div class="faq-q">How does the leaderboard work?</div><div class="faq-a">Officers are ranked by a weighted activity score across logs filed, arrests made, and value seized.</div></div>
+  <div class="faq-item"><div class="faq-q">Where is the Vice Unit?</div><div class="faq-a">Vice is a separate division with its own portal at <a href="https://vice-unit.com" target="_blank">vice-unit.com</a>.</div></div>
 </div>
 
 <!-- ════════ LOGIN ════════ -->
 <div id="pg-login" class="page">
   <div class="card" style="max-width:420px;margin:30px auto">
     <div style="text-align:center;margin-bottom:18px"><div class="shield" style="margin:0 auto 10px">🛡️</div><h2>Officer Portal</h2><p style="color:var(--ts);font-size:13px">Authorised personnel only</p></div>
-    <div style="display:flex;gap:6px;margin-bottom:16px">
-      <button class="btn" id="tab-signin" style="flex:1">Sign In</button>
-      <button class="btn" id="tab-register" style="flex:1">Register</button>
-    </div>
+    <div style="display:flex;gap:6px;margin-bottom:16px"><button class="btn" id="tab-signin" style="flex:1">Sign In</button><button class="btn" id="tab-register" style="flex:1">Register</button></div>
     <div id="signin-form">
       <div class="fgrp"><label class="flbl">Email</label><input class="fi" id="si-email" type="email" /></div>
       <div class="fgrp"><label class="flbl">Password</label><input class="fi" id="si-pass" type="password" /></div>
       <button class="sbtn" id="si-btn">Sign In to Portal</button>
     </div>
     <div id="reg-form" style="display:none">
+      <div class="grid cols-2"><div class="fgrp"><label class="flbl">Full Name</label><input class="fi" id="reg-name" /></div><div class="fgrp"><label class="flbl">Badge #</label><input class="fi" id="reg-badge" /></div></div>
       <div class="grid cols-2">
-        <div class="fgrp"><label class="flbl">Full Name</label><input class="fi" id="reg-name" /></div>
-        <div class="fgrp"><label class="flbl">Badge #</label><input class="fi" id="reg-badge" /></div>
+        <div class="fgrp"><label class="flbl">Rank</label><select class="fi" id="reg-rank"><option>Officer</option><option>Senior Officer</option><option>Sergeant</option><option>Lieutenant</option><option>Captain</option></select></div>
+        <div class="fgrp"><label class="flbl">Division</label><select class="fi" id="reg-div"><option>Patrol</option><option>SWAT</option><option>Traffic Enforcement</option><option>FTO</option></select></div>
       </div>
-      <div class="fgrp"><label class="flbl">Rank</label><select class="fi" id="reg-rank"><option>Officer</option><option>Senior Officer</option><option>Sergeant</option><option>Lieutenant</option><option>Captain</option></select></div>
       <div class="fgrp"><label class="flbl">Email</label><input class="fi" id="reg-email" type="email" /></div>
-      <div class="grid cols-2">
-        <div class="fgrp"><label class="flbl">Password</label><input class="fi" id="reg-pass" type="password" /></div>
-        <div class="fgrp"><label class="flbl">Confirm</label><input class="fi" id="reg-pass2" type="password" /></div>
-      </div>
+      <div class="grid cols-2"><div class="fgrp"><label class="flbl">Password</label><input class="fi" id="reg-pass" type="password" /></div><div class="fgrp"><label class="flbl">Confirm</label><input class="fi" id="reg-pass2" type="password" /></div></div>
       <button class="sbtn" id="reg-btn">Create Account</button>
     </div>
     <div id="auth-msg"></div>
@@ -255,9 +224,12 @@ tr:hover td{background:var(--bg2)}
       </div>
       <button class="sb-btn active" data-tab="overview"><span>📊</span>Overview</button>
       <button class="sb-btn" data-tab="log"><span>📝</span>Log Activity</button>
-      <button class="sb-btn" data-tab="records"><span>📁</span>Records</button>
+      <button class="sb-btn" data-tab="records"><span>📁</span>Arrest &amp; Seizure Logs</button>
       <button class="sb-btn" data-tab="suspects"><span>🕵️</span>Suspects</button>
+      <button class="sb-btn" data-tab="leaderboard"><span>🏆</span>Leaderboard</button>
+      <button class="sb-btn" data-tab="analysis"><span>📈</span>Analysis</button>
       <button class="sb-btn" data-tab="dispatch"><span>📻</span>Dispatch</button>
+      <button class="sb-btn supervisor-only" data-tab="command" style="display:none"><span>⭐</span>Command Log</button>
       <button class="sb-btn admin-only" data-tab="apps" style="display:none"><span>✅</span>Applications <span id="apps-badge" class="pill bg-gold" style="display:none"></span></button>
       <button class="sb-btn admin-only" data-tab="users" style="display:none"><span>👮</span>Officers</button>
     </aside>
@@ -278,30 +250,29 @@ tr:hover td{background:var(--bg2)}
           <div class="section-title">Log Activity</div>
           <div class="fgrp" style="margin-top:12px"><label class="flbl">Log Type *</label>
             <select class="fi" id="lg-type">
-              <option value="drug">Narcotics Seizure</option>
-              <option value="firearm">Firearms Seizure</option>
-              <option value="both">Narcotics & Firearms</option>
-              <option value="arrest">Trafficking Arrest (No Seizure)</option>
+              <option value="arrest">Arrest (No Seizure)</option>
+              <option value="drug">Drug Seizure</option>
+              <option value="firearm">Firearm Seizure</option>
+              <option value="both">Drugs &amp; Firearms</option>
             </select>
           </div>
-          <div id="lg-seizure-fields">
+          <div id="lg-seizure-fields" style="display:none">
             <div class="grid cols-2">
-              <div class="fgrp"><label class="flbl">Item / Drug</label><input class="fi" id="lg-drug" placeholder="e.g. Cocaine" /></div>
+              <div class="fgrp"><label class="flbl">Item Seized</label><input class="fi" id="lg-drug" placeholder="e.g. Cocaine / Pistol" /></div>
               <div class="fgrp"><label class="flbl">Quantity</label><input class="fi" id="lg-qty" type="number" placeholder="0" /></div>
             </div>
             <div class="fgrp"><label class="flbl">Street Value ($)</label><input class="fi" id="lg-value" type="number" placeholder="0" /></div>
           </div>
           <div class="grid cols-2">
-            <div class="fgrp"><label class="flbl">Operation Type</label><select class="fi" id="lg-op"><option>Patrol Stop</option><option>Traffic Stop</option><option>Search Warrant</option><option>Tactical Op</option><option>Pursuit</option></select></div>
+            <div class="fgrp"><label class="flbl">Operation Type</label><select class="fi" id="lg-op"><option>Patrol Stop</option><option>Traffic Stop</option><option>Search Warrant</option><option>Tactical Op</option><option>Pursuit</option><option>Call for Service</option></select></div>
             <div class="fgrp"><label class="flbl">Location</label><input class="fi" id="lg-loc" placeholder="e.g. Mirror Park" /></div>
           </div>
           <div class="fgrp"><label class="flbl">Assisting Officers</label><input class="fi" id="lg-assist" placeholder="Comma-separated names" /></div>
           <div class="fgrp"><label class="flbl">Notes</label><textarea class="fi" id="lg-notes"></textarea></div>
-
           <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:6px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
               <div class="section-title" style="margin:0">Arrested Persons</div>
-              <button class="btn" id="lg-add-arr" type="button">+ Add Person</button>
+              <button class="btn sm" id="lg-add-arr" type="button">+ Add Person</button>
             </div>
             <div id="lg-arr-rows"><div style="color:var(--ts);font-size:13px;font-style:italic">No arrests added.</div></div>
           </div>
@@ -312,7 +283,7 @@ tr:hover td{background:var(--bg2)}
 
       <!-- RECORDS -->
       <div class="dtab" id="dt-records">
-        <div class="card"><div class="section-title">Enforcement Records</div>
+        <div class="card"><div class="section-title">Arrest &amp; Seizure Logs</div>
           <div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Date</th><th>Type</th><th>Items</th><th>Value</th><th>Arrests</th><th>Location</th><th>Officer</th></tr></thead><tbody id="rec-body"></tbody></table></div>
         </div>
       </div>
@@ -320,11 +291,8 @@ tr:hover td{background:var(--bg2)}
       <!-- SUSPECTS -->
       <div class="dtab" id="dt-suspects">
         <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center"><div class="section-title" style="margin:0">Suspect Files</div></div>
-          <div class="grid cols-2" style="margin-top:12px">
-            <input class="fi" id="su-name" placeholder="Suspect name" />
-            <input class="fi" id="su-mug" type="file" accept="image/*" />
-          </div>
+          <div class="section-title">Suspect Files</div>
+          <div class="grid cols-2" style="margin-top:12px"><input class="fi" id="su-name" placeholder="Suspect name" /><input class="fi" id="su-mug" type="file" accept="image/*" /></div>
           <div class="fgrp" style="margin-top:10px"><input class="fi" id="su-notes" placeholder="Notes / affiliations (optional)" /></div>
           <button class="btn primary" id="su-add" style="margin-top:4px">+ Add Suspect</button>
           <div id="su-msg"></div>
@@ -332,20 +300,30 @@ tr:hover td{background:var(--bg2)}
         </div>
       </div>
 
+      <!-- LEADERBOARD -->
+      <div class="dtab" id="dt-leaderboard">
+        <div class="card"><div class="section-title">Activity Leaderboard</div>
+          <div style="font-size:12px;color:var(--ts);margin:2px 0 10px">Weighted score = (logs × 2) + (arrests × 3) + (value ÷ 10,000)</div>
+          <div style="overflow:auto"><table><thead><tr><th>#</th><th>Officer</th><th>Division</th><th>Logs</th><th>Arrests</th><th>Value</th><th>Score</th></tr></thead><tbody id="lb-body"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ANALYSIS -->
+      <div class="dtab" id="dt-analysis">
+        <div class="grid cols-2">
+          <div class="card"><div class="section-title">Logs by Type</div><canvas id="ch-type" height="200"></canvas></div>
+          <div class="card"><div class="section-title">Activity (last 14 days)</div><canvas id="ch-trend" height="200"></canvas></div>
+        </div>
+        <div class="card"><div class="section-title">Top Locations</div><canvas id="ch-loc" height="160"></canvas></div>
+      </div>
+
       <!-- DISPATCH -->
       <div class="dtab" id="dt-dispatch">
         <div class="card">
           <div class="section-title">New Dispatch</div>
           <div class="grid cols-3" style="margin-top:10px">
-            <select class="fi" id="dp-code">
-              <option value="10-26">10-26 — Traffic stop</option>
-              <option value="Code 4">Code 4 — Scene secure</option>
-              <option value="Code 6">Code 6 — Out for investigation</option>
-              <option value="Code 10">Code 10 — SWAT pre-call</option>
-              <option value="Code 11">Code 11 — SWAT activation</option>
-            </select>
-            <input class="fi" id="dp-loc" placeholder="Location" />
-            <button class="btn primary" id="dp-add">Broadcast</button>
+            <select class="fi" id="dp-code"><option value="10-26">10-26 — Traffic stop</option><option value="Code 4">Code 4 — Scene secure</option><option value="Code 6">Code 6 — Investigation</option><option value="Code 10">Code 10 — SWAT pre-call</option><option value="Code 11">Code 11 — SWAT activation</option></select>
+            <input class="fi" id="dp-loc" placeholder="Location" /><button class="btn primary" id="dp-add">Broadcast</button>
           </div>
           <input class="fi" id="dp-notes" placeholder="Notes (optional)" style="margin-top:10px" />
           <div id="dp-msg"></div>
@@ -353,14 +331,38 @@ tr:hover td{background:var(--bg2)}
         </div>
       </div>
 
-      <!-- APPLICATIONS (admin) -->
-      <div class="dtab" id="dt-apps">
-        <div class="card"><div class="section-title">Divisional Applications</div>
-          <div id="apps-list" style="margin-top:12px"></div>
+      <!-- COMMAND LOG -->
+      <div class="dtab" id="dt-command">
+        <div class="card">
+          <div class="section-title">Command Log — Supervisors & Command Staff</div>
+          <div class="fgrp" style="margin-top:12px"><label class="flbl">Log Type *</label>
+            <select class="fi" id="cl-type">
+              <option value="off_duty">Off-Duty Log</option>
+              <option value="reassignment">Reassignment Log</option>
+              <option value="high_speed">High-Speed Pursuit Log</option>
+              <option value="command">Command Note</option>
+            </select>
+          </div>
+          <div class="fgrp"><label class="flbl">Officer Involved</label><input class="fi" id="cl-officer" placeholder="Officer name" /></div>
+          <div class="grid cols-2">
+            <div class="fgrp"><label class="flbl" id="cl-ref1-lbl">Reference 1</label><input class="fi" id="cl-ref1" /></div>
+            <div class="fgrp"><label class="flbl" id="cl-ref2-lbl">Reference 2</label><input class="fi" id="cl-ref2" /></div>
+          </div>
+          <div class="fgrp"><label class="flbl">Detail / Reason</label><textarea class="fi" id="cl-detail"></textarea></div>
+          <button class="sbtn" id="cl-submit">File Command Log</button>
+          <div id="cl-msg"></div>
+        </div>
+        <div class="card"><div class="section-title">Recent Command Logs</div>
+          <div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Date</th><th>Type</th><th>Officer</th><th>Ref 1</th><th>Ref 2</th><th>Detail</th><th></th></tr></thead><tbody id="cl-body"></tbody></table></div>
         </div>
       </div>
 
-      <!-- USERS (admin) -->
+      <!-- APPLICATIONS -->
+      <div class="dtab" id="dt-apps">
+        <div class="card"><div class="section-title">Divisional Applications</div><div id="apps-list" style="margin-top:12px"></div></div>
+      </div>
+
+      <!-- USERS -->
       <div class="dtab" id="dt-users">
         <div class="card"><div class="section-title">Officers</div>
           <div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Name</th><th>Badge</th><th>Rank</th><th>Division</th><th>Status</th><th>Role</th><th></th></tr></thead><tbody id="users-body"></tbody></table></div>
@@ -372,97 +374,77 @@ tr:hover td{background:var(--bg2)}
 
 <script>
 // ══════════ CONFIG ══════════
-const SUPABASE_URL = 'https://bmamckgbanaudewanylf.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_WXuN9DQa14hhCeCQ5gkcMA_N5sO5y80';
-const BUCKET = 'mugshots';
-let _sb = null;
-function db(){ if(!_sb) _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); return _sb; }
-let me = null, officer = null;
+const SUPABASE_URL='https://bmamckgbanaudewanylf.supabase.co';
+const SUPABASE_KEY='sb_publishable_WXuN9DQa14hhCeCQ5gkcMA_N5sO5y80';
+const BUCKET='mugshots';
+const VICE_URL='https://vice-unit.com';
+const SUPER_RANKS=['Sergeant','Lieutenant','Captain'];
+let _sb=null; function db(){if(!_sb)_sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);return _sb;}
+let me=null,officer=null,charts={};
 
-// ══════════ HELPERS ══════════
-const $ = id => document.getElementById(id);
-const esc = s => s==null?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const fmtDate = iso => new Date(iso).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-const fmtVal = n => { n=Number(n)||0; if(n>=1e6)return'$'+(n/1e6).toFixed(1)+'M'; if(n>=1000)return'$'+Math.round(n/1000)+'k'; return'$'+n.toLocaleString(); };
-function typeLabel(l){return l.log_type==='arrest'?'Trafficking Arrest':l.log_type==='both'?'Narcotics & Firearms':l.log_type==='firearm'?'Firearms':'Narcotics';}
+const $=id=>document.getElementById(id);
+const esc=s=>s==null?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmtDate=iso=>new Date(iso).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+const fmtVal=n=>{n=Number(n)||0;if(n>=1e6)return'$'+(n/1e6).toFixed(1)+'M';if(n>=1000)return'$'+Math.round(n/1000)+'k';return'$'+n.toLocaleString();};
+function typeLabel(l){return l.log_type==='arrest'?'Arrest':l.log_type==='both'?'Drugs & Firearms':l.log_type==='firearm'?'Firearms':'Narcotics';}
 function typeCls(l){return l.log_type==='arrest'?'bg-blue':l.log_type==='both'?'bg-gold':l.log_type==='firearm'?'bg-blue':'bg-red';}
-function itemStr(l){if(l.log_type==='arrest')return'Contraband / Undisclosed Goods';return [l.drug,l.firearm].filter(Boolean).join(' · ')||'—';}
-function showMsg(id,text,type){const el=$(id);if(!el)return;el.innerHTML='<div class="msg msg-'+(type==='ok'?'ok':'err')+'">'+esc(text)+'</div>';}
+function itemStr(l){if(l.log_type==='arrest')return'—';return [l.drug,l.firearm].filter(Boolean).join(' · ')||'—';}
+function showMsg(id,t,k){const el=$(id);if(el)el.innerHTML='<div class="msg msg-'+(k==='ok'?'ok':'err')+'">'+esc(t)+'</div>';}
 function clearMsg(id){const el=$(id);if(el)el.innerHTML='';}
+const isSuper=()=>officer&&(officer.role==='admin'||SUPER_RANKS.includes(officer.rank));
 
 // ══════════ NAV ══════════
-function showPage(name){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  const pg=$('pg-'+name); if(pg)pg.classList.add('active');
-  if(name==='public')loadPublicStats();
-  window.scrollTo(0,0);
-}
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const pg=$('pg-'+name);if(pg)pg.classList.add('active');if(name==='public')loadPublicStats();window.scrollTo(0,0);}
 $('nav-public').onclick=()=>showPage('public');
 $('nav-apply').onclick=()=>showPage('apply');
 $('nav-faq').onclick=()=>showPage('faq');
 $('nav-login').onclick=()=>showPage('login');
 $('nav-dash').onclick=()=>{showPage('dash');loadDash();};
 $('pub-apply-cta').onclick=()=>showPage('apply');
-$('nav-logout').onclick=async()=>{await db().auth.signOut();me=null;officer=null;location.reload();};
-document.querySelectorAll('.divcard').forEach(c=>c.onclick=()=>{showPage('apply');$('app-division').value=c.dataset.div;});
-
-// FAQ accordion
-document.addEventListener('click',e=>{const q=e.target.closest('.faq-q');if(!q)return;const it=q.closest('.faq-item');const open=it.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));if(!open)it.classList.add('open');});
-
-// auth tabs
+$('nav-logout').onclick=async()=>{await db().auth.signOut();location.reload();};
+document.querySelectorAll('.divcard').forEach(c=>c.onclick=()=>{
+  if(c.dataset.vice){window.open(VICE_URL,'_blank');return;}
+  showPage('apply');$('app-division').value=c.dataset.div;
+});
+document.addEventListener('click',e=>{const q=e.target.closest('.faq-q');if(!q)return;const it=q.closest('.faq-item');const o=it.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));if(!o)it.classList.add('open');});
 $('tab-signin').onclick=()=>{$('signin-form').style.display='block';$('reg-form').style.display='none';clearMsg('auth-msg');};
 $('tab-register').onclick=()=>{$('signin-form').style.display='none';$('reg-form').style.display='block';clearMsg('auth-msg');};
-
-// dash tabs
 document.querySelectorAll('.sb-btn').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.sb-btn').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.dtab').forEach(x=>x.classList.remove('active'));
   b.classList.add('active');$('dt-'+b.dataset.tab).classList.add('active');
   const t=b.dataset.tab;
-  if(t==='records')loadRecords(); if(t==='suspects')loadSuspects();
-  if(t==='dispatch')loadDispatch(); if(t==='apps')loadApps(); if(t==='users')loadUsers();
+  if(t==='records')loadRecords();if(t==='suspects')loadSuspects();if(t==='dispatch')loadDispatch();
+  if(t==='leaderboard')loadLeaderboard();if(t==='analysis')loadAnalysis();if(t==='command')loadCommand();
+  if(t==='apps')loadApps();if(t==='users')loadUsers();
 });
 
-// ══════════ PUBLIC STATS ══════════
+// ══════════ PUBLIC ══════════
 async function loadPublicStats(){
   const {data:logs}=await db().from('seizure_logs').select('value,arrests');
   const {data:offs}=await db().from('officers').select('id').eq('verified',true);
-  if(logs){
-    $('hs-logs').textContent=logs.length;
-    $('hs-arrests').textContent=logs.reduce((a,l)=>a+(l.arrests||0),0);
-    $('hs-value').textContent=fmtVal(logs.reduce((a,l)=>a+(Number(l.value)||0),0));
-  }
+  if(logs){$('hs-logs').textContent=logs.length;$('hs-arrests').textContent=logs.reduce((a,l)=>a+(l.arrests||0),0);$('hs-value').textContent=fmtVal(logs.reduce((a,l)=>a+(Number(l.value)||0),0));}
   if(offs)$('hs-officers').textContent=offs.length;
   const {data:recent}=await db().from('seizure_logs').select('*').order('created_at',{ascending:false}).limit(6);
-  if(recent){
-    $('pub-recent').innerHTML = recent.length? recent.map(l=>
-      '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-d)"><span><span class="pill '+typeCls(l)+'">'+typeLabel(l)+'</span> '+esc(itemStr(l))+'</span><span style="color:var(--tt)">'+fmtDate(l.created_at)+'</span></div>'
-    ).join('') : 'No records yet.';
-  }
+  if(recent)$('pub-recent').innerHTML=recent.length?recent.map(l=>'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-d)"><span><span class="pill '+typeCls(l)+'">'+typeLabel(l)+'</span> '+esc(l.location||itemStr(l))+'</span><span style="color:var(--tt)">'+fmtDate(l.created_at)+'</span></div>').join(''):'No records yet.';
 }
 
-// ══════════ APPLICATIONS (public submit) ══════════
+// ══════════ APPLICATIONS (public) ══════════
 $('app-submit').onclick=async()=>{
-  const division=$('app-division').value, char_name=$('app-name').value.trim(),
-    discord=$('app-discord').value.trim(), email=$('app-email').value.trim(),
-    experience=$('app-exp').value.trim(), why=$('app-why').value.trim(),
-    backstory=$('app-backstory').value.trim();
-  if(!division||!char_name||!discord||!email||!experience||!why) return showMsg('app-msg','Please fill all required fields.','err');
+  const division=$('app-division').value,char_name=$('app-name').value.trim(),discord=$('app-discord').value.trim(),email=$('app-email').value.trim(),experience=$('app-exp').value.trim(),why=$('app-why').value.trim(),backstory=$('app-backstory').value.trim();
+  if(!division||!char_name||!discord||!email||!experience||!why)return showMsg('app-msg','Please fill all required fields.','err');
   $('app-submit').disabled=true;$('app-submit').textContent='Submitting…';
   const {error}=await db().from('applications').insert({char_name,discord,email,division,experience,why,backstory});
   $('app-submit').disabled=false;$('app-submit').textContent='Submit Application';
   if(error)return showMsg('app-msg',error.message,'err');
-  showMsg('app-msg','✅ Application submitted for '+division+'. Check back here for your status.','ok');
+  showMsg('app-msg','✅ Application submitted for '+division+'.','ok');
   ['app-name','app-discord','app-email','app-exp','app-why','app-backstory'].forEach(i=>$(i).value='');
 };
 $('chk-btn').onclick=async()=>{
-  const name=$('chk-name').value.trim(); if(!name)return;
+  const name=$('chk-name').value.trim();if(!name)return;
   const {data}=await db().from('applications').select('division,status,review_notes,created_at').ilike('char_name',name).order('created_at',{ascending:false});
-  if(!data||!data.length){$('chk-result').innerHTML='<div class="msg msg-err">No application found for that name.</div>';return;}
-  $('chk-result').innerHTML=data.map(a=>{
-    const cls=a.status==='approved'?'bg-green':a.status==='rejected'?'bg-red':'bg-gold';
-    return '<div class="card" style="margin:0 0 8px"><b>'+esc(a.division)+'</b> <span class="pill '+cls+'">'+a.status+'</span><div style="font-size:12px;color:var(--ts);margin-top:4px">'+fmtDate(a.created_at)+(a.review_notes?' · '+esc(a.review_notes):'')+'</div></div>';
-  }).join('');
+  if(!data||!data.length){$('chk-result').innerHTML='<div class="msg msg-err">No application found.</div>';return;}
+  $('chk-result').innerHTML=data.map(a=>{const cls=a.status==='approved'?'bg-green':a.status==='rejected'?'bg-red':'bg-gold';return '<div class="card" style="margin:0 0 8px"><b>'+esc(a.division)+'</b> <span class="pill '+cls+'">'+a.status+'</span><div style="font-size:12px;color:var(--ts);margin-top:4px">'+fmtDate(a.created_at)+(a.review_notes?' · '+esc(a.review_notes):'')+'</div></div>';}).join('');
 };
 
 // ══════════ AUTH ══════════
@@ -473,13 +455,11 @@ $('si-btn').onclick=async()=>{
   const {data,error}=await db().auth.signInWithPassword({email,password:pass});
   $('si-btn').disabled=false;$('si-btn').textContent='Sign In to Portal';
   if(error)return showMsg('auth-msg',error.message,'err');
-  me=data.user; await loadProfile();
+  me=data.user;await loadProfile();
 };
 $('si-pass').addEventListener('keydown',e=>{if(e.key==='Enter')$('si-btn').click();});
 $('reg-btn').onclick=async()=>{
-  const name=$('reg-name').value.trim(),badge=$('reg-badge').value.trim().toUpperCase(),
-    rank=$('reg-rank').value,email=$('reg-email').value.trim(),
-    pass=$('reg-pass').value,pass2=$('reg-pass2').value;
+  const name=$('reg-name').value.trim(),badge=$('reg-badge').value.trim().toUpperCase(),rank=$('reg-rank').value,division=$('reg-div').value,email=$('reg-email').value.trim(),pass=$('reg-pass').value,pass2=$('reg-pass2').value;
   if(!name||!badge||!email||!pass)return showMsg('auth-msg','All fields required.','err');
   if(pass.length<8)return showMsg('auth-msg','Password min 8 characters.','err');
   if(pass!==pass2)return showMsg('auth-msg','Passwords do not match.','err');
@@ -489,77 +469,61 @@ $('reg-btn').onclick=async()=>{
   const uid=data.user?.id;
   if(!uid){$('reg-btn').disabled=false;$('reg-btn').textContent='Create Account';return showMsg('auth-msg','Account created — please sign in.','ok');}
   await db().auth.signInWithPassword({email,password:pass});
+  const {data:sess}=await db().auth.getSession();
+  if(!sess?.session){$('reg-btn').disabled=false;$('reg-btn').textContent='Create Account';return showMsg('auth-msg','Account created but not signed in. Disable "Confirm email" in Supabase Auth settings, then sign in.','err');}
   const {data:existing}=await db().from('officers').select('id').limit(1);
   const isFirst=!existing||existing.length===0;
-  const {error:insErr}=await db().from('officers').insert({id:uid,name,badge,rank,role:isFirst?'admin':'officer',verified:isFirst});
+  const {error:insErr}=await db().from('officers').insert({id:uid,name,badge,rank,division,role:isFirst?'admin':'officer',verified:isFirst});
   $('reg-btn').disabled=false;$('reg-btn').textContent='Create Account';
   if(insErr)return showMsg('auth-msg','Profile error: '+insErr.message,'err');
   me=(await db().auth.getUser()).data.user;
   showMsg('auth-msg','Welcome, '+name+'!'+(isFirst?' Admin access granted.':' Pending verification.'),'ok');
   setTimeout(loadProfile,900);
 };
-
 async function loadProfile(){
   if(!me)return;
   const {data}=await db().from('officers').select('*').eq('id',me.id).single();
   officer=data;
   if(!officer)return showMsg('auth-msg','Officer profile not found. Contact an admin.','err');
-  if(!officer.verified&&officer.role!=='admin'){
-    showMsg('auth-msg','⏳ Your account is pending verification by an admin.','err');
-    await db().auth.signOut();me=null;officer=null;return;
-  }
+  if(!officer.verified&&officer.role!=='admin'){showMsg('auth-msg','⏳ Pending verification by an admin.','err');await db().auth.signOut();me=null;officer=null;return;}
   $('nav-login').style.display='none';$('nav-dash').style.display='';$('nav-logout').style.display='';
   $('dash-welcome').textContent='Welcome back, '+officer.rank+' '+officer.name.split(' ')[0];
-  $('dash-rank-badge').textContent=officer.rank;
-  $('duty-meta').textContent='Badge: '+officer.badge;
+  $('dash-rank-badge').textContent=officer.rank;$('duty-meta').textContent='Badge: '+officer.badge+' · '+(officer.division||'Patrol');
   if(officer.role==='admin')document.querySelectorAll('.admin-only').forEach(e=>e.style.display='');
+  if(isSuper())document.querySelectorAll('.supervisor-only').forEach(e=>e.style.display='');
   showPage('dash');loadDash();
 }
 
-// ══════════ DASHBOARD ══════════
+// ══════════ DASH OVERVIEW ══════════
 async function loadDash(){
   const {data:logs}=await db().from('seizure_logs').select('value,arrests');
-  if(logs){
-    $('ov-logs').textContent=logs.length;
-    $('ov-arrests').textContent=logs.reduce((a,l)=>a+(l.arrests||0),0);
-    $('ov-value').textContent=fmtVal(logs.reduce((a,l)=>a+(Number(l.value)||0),0));
-  }
+  if(logs){$('ov-logs').textContent=logs.length;$('ov-arrests').textContent=logs.reduce((a,l)=>a+(l.arrests||0),0);$('ov-value').textContent=fmtVal(logs.reduce((a,l)=>a+(Number(l.value)||0),0));}
   const {data:recent}=await db().from('seizure_logs').select('*').eq('officer_id',officer.id).order('created_at',{ascending:false}).limit(5);
-  $('ov-recent').innerHTML=(recent&&recent.length)?recent.map(l=>'<div style="padding:7px 0;border-bottom:1px solid var(--border-d)"><span class="pill '+typeCls(l)+'">'+typeLabel(l)+'</span> '+esc(itemStr(l))+' · '+fmtVal(l.value)+' <span style="color:var(--tt)">'+fmtDate(l.created_at)+'</span></div>').join(''):'No activity yet — file your first log.';
-  if(officer.role==='admin'){
-    const {data:apps}=await db().from('applications').select('id').eq('status','pending');
-    const b=$('apps-badge'); if(apps&&apps.length){b.style.display='';b.textContent=apps.length;}else b.style.display='none';
-  }
+  $('ov-recent').innerHTML=(recent&&recent.length)?recent.map(l=>'<div style="padding:7px 0;border-bottom:1px solid var(--border-d)"><span class="pill '+typeCls(l)+'">'+typeLabel(l)+'</span> '+esc(l.location||itemStr(l))+' · '+fmtVal(l.value)+' <span style="color:var(--tt)">'+fmtDate(l.created_at)+'</span></div>').join(''):'No activity yet.';
+  if(officer.role==='admin'){const {data:apps}=await db().from('applications').select('id').eq('status','pending');const b=$('apps-badge');if(apps&&apps.length){b.style.display='';b.textContent=apps.length;}else b.style.display='none';}
 }
 
-// log type toggle
+// ══════════ LOG ══════════
 $('lg-type').onchange=()=>{$('lg-seizure-fields').style.display=$('lg-type').value==='arrest'?'none':'block';};
-// arrestee rows
 $('lg-add-arr').onclick=()=>{
-  const wrap=$('lg-arr-rows');
-  if(!wrap.querySelector('.arr-row'))wrap.innerHTML='';
+  const wrap=$('lg-arr-rows');if(!wrap.querySelector('.arr-row'))wrap.innerHTML='';
   const row=document.createElement('div');row.className='arr-row';
-  row.innerHTML='<input class="fi arr-name" placeholder="Name" /><input class="fi arr-charge" placeholder="Charges (e.g. Transporting Illegal Goods)" /><button class="rm" type="button">✕</button>';
+  row.innerHTML='<input class="fi arr-name" placeholder="Name" /><input class="fi arr-charge" placeholder="Charges" /><button class="rm" type="button">✕</button>';
   row.querySelector('.rm').onclick=()=>{row.remove();if(!wrap.querySelector('.arr-row'))wrap.innerHTML='<div style="color:var(--ts);font-size:13px;font-style:italic">No arrests added.</div>';};
   wrap.appendChild(row);
 };
 $('lg-submit').onclick=async()=>{
   const type=$('lg-type').value;
-  const payload={officer_id:officer.id,log_type:type,op_type:$('lg-op').value,location:$('lg-loc').value.trim(),
-    assisting_officers:$('lg-assist').value.trim(),notes:$('lg-notes').value.trim()};
+  const payload={officer_id:officer.id,log_type:type,op_type:$('lg-op').value,location:$('lg-loc').value.trim(),assisting_officers:$('lg-assist').value.trim(),notes:$('lg-notes').value.trim()};
   if(type!=='arrest'){payload.drug=$('lg-drug').value.trim();payload.qty=Number($('lg-qty').value)||null;payload.value=Number($('lg-value').value)||0;}
-  const arrRows=[...document.querySelectorAll('#lg-arr-rows .arr-row')];
-  const arrestees=arrRows.map(r=>({name:r.querySelector('.arr-name').value.trim(),charges:r.querySelector('.arr-charge').value.trim()})).filter(a=>a.name);
+  const arrestees=[...document.querySelectorAll('#lg-arr-rows .arr-row')].map(r=>({name:r.querySelector('.arr-name').value.trim(),charges:r.querySelector('.arr-charge').value.trim()})).filter(a=>a.name);
   payload.arrests=arrestees.length;
-  if(type==='arrest'&&!arrestees.length)return showMsg('lg-msg','A Trafficking Arrest needs at least one arrested person.','err');
+  if(type==='arrest'&&!arrestees.length)return showMsg('lg-msg','An arrest log needs at least one arrested person.','err');
   $('lg-submit').disabled=true;$('lg-submit').textContent='Submitting…';
   const {data:newLog,error}=await db().from('seizure_logs').insert(payload).select().single();
   if(error){$('lg-submit').disabled=false;$('lg-submit').textContent='Submit Log';return showMsg('lg-msg',error.message,'err');}
   if(arrestees.length){
-    for(const a of arrestees){
-      const {data:susp}=await db().from('suspects').select('id').ilike('name',a.name).maybeSingle();
-      a.suspect_id=susp?susp.id:null;
-    }
+    for(const a of arrestees){const {data:s}=await db().from('suspects').select('id').ilike('name',a.name).maybeSingle();a.suspect_id=s?s.id:null;}
     await db().from('log_arrestees').insert(arrestees.map(a=>({log_id:newLog.id,name:a.name,charges:a.charges,suspect_id:a.suspect_id})));
   }
   $('lg-submit').disabled=false;$('lg-submit').textContent='Submit Log';
@@ -570,9 +534,8 @@ $('lg-submit').onclick=async()=>{
 };
 
 async function loadRecords(){
-  const {data:logs}=await db().from('seizure_logs').select('*').order('created_at',{ascending:false}).limit(100);
-  const ids=(logs||[]).map(l=>l.officer_id).filter(Boolean);
-  let names={};
+  const {data:logs}=await db().from('seizure_logs').select('*').order('created_at',{ascending:false}).limit(150);
+  const ids=(logs||[]).map(l=>l.officer_id).filter(Boolean);let names={};
   if(ids.length){const {data:offs}=await db().from('officers').select('id,name').in('id',ids);(offs||[]).forEach(o=>names[o.id]=o.name);}
   $('rec-body').innerHTML=(logs||[]).map(l=>'<tr><td>'+fmtDate(l.created_at)+'</td><td><span class="pill '+typeCls(l)+'">'+typeLabel(l)+'</span></td><td>'+esc(itemStr(l))+'</td><td>'+fmtVal(l.value)+'</td><td>'+(l.arrests||0)+'</td><td>'+esc(l.location||'—')+'</td><td>'+esc(names[l.officer_id]||'—')+'</td></tr>').join('')||'<tr><td colspan="7" style="color:var(--ts)">No records.</td></tr>';
 }
@@ -581,47 +544,68 @@ async function loadRecords(){
 $('su-add').onclick=async()=>{
   const name=$('su-name').value.trim(),notes=$('su-notes').value.trim(),file=$('su-mug').files[0];
   if(!name)return showMsg('su-msg','Enter a name.','err');
-  $('su-add').disabled=true;
-  let mugshot_url=null;
-  if(file){
-    const path=Date.now()+'_'+file.name.replace(/[^a-z0-9.]/gi,'_');
-    const {error:upErr}=await db().storage.from(BUCKET).upload(path,file,{upsert:true});
-    if(!upErr)mugshot_url=db().storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-  }
+  $('su-add').disabled=true;let mugshot_url=null;
+  if(file){const path=Date.now()+'_'+file.name.replace(/[^a-z0-9.]/gi,'_');const {error:e}=await db().storage.from(BUCKET).upload(path,file,{upsert:true});if(!e)mugshot_url=db().storage.from(BUCKET).getPublicUrl(path).data.publicUrl;}
   const {error}=await db().from('suspects').insert({name,notes,mugshot_url});
   $('su-add').disabled=false;
   if(error)return showMsg('su-msg',error.message,'err');
-  showMsg('su-msg','✅ Suspect added.','ok');$('su-name').value='';$('su-notes').value='';$('su-mug').value='';
-  loadSuspects();
+  showMsg('su-msg','✅ Suspect added.','ok');$('su-name').value='';$('su-notes').value='';$('su-mug').value='';loadSuspects();
 };
 async function loadSuspects(){
   const {data}=await db().from('suspects').select('*').order('created_at',{ascending:false});
   $('su-list').innerHTML=(data||[]).map(s=>'<div class="card" style="margin:0;text-align:center">'+(s.mugshot_url?'<img src="'+esc(s.mugshot_url)+'" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px">':'<div style="height:120px;background:var(--bg2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:8px">🕵️</div>')+'<b>'+esc(s.name)+'</b><div style="font-size:12px;color:var(--ts);margin-top:4px">'+esc(s.notes||'')+'</div></div>').join('')||'<div style="color:var(--ts);font-size:13px">No suspects on file.</div>';
 }
 
-// ══════════ DISPATCH ══════════
-$('dp-add').onclick=async()=>{
-  const {error}=await db().from('dispatch_calls').insert({officer_id:officer.id,code:$('dp-code').value,location:$('dp-loc').value.trim(),notes:$('dp-notes').value.trim()});
-  if(error)return showMsg('dp-msg',error.message,'err');
-  $('dp-loc').value='';$('dp-notes').value='';loadDispatch();
-};
-async function loadDispatch(){
-  const {data}=await db().from('dispatch_calls').select('*').order('created_at',{ascending:false}).limit(40);
-  $('dp-body').innerHTML=(data||[]).map(d=>'<tr><td>'+new Date(d.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+'</td><td><b>'+esc(d.code)+'</b></td><td>'+esc(d.location||'—')+'</td><td><span class="pill '+(d.status==='active'?'bg-green':'bg-grey')+'">'+d.status+'</span></td><td>'+(d.status==='active'?'<button class="btn" onclick="resolveCall(\''+d.id+'\')">Resolve</button>':'')+'</td></tr>').join('')||'<tr><td colspan="5" style="color:var(--ts)">No calls.</td></tr>';
+// ══════════ LEADERBOARD ══════════
+async function loadLeaderboard(){
+  const {data:logs}=await db().from('seizure_logs').select('officer_id,arrests,value');
+  const {data:offs}=await db().from('officers').select('id,name,division').eq('verified',true);
+  const map={};(offs||[]).forEach(o=>map[o.id]={name:o.name,division:o.division||'—',logs:0,arrests:0,value:0});
+  (logs||[]).forEach(l=>{if(!l.officer_id||!map[l.officer_id])return;const m=map[l.officer_id];m.logs++;m.arrests+=l.arrests||0;m.value+=Number(l.value)||0;});
+  const rows=Object.values(map).map(m=>({...m,score:Math.round(m.logs*2+m.arrests*3+m.value/10000)})).sort((a,b)=>b.score-a.score);
+  $('lb-body').innerHTML=rows.map((r,i)=>'<tr><td class="lb-rank">'+(i+1)+'</td><td>'+esc(r.name)+'</td><td><span class="tag">'+esc(r.division)+'</span></td><td>'+r.logs+'</td><td>'+r.arrests+'</td><td>'+fmtVal(r.value)+'</td><td><b style="color:var(--gold2)">'+r.score+'</b></td></tr>').join('')||'<tr><td colspan="7" style="color:var(--ts)">No data.</td></tr>';
 }
+
+// ══════════ ANALYSIS ══════════
+async function loadAnalysis(){
+  const {data:logs}=await db().from('seizure_logs').select('log_type,value,arrests,location,created_at');
+  const L=logs||[];
+  const types={arrest:0,drug:0,firearm:0,both:0};L.forEach(l=>{types[l.log_type]=(types[l.log_type]||0)+1;});
+  mkChart('ch-type','doughnut',{labels:['Arrests','Narcotics','Firearms','Drugs & Firearms'],datasets:[{data:[types.arrest,types.drug,types.firearm,types.both],backgroundColor:['#3b82f6','#ef4444','#2f6bff','#6aa3ff']}]});
+  const days=[],counts=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const key=d.toISOString().slice(0,10);days.push(d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'}));counts.push(L.filter(l=>(l.created_at||'').slice(0,10)===key).length);}
+  mkChart('ch-trend','line',{labels:days,datasets:[{label:'Logs',data:counts,borderColor:'#6aa3ff',backgroundColor:'rgba(106,163,255,.15)',fill:true,tension:.3}]});
+  const loc={};L.forEach(l=>{if(l.location)loc[l.location]=(loc[l.location]||0)+1;});
+  const top=Object.entries(loc).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  mkChart('ch-loc','bar',{labels:top.map(t=>t[0]),datasets:[{label:'Logs',data:top.map(t=>t[1]),backgroundColor:'#2f6bff'}]});
+}
+function mkChart(id,type,data){if(charts[id])charts[id].destroy();const ctx=$(id);if(!ctx)return;charts[id]=new Chart(ctx,{type,data,options:{responsive:true,plugins:{legend:{labels:{color:'#9aa3b5'}}},scales:type==='doughnut'?{}:{x:{ticks:{color:'#9aa3b5'},grid:{color:'#222b3a'}},y:{ticks:{color:'#9aa3b5'},grid:{color:'#222b3a'}}}}});}
+
+// ══════════ DISPATCH ══════════
+$('dp-add').onclick=async()=>{const {error}=await db().from('dispatch_calls').insert({officer_id:officer.id,code:$('dp-code').value,location:$('dp-loc').value.trim(),notes:$('dp-notes').value.trim()});if(error)return showMsg('dp-msg',error.message,'err');$('dp-loc').value='';$('dp-notes').value='';loadDispatch();};
+async function loadDispatch(){const {data}=await db().from('dispatch_calls').select('*').order('created_at',{ascending:false}).limit(40);$('dp-body').innerHTML=(data||[]).map(d=>'<tr><td>'+new Date(d.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+'</td><td><b>'+esc(d.code)+'</b></td><td>'+esc(d.location||'—')+'</td><td><span class="pill '+(d.status==='active'?'bg-green':'bg-grey')+'">'+d.status+'</span></td><td>'+(d.status==='active'?'<button class="btn sm" onclick="resolveCall(\''+d.id+'\')">Resolve</button>':'')+'</td></tr>').join('')||'<tr><td colspan="5" style="color:var(--ts)">No calls.</td></tr>';}
 window.resolveCall=async id=>{await db().from('dispatch_calls').update({status:'resolved'}).eq('id',id);loadDispatch();};
+
+// ══════════ COMMAND LOG ══════════
+const CL_LABELS={off_duty:['Duration','— (unused)'],reassignment:['From Division','To Division'],high_speed:['Top Speed','Vehicle / Location'],command:['Subject','Reference']};
+$('cl-type').onchange=()=>{const l=CL_LABELS[$('cl-type').value];$('cl-ref1-lbl').textContent=l[0];$('cl-ref2-lbl').textContent=l[1];};
+$('cl-type').dispatchEvent(new Event('change'));
+$('cl-submit').onclick=async()=>{
+  if(!isSuper())return showMsg('cl-msg','Supervisor access required.','err');
+  const {error}=await db().from('command_logs').insert({officer_id:officer.id,log_type:$('cl-type').value,officer_name:$('cl-officer').value.trim(),ref1:$('cl-ref1').value.trim(),ref2:$('cl-ref2').value.trim(),detail:$('cl-detail').value.trim()});
+  if(error)return showMsg('cl-msg',error.message,'err');
+  showMsg('cl-msg','✅ Command log filed.','ok');['cl-officer','cl-ref1','cl-ref2','cl-detail'].forEach(i=>$(i).value='');loadCommand();
+};
+const CL_NAME={off_duty:'Off-Duty',reassignment:'Reassignment',high_speed:'High-Speed',command:'Command'};
+async function loadCommand(){
+  const {data}=await db().from('command_logs').select('*').order('created_at',{ascending:false}).limit(80);
+  $('cl-body').innerHTML=(data||[]).map(c=>'<tr><td>'+fmtDate(c.created_at)+'</td><td><span class="pill bg-gold">'+(CL_NAME[c.log_type]||c.log_type)+'</span></td><td>'+esc(c.officer_name||'—')+'</td><td>'+esc(c.ref1||'—')+'</td><td>'+esc(c.ref2||'—')+'</td><td>'+esc(c.detail||'—')+'</td><td>'+(officer.role==='admin'?'<button class="rm" onclick="delCmd(\''+c.id+'\')">✕</button>':'')+'</td></tr>').join('')||'<tr><td colspan="7" style="color:var(--ts)">No command logs.</td></tr>';
+}
+window.delCmd=async id=>{if(!confirm('Delete this command log?'))return;await db().from('command_logs').delete().eq('id',id);loadCommand();};
 
 // ══════════ APPLICATIONS (admin) ══════════
 async function loadApps(){
   const {data}=await db().from('applications').select('*').order('created_at',{ascending:false});
-  $('apps-list').innerHTML=(data||[]).map(a=>{
-    const cls=a.status==='approved'?'bg-green':a.status==='rejected'?'bg-red':'bg-gold';
-    return '<div class="card" style="margin:0 0 10px"><div style="display:flex;justify-content:space-between;align-items:start"><div><b>'+esc(a.char_name)+'</b> <span class="pill '+cls+'">'+a.status+'</span> <span class="tag">'+esc(a.division)+'</span><div style="font-size:12px;color:var(--ts);margin-top:4px">Discord: '+esc(a.discord||'—')+' · '+esc(a.email||'—')+'</div></div><div style="font-size:11px;color:var(--tt)">'+fmtDate(a.created_at)+'</div></div>'+
-      '<div style="font-size:13px;color:var(--ts);margin-top:8px"><b>Experience:</b> '+esc(a.experience||'—')+'</div>'+
-      '<div style="font-size:13px;color:var(--ts);margin-top:4px"><b>Why:</b> '+esc(a.why||'—')+'</div>'+
-      (a.backstory?'<div style="font-size:13px;color:var(--ts);margin-top:4px"><b>Backstory:</b> '+esc(a.backstory)+'</div>':'')+
-      '<div style="margin-top:10px;display:flex;gap:6px">'+(a.status==='pending'?'<button class="btn primary" onclick="setApp(\''+a.id+'\',\'approved\')">Approve</button><button class="btn danger" onclick="setApp(\''+a.id+'\',\'rejected\')">Reject</button>':'')+'<button class="btn" onclick="delApp(\''+a.id+'\')">Delete</button></div></div>';
-  }).join('')||'<div style="color:var(--ts);font-size:13px">No applications.</div>';
+  $('apps-list').innerHTML=(data||[]).map(a=>{const cls=a.status==='approved'?'bg-green':a.status==='rejected'?'bg-red':'bg-gold';return '<div class="card" style="margin:0 0 10px"><div style="display:flex;justify-content:space-between;align-items:start"><div><b>'+esc(a.char_name)+'</b> <span class="pill '+cls+'">'+a.status+'</span> <span class="tag">'+esc(a.division)+'</span><div style="font-size:12px;color:var(--ts);margin-top:4px">Discord: '+esc(a.discord||'—')+' · '+esc(a.email||'—')+'</div></div><div style="font-size:11px;color:var(--tt)">'+fmtDate(a.created_at)+'</div></div><div style="font-size:13px;color:var(--ts);margin-top:8px"><b>Experience:</b> '+esc(a.experience||'—')+'</div><div style="font-size:13px;color:var(--ts);margin-top:4px"><b>Why:</b> '+esc(a.why||'—')+'</div>'+(a.backstory?'<div style="font-size:13px;color:var(--ts);margin-top:4px"><b>Backstory:</b> '+esc(a.backstory)+'</div>':'')+'<div style="margin-top:10px;display:flex;gap:6px">'+(a.status==='pending'?'<button class="btn primary sm" onclick="setApp(\''+a.id+'\',\'approved\')">Approve</button><button class="btn danger sm" onclick="setApp(\''+a.id+'\',\'rejected\')">Reject</button>':'')+'<button class="btn sm" onclick="delApp(\''+a.id+'\')">Delete</button></div></div>';}).join('')||'<div style="color:var(--ts);font-size:13px">No applications.</div>';
 }
 window.setApp=async(id,status)=>{await db().from('applications').update({status}).eq('id',id);loadApps();loadDash();};
 window.delApp=async id=>{if(!confirm('Delete this application?'))return;await db().from('applications').delete().eq('id',id);loadApps();};
@@ -629,21 +613,14 @@ window.delApp=async id=>{if(!confirm('Delete this application?'))return;await db
 // ══════════ USERS (admin) ══════════
 async function loadUsers(){
   const {data}=await db().from('officers').select('*').order('created_at');
-  $('users-body').innerHTML=(data||[]).map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+esc(o.badge)+'</td><td>'+esc(o.rank)+'</td><td>'+esc(o.division||'—')+'</td><td><span class="pill '+(o.verified?'bg-green':'bg-gold')+'">'+(o.verified?'verified':'pending')+'</span></td><td>'+esc(o.role)+'</td><td style="display:flex;gap:4px">'+
-    (!o.verified?'<button class="btn" onclick="verifyOff(\''+o.id+'\')">Verify</button>':'')+
-    (o.role!=='admin'?'<button class="btn" onclick="promoteOff(\''+o.id+'\')">Make Admin</button>':'')+
-    (o.id!==officer.id?'<button class="rm" onclick="delOff(\''+o.id+'\')">✕</button>':'')+'</td></tr>').join('')||'<tr><td colspan="7" style="color:var(--ts)">No officers.</td></tr>';
+  $('users-body').innerHTML=(data||[]).map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+esc(o.badge)+'</td><td>'+esc(o.rank)+'</td><td>'+esc(o.division||'—')+'</td><td><span class="pill '+(o.verified?'bg-green':'bg-gold')+'">'+(o.verified?'verified':'pending')+'</span></td><td>'+esc(o.role)+'</td><td style="display:flex;gap:4px">'+(!o.verified?'<button class="btn sm" onclick="verifyOff(\''+o.id+'\')">Verify</button>':'')+(o.role!=='admin'?'<button class="btn sm" onclick="promoteOff(\''+o.id+'\')">Make Admin</button>':'')+(o.id!==officer.id?'<button class="rm" onclick="delOff(\''+o.id+'\')">✕</button>':'')+'</td></tr>').join('')||'<tr><td colspan="7" style="color:var(--ts)">No officers.</td></tr>';
 }
 window.verifyOff=async id=>{await db().from('officers').update({verified:true}).eq('id',id);loadUsers();};
 window.promoteOff=async id=>{if(!confirm('Make this officer an admin?'))return;await db().from('officers').update({role:'admin'}).eq('id',id);loadUsers();};
 window.delOff=async id=>{if(!confirm('Remove this officer?'))return;await db().from('officers').delete().eq('id',id);loadUsers();};
 
 // ══════════ INIT ══════════
-(async()=>{
-  loadPublicStats();
-  const {data}=await db().auth.getSession();
-  if(data?.session){me=data.session.user;await loadProfile();}
-})();
+(async()=>{loadPublicStats();const {data}=await db().auth.getSession();if(data?.session){me=data.session.user;await loadProfile();}})();
 </script>
 </body>
 </html>
