@@ -29,7 +29,13 @@ a{color:var(--gold2);text-decoration:none}
 
 /* HERO with banner */
 .hero{position:relative;border-radius:18px;overflow:hidden;margin-bottom:22px;border:1px solid var(--border)}
-.hero-bg{position:absolute;inset:0;background:#0a0e16 center/cover no-repeat;background-image:linear-gradient(180deg,rgba(7,10,15,.45),rgba(7,10,15,.92)),url('lspd-banner.png')}
+.hero-bg{position:absolute;inset:0;background:
+  radial-gradient(900px 380px at 50% -10%,rgba(47,107,255,.32),transparent 60%),
+  radial-gradient(600px 300px at 12% 120%,rgba(239,68,68,.18),transparent 60%),
+  radial-gradient(600px 300px at 88% 120%,rgba(47,107,255,.22),transparent 60%),
+  linear-gradient(180deg,#0c1730,#070a0f);
+  background-size:cover}
+.hero-bg::after{content:"🛡️";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:280px;opacity:.05;filter:grayscale(1)}
 .hero-inner{position:relative;padding:60px 24px 34px;text-align:center}
 .hero-eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold2);margin-bottom:12px}
 .hero-inner h1{font-size:2.7rem;font-weight:900;letter-spacing:2px;text-shadow:0 2px 20px rgba(0,0,0,.6)}
@@ -378,6 +384,9 @@ const SUPABASE_URL='https://bmamckgbanaudewanylf.supabase.co';
 const SUPABASE_KEY='sb_publishable_WXuN9DQa14hhCeCQ5gkcMA_N5sO5y80';
 const BUCKET='mugshots';
 const VICE_URL='https://vice-unit.com';
+// Banner image: paste a hosted URL here (e.g. a Supabase Storage public URL),
+// or leave as 'lspd-banner.png' to use a local file beside index.html.
+const BANNER_URL='lspd-banner.png';
 const SUPER_RANKS=['Sergeant','Lieutenant','Captain'];
 let _sb=null; function db(){if(!_sb)_sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);return _sb;}
 let me=null,officer=null,charts={};
@@ -620,7 +629,10 @@ window.promoteOff=async id=>{if(!confirm('Make this officer an admin?'))return;a
 window.delOff=async id=>{if(!confirm('Remove this officer?'))return;await db().from('officers').delete().eq('id',id);loadUsers();};
 
 // ══════════ INIT ══════════
-(async()=>{loadPublicStats();const {data}=await db().auth.getSession();if(data?.session){me=data.session.user;await loadProfile();}})();
+(async()=>{
+  const hb=document.querySelector('.hero-bg');
+  if(hb&&/^https?:\/\//.test(BANNER_URL))hb.style.backgroundImage="linear-gradient(180deg,rgba(7,10,15,.45),rgba(7,10,15,.92)),url('"+BANNER_URL+"')";
+  loadPublicStats();const {data}=await db().auth.getSession();if(data?.session){me=data.session.user;await loadProfile();}})();
 </script>
 </body>
 </html>
