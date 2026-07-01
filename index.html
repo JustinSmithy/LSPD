@@ -36,7 +36,8 @@ body>nav{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.97);border-
 .page{display:none}
 .page.active{display:block}
 #pg-dash{display:none}
-#pg-dash.active{display:flex;flex-direction:column;min-height:100vh}
+#pg-dash.active{display:flex;flex-direction:column;min-height:100vh;align-items:stretch}
+#pg-dash .sec{width:100%}
 
 /* hero */
 .hero{min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem 3rem;position:relative;overflow:hidden;background:
@@ -105,6 +106,8 @@ body>nav{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.97);border-
 .hb-badge-r{background:rgba(214,69,69,.18);color:#f08080;border:1px solid rgba(214,69,69,.3)}
 .hb-amber{color:#e0b25a;font-weight:600}
 .hb-footer-note{font-size:11px;color:var(--ts);text-align:center;padding:2rem 0;border-top:1px solid var(--border-d);margin-top:2rem;line-height:1.6}
+.dmv-sub-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.dmv-sub-hd h3{font-size:16px;font-weight:700;color:var(--red-l)}
 
 /* ===== Dashboard v2 ===== */
 .lb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:1.5rem}
@@ -888,8 +891,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     <div class="nl">
       <button class="btn" onclick="showDash('overview')">Overview</button>
       <button class="btn" onclick="showDash('arrests')">Arrests</button>
-      <button class="btn" onclick="showDash('impounds')">Impounds</button>
-      <button class="btn" onclick="showDash('tickets')">Tickets</button>
+      <button class="btn" onclick="showDash('dmv')">DMV / Enforcement</button>
       <button class="btn" onclick="showDash('suspects')">Suspects</button>
       <button class="btn" onclick="showDash('analysis')">Analysis</button>
       <button class="btn" onclick="showDash('applications')" id="nav-apps-btn" style="display:none">Applications</button>
@@ -952,28 +954,29 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     <div class="grid-cards" id="arrests-list"><div class="empty">Loading…</div></div>
   </div>
 
-  <!-- IMPOUNDS -->
-  <div class="sec" id="dash-impounds" style="display:none">
+  <!-- DMV / PARKING ENFORCEMENT (impounds + tickets) -->
+  <div class="sec" id="dash-dmv" style="display:none">
     <div class="sec-hd">
-      <div><div class="tag">Records</div><h2>Impound Log</h2><p>Vehicles impounded department-wide.</p></div>
+      <div><div class="tag">DMV · Parking Enforcement</div><h2>Impounds &amp; Tickets</h2><p>Vehicle impounds and issued citations, department-wide.</p></div>
+    </div>
+
+    <div class="dmv-sub-hd">
+      <h3>🚗 Impounds</h3>
       <button class="btn primary" id="new-impound-btn" onclick="openImpoundModal()">+ Log Impound</button>
     </div>
-    <input class="fi" id="impounds-search" placeholder="🔍 Search vehicle, plate, owner, officer…" style="margin-bottom:1.2rem" oninput="renderImpounds()">
-    <div class="tbl-wrap">
+    <input class="fi" id="impounds-search" placeholder="🔍 Search vehicle, plate, owner, officer…" style="margin-bottom:1rem" oninput="renderImpounds()">
+    <div class="tbl-wrap" style="margin-bottom:2.5rem">
       <table>
         <thead><tr><th>Vehicle</th><th>Plate</th><th>Owner</th><th>Reason</th><th>Fee</th><th>Officer</th><th>Status</th><th>Date</th><th></th></tr></thead>
         <tbody id="impounds-table-body"><tr><td colspan="9" class="empty">Loading…</td></tr></tbody>
       </table>
     </div>
-  </div>
 
-  <!-- TICKETS -->
-  <div class="sec" id="dash-tickets" style="display:none">
-    <div class="sec-hd">
-      <div><div class="tag">Records</div><h2>Ticket Log</h2><p>Citations issued department-wide.</p></div>
+    <div class="dmv-sub-hd">
+      <h3>🎫 Tickets</h3>
       <button class="btn primary" id="new-ticket-btn" onclick="openTicketModal()">+ Issue Ticket</button>
     </div>
-    <input class="fi" id="tickets-search" placeholder="🔍 Search recipient, plate, violation, officer…" style="margin-bottom:1.2rem" oninput="renderTickets()">
+    <input class="fi" id="tickets-search" placeholder="🔍 Search recipient, plate, violation, officer…" style="margin-bottom:1rem" oninput="renderTickets()">
     <div class="tbl-wrap">
       <table>
         <thead><tr><th>Recipient</th><th>Plate</th><th>Violation</th><th>Fine</th><th>Officer</th><th>Status</th><th>Date</th><th></th></tr></thead>
@@ -1231,6 +1234,7 @@ function $(id){return document.getElementById(id)}
 function escapeHTML(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function money(n){ return '$' + (Number(n)||0).toLocaleString(); }
 function fmtDate(d){ return d ? new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'; }
+function closeModal(id){ const el=$(id); if(el) el.style.display='none'; }
 
 /* ---------------- NAV / PAGES ---------------- */
 function showPage(name){
@@ -1439,13 +1443,12 @@ let _chargeActiveIdx = -1;
 
 /* ---------------- DASHBOARD NAV ---------------- */
 function showDash(section){
-  ['overview','arrests','impounds','tickets','suspects','analysis','applications'].forEach(s=>{
+  ['overview','arrests','dmv','suspects','analysis','applications'].forEach(s=>{
     const el = $('dash-'+s); if(el) el.style.display = s===section ? 'block':'none';
   });
   if(section==='overview') loadOverview();
   if(section==='arrests') loadArrests();
-  if(section==='impounds') loadImpounds();
-  if(section==='tickets') loadTickets();
+  if(section==='dmv'){ loadImpounds(); loadTickets(); }
   if(section==='suspects') loadSuspects();
   if(section==='analysis') loadAnalysis();
   if(section==='applications') { loadApplications(); loadRoster(); }
