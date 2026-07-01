@@ -196,6 +196,21 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       </div>
     </div>
   </div>
+
+  <div class="sec">
+    <div class="sec-hd">
+      <div>
+        <div class="tag">Public Record</div>
+        <h2>Recent Department Activity</h2>
+        <p>Latest arrests and seizures logged department-wide. Sign in as an officer to log new records.</p>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <div class="tbl-head"><h3>Activity Log</h3></div>
+      <div id="public-recent"><div class="empty">Loading…</div></div>
+    </div>
+  </div>
+
   <footer>LSPD Operations — Internal Department System · Not affiliated with any real law enforcement agency</footer>
 </div>
 
@@ -451,14 +466,55 @@ function authMsg(el,text,ok){ $(el).innerHTML = `<div class="msg ${ok?'msg-ok':'
 
 /* ---------------- HOME STATS ---------------- */
 async function loadHomeStats(){
-  const [{count:ac}, {count:sc}, {count:oc}] = await Promise.all([
-    sb.from('arrests').select('*',{count:'exact',head:true}),
-    sb.from('seizures').select('*',{count:'exact',head:true}),
-    sb.from('officers').select('*',{count:'exact',head:true}).eq('status','approved')
-  ]);
-  $('hs-arrests').textContent = ac ?? 0;
-  $('hs-seizures').textContent = sc ?? 0;
-  $('hs-officers').textContent = oc ?? 0;
+  try{
+    const [arRes, szRes, ofRes] = await Promise.all([
+      sb.from('arrests').select('*',{count:'exact',head:true}),
+      sb.from('seizures').select('*',{count:'exact',head:true}),
+      sb.from('officers').select('*',{count:'exact',head:true}).eq('status','approved')
+    ]);
+    if(arRes.error) throw arRes.error;
+    if(szRes.error) throw szRes.error;
+    if(ofRes.error) throw ofRes.error;
+    $('hs-arrests').textContent = arRes.count ?? 0;
+    $('hs-seizures').textContent = szRes.count ?? 0;
+    $('hs-officers').textContent = ofRes.count ?? 0;
+  }catch(err){
+    console.error('loadHomeStats error: ' + (err && (err.message || err.details || String(err))));
+    $('hs-arrests').textContent = '0';
+    $('hs-seizures').textContent = '0';
+    $('hs-officers').textContent = '0';
+    const el = $('public-recent');
+    if(el) el.innerHTML = `<div class="empty">Database error: ${escapeHTML(err?.message || err?.details || String(err))}</div>`;
+    return;
+  }
+  loadPublicActivity();
+}
+
+async function loadPublicActivity(){
+  const el = $('public-recent');
+  if(!el) return;
+  try{
+    const [{data:recentArrests,error:e1},{data:recentSeizures,error:e2}] = await Promise.all([
+      sb.from('arrests').select('*').order('created_at',{ascending:false}).limit(6),
+      sb.from('seizures').select('*').order('created_at',{ascending:false}).limit(6)
+    ]);
+    if(e1) throw e1;
+    if(e2) throw e2;
+    const combined = [
+      ...(recentArrests||[]).map(a=>({type:'Arrest',label:a.suspect_name,sub:a.charges,by:a.arresting_officer,at:a.created_at})),
+      ...(recentSeizures||[]).map(s=>({type:'Seizure',label:s.item_type,sub:s.description,by:s.seizing_officer,at:s.created_at}))
+    ].sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,8);
+    el.innerHTML = combined.length ? `<table><tbody>${combined.map(c=>`
+      <tr><td><span class="badge ${c.type==='Arrest'?'bg-red':'bg-amber'}">${c.type}</span></td>
+      <td style="font-weight:600">${escapeHTML(c.label||'—')}</td>
+      <td style="color:var(--ts)">${escapeHTML(c.sub||'—')}</td>
+      <td style="color:var(--ts)">${escapeHTML(c.by||'—')}</td>
+      <td style="color:var(--ts);font-size:12px">${fmtDate(c.at)}</td></tr>`).join('')}</tbody></table>`
+      : '<div class="empty">No activity logged yet.</div>';
+  }catch(err){
+    console.error('loadPublicActivity error: ' + (err && (err.message || err.details || String(err))));
+    el.innerHTML = `<div class="empty">Database error: ${escapeHTML(err?.message || err?.details || String(err))}</div>`;
+  }
 }
 
 /* ---------------- APPLICATIONS (public) ---------------- */
@@ -525,9 +581,34 @@ async function loadSession(){
   const {data:{session}} = await sb.auth.getSession();
   if(!session){ return false; }
   currentUser = session.user;
-  const {data: officer} = await sb.from('officers').select('*').eq('id',currentUser.id).single();
+  const {data: officer, error} = await sb.from('officers').select('*').eq('id',currentUser.id).maybeSingle();
+  if(error){
+    showPage('auth');
+    authMsg('auth-msg','Error loading your officer profile: '+error.message,false);
+    return false;
+  }
+  if(!officer){
+    // Auth account exists but no officer profile (e.g. database was reset).
+    // Recreate a minimal pending profile so the account isn't locked out.
+    const email = currentUser.email || '';
+    const {data:newOfficer, error:insErr} = await sb.from('officers').insert({
+      id: currentUser.id,
+      full_name: email.split('@')[0] || 'Officer',
+      callsign: email.split('@')[0] || 'Officer',
+      status: 'pending',
+      role: 'officer'
+    }).select().single();
+    if(insErr){
+      showPage('auth');
+      authMsg('auth-msg','Your officer profile is missing and could not be recreated: '+insErr.message,false);
+      return false;
+    }
+    currentOfficer = newOfficer;
+    showPage('auth');
+    authMsg('auth-msg','Your officer profile was missing (likely from a database reset) and has been recreated with default info as "pending." Please contact an admin to update your name/callsign and approve your account, then log in again.',true);
+    return false;
+  }
   currentOfficer = officer;
-  if(!officer){ showPage('home'); return false; }
   $('dash-officer-name').textContent = `${officer.callsign} · ${officer.rank||'Officer'}`;
   $('pending-banner').style.display = officer.status==='approved' ? 'none':'flex';
   $('new-arrest-btn').style.display = officer.status==='approved' ? 'inline-block':'none';
