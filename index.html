@@ -57,6 +57,12 @@ body>nav{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.97);border-
 .hs-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ts);margin-top:3px}
 
 .banner-strip{background:rgba(193,53,44,.08);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px;text-align:center;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--red-l);font-weight:600}
+.recruit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem}
+.recruit-stat{background:var(--panel-l);border:1px solid var(--border-d);border-radius:10px;padding:1.6rem 1rem;text-align:center;transition:border-color .15s}
+.recruit-stat:hover{border-color:var(--border)}
+.recruit-num{font-size:32px;font-weight:800;line-height:1}
+.recruit-num.red{color:var(--red-l)}.recruit-num.amber{color:var(--amber)}.recruit-num.green{color:var(--green)}.recruit-num.blue{color:var(--blue)}
+.recruit-lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--ts);margin-top:8px}
 
 .faq-item{margin-bottom:1.6rem;padding-bottom:1.6rem;border-bottom:1px solid var(--border-d)}
 .faq-item:last-child{border-bottom:none}
@@ -366,6 +372,28 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
         <div class="dcard-ic">💊</div><h3>Vice Unit ↗</h3>
         <p>Drug enforcement applications are handled at vice-unit.com, not here.</p>
       </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd" style="justify-content:center;text-align:center">
+      <div>
+        <div class="tag" style="text-align:center">By the Numbers</div>
+        <h2>An Active Department</h2>
+        <p>Real activity from officers on patrol across San Andreas.</p>
+      </div>
+    </div>
+    <div class="recruit-grid">
+      <div class="recruit-stat"><div class="recruit-num red" id="pub-arrests-total">—</div><div class="recruit-lbl">Total Arrests</div></div>
+      <div class="recruit-stat"><div class="recruit-num amber" id="pub-arrests-month">—</div><div class="recruit-lbl">Arrests This Month</div></div>
+      <div class="recruit-stat"><div class="recruit-num green" id="pub-value">—</div><div class="recruit-lbl">Contraband Value Seized</div></div>
+      <div class="recruit-stat"><div class="recruit-num blue" id="pub-officers">—</div><div class="recruit-lbl">Active Officers</div></div>
+      <div class="recruit-stat"><div class="recruit-num red" id="pub-impounds">—</div><div class="recruit-lbl">Vehicles Impounded</div></div>
+      <div class="recruit-stat"><div class="recruit-num amber" id="pub-tickets">—</div><div class="recruit-lbl">Citations Issued</div></div>
+    </div>
+    <div style="text-align:center;margin-top:2rem">
+      <p style="font-size:14px;color:#c3c6cf;margin-bottom:1.2rem">Ready to serve? The department is recruiting across Traffic, FTO, and SWAT divisions.</p>
+      <button class="btn primary" onclick="showPage('apply')">Apply to Join →</button>
     </div>
   </div>
 
@@ -1404,6 +1432,32 @@ async function loadHomeStats(){
     return;
   }
   loadPublicActivity();
+  loadRecruitStats();
+}
+
+async function loadRecruitStats(){
+  try{
+    const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+    const [arrAll, arrMonth, offs, sez, imps, tks] = await Promise.all([
+      sb.from('arrests').select('*',{count:'exact',head:true}),
+      sb.from('arrests').select('*',{count:'exact',head:true}).gte('created_at', monthStart.toISOString()),
+      sb.from('officers').select('*',{count:'exact',head:true}).eq('status','approved'),
+      sb.from('seizures').select('line_value'),
+      sb.from('impounds').select('*',{count:'exact',head:true}),
+      sb.from('tickets').select('*',{count:'exact',head:true})
+    ]);
+    const totalValue = (sez.data||[]).reduce((s,x)=>s+(Number(x.line_value)||0),0);
+    const set = (id,val)=>{ const el=$(id); if(el) el.textContent=val; };
+    set('pub-arrests-total', arrAll.count ?? 0);
+    set('pub-arrests-month', arrMonth.count ?? 0);
+    set('pub-value', money(totalValue));
+    set('pub-officers', offs.count ?? 0);
+    set('pub-impounds', imps.count ?? 0);
+    set('pub-tickets', tks.count ?? 0);
+  }catch(err){
+    console.error('loadRecruitStats error: ' + (err && (err.message || String(err))));
+    ['pub-arrests-total','pub-arrests-month','pub-value','pub-officers','pub-impounds','pub-tickets'].forEach(id=>{ const el=$(id); if(el&&el.textContent==='—') el.textContent='0'; });
+  }
 }
 
 async function loadPublicActivity(){
@@ -2544,26 +2598,55 @@ function renderHotspots(){
 }
 
 /* ---------------- ADMIN: APPLICATIONS ---------------- */
+let _applications = [];
 async function loadApplications(){
   const {data,error} = await sb.from('applications').select('*').order('created_at',{ascending:false});
   const tbody = $('apps-table-body');
   if(error){ tbody.innerHTML = `<tr><td colspan="6" class="empty">${escapeHTML(error.message)}</td></tr>`; return; }
-  if(!data.length){ tbody.innerHTML = '<tr><td colspan="6" class="empty">No applications yet.</td></tr>'; return; }
+  _applications = data||[];
+  if(!_applications.length){ tbody.innerHTML = '<tr><td colspan="6" class="empty">No applications yet.</td></tr>'; return; }
   const statusBadge = s => ({pending:'bg-amber',accepted:'bg-green',denied:'bg-red'}[s]||'bg-gray');
-  tbody.innerHTML = data.map(a=>`
+  tbody.innerHTML = _applications.map(a=>`
     <tr>
-      <td style="font-weight:600">${escapeHTML(a.applicant_name)}</td>
+      <td style="font-weight:600;cursor:pointer;color:var(--red-l)" onclick="viewApplication(${a.id})">${escapeHTML(a.applicant_name)}</td>
       <td><span class="badge bg-blue">${escapeHTML(a.division)}</span></td>
       <td style="color:var(--ts)">${escapeHTML(a.discord||'—')}</td>
       <td><span class="badge ${statusBadge(a.status)}">${escapeHTML(a.status)}</span></td>
       <td style="color:var(--ts);font-size:12px">${fmtDate(a.created_at)}</td>
-      <td>
+      <td style="white-space:nowrap">
+        <button class="btn" style="padding:4px 10px;font-size:11px" onclick="viewApplication(${a.id})">View</button>
         ${a.status==='pending' ? `
           <button class="btn success" style="padding:4px 10px;font-size:11px" onclick="reviewApp(${a.id},'accepted')">Accept</button>
           <button class="btn danger" style="padding:4px 10px;font-size:11px" onclick="reviewApp(${a.id},'denied')">Deny</button>
-        ` : '—'}
+        ` : ''}
       </td>
     </tr>`).join('');
+}
+
+function viewApplication(id){
+  const a=_applications.find(x=>x.id===id); if(!a) return;
+  const statusBadge = s => ({pending:'bg-amber',accepted:'bg-green',denied:'bg-red'}[s]||'bg-gray');
+  $('view-modal-content').innerHTML=`
+    <div class="modal-hd">
+      <div class="tag">${escapeHTML(a.division)} Application</div>
+      <h3 style="font-size:20px;font-weight:700">${escapeHTML(a.applicant_name)}</h3>
+      <div style="margin-top:6px"><span class="badge ${statusBadge(a.status)}">${escapeHTML(a.status)}</span>
+        ${a.reviewed_by?`<span style="font-size:12px;color:var(--ts);margin-left:8px">reviewed by ${escapeHTML(a.reviewed_by)}</span>`:''}</div>
+    </div>
+    <div class="modal-bd">
+      <div class="frow" style="margin-bottom:1.2rem">
+        <div><div class="flbl">Callsign</div><div style="font-size:14px">${escapeHTML(a.callsign||'—')}</div></div>
+        <div><div class="flbl">Discord</div><div style="font-size:14px">${escapeHTML(a.discord||'—')}</div></div>
+      </div>
+      <div style="margin-bottom:1.2rem"><div class="flbl">Relevant Experience</div><div style="font-size:14px;line-height:1.7;white-space:pre-wrap">${escapeHTML(a.experience||'— none provided —')}</div></div>
+      <div style="margin-bottom:1.2rem"><div class="flbl">Why this division?</div><div style="font-size:14px;line-height:1.7;white-space:pre-wrap">${escapeHTML(a.reason||'— none provided —')}</div></div>
+      <div><div class="flbl">Submitted</div><div style="font-size:13px;color:var(--ts)">${fmtDate(a.created_at)}</div></div>
+      ${a.status==='pending'?`<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-d);display:flex;gap:8px">
+        <button class="btn success" onclick="reviewApp(${a.id},'accepted');closeModal('view-modal-overlay')">✓ Accept</button>
+        <button class="btn danger" onclick="reviewApp(${a.id},'denied');closeModal('view-modal-overlay')">✕ Deny</button>
+      </div>`:''}
+    </div>`;
+  $('view-modal-overlay').style.display='block';
 }
 async function reviewApp(id,status){
   await sb.from('applications').update({status, reviewed_by: currentOfficer?.callsign||'admin'}).eq('id',id);
