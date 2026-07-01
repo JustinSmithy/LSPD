@@ -105,6 +105,66 @@ body>nav{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.97);border-
 .hb-badge-r{background:rgba(214,69,69,.18);color:#f08080;border:1px solid rgba(214,69,69,.3)}
 .hb-amber{color:#e0b25a;font-weight:600}
 .hb-footer-note{font-size:11px;color:var(--ts);text-align:center;padding:2rem 0;border-top:1px solid var(--border-d);margin-top:2rem;line-height:1.6}
+
+/* ===== Dashboard v2 ===== */
+.lb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:1.5rem}
+.lb-card{background:var(--panel-l);border:1px solid var(--border-d);border-radius:8px;padding:1.1rem}
+.lb-head{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--red-l);margin-bottom:.8rem;padding-bottom:.5rem;border-bottom:1px solid var(--border-d)}
+.lb-row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px}
+.lb-rank{width:22px;height:22px;border-radius:50%;background:rgba(193,53,44,.15);color:var(--red-l);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.lb-rank.gold{background:rgba(209,151,47,.2);color:#e0b25a}
+.lb-name{flex:1;color:var(--tp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-val{font-weight:700;color:var(--red-l)}
+
+.an-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.an-card{background:var(--panel-l);border:1px solid var(--border-d);border-radius:8px;padding:1.2rem}
+.an-card.an-wide{grid-column:1/-1}
+.an-head{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--red-l);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border-d)}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
+.bar-lbl{width:150px;color:#c3c6cf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.bar-track{flex:1;height:18px;background:rgba(255,255,255,.04);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--red-d),var(--red-l));border-radius:4px;min-width:2px}
+.bar-num{width:60px;text-align:right;color:var(--tp);font-weight:600;flex-shrink:0}
+
+/* arrest cards */
+.ar-card{background:var(--panel-l);border:1px solid var(--border-d);border-radius:8px;padding:1.1rem;cursor:pointer;transition:border-color .15s;display:flex;gap:12px}
+.ar-card:hover{border-color:var(--border)}
+.ar-mug{width:60px;height:60px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--ink);border:1px solid var(--border-d)}
+.ar-mug-ph{width:60px;height:60px;border-radius:6px;flex-shrink:0;background:var(--ink);border:1px solid var(--border-d);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--ts)}
+.ar-body{flex:1;min-width:0}
+.ar-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px}
+.ar-name{font-size:15px;font-weight:700}
+.ar-meta{font-size:11px;color:var(--ts);margin-top:1px}
+.ar-charges{font-size:12.5px;color:#c3c6cf;line-height:1.4;margin:.4rem 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ar-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;color:var(--ts);margin-top:.5rem;flex-wrap:wrap}
+.ar-bio{display:inline-flex;gap:6px}
+
+/* charge tags */
+.charge-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.charge-tag{background:rgba(193,53,44,.12);color:var(--red-l);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:12px;display:inline-flex;align-items:center;gap:6px}
+.charge-tag button{background:none;border:none;color:var(--red-l);cursor:pointer;font-size:14px;line-height:1;padding:0}
+
+/* suggest dropdown */
+.suggest-box{position:absolute;top:100%;left:0;right:0;background:var(--panel);border:1px solid var(--border);border-radius:6px;margin-top:2px;max-height:200px;overflow-y:auto;z-index:50;display:none}
+.suggest-box.show{display:block}
+.suggest-item{padding:8px 12px;font-size:13px;cursor:pointer;color:#c3c6cf}
+.suggest-item:hover,.suggest-item.active{background:rgba(193,53,44,.12);color:var(--red-l)}
+
+/* biometrics */
+.bio-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:.4rem 0 1rem;padding:10px 12px;background:rgba(255,255,255,.02);border-radius:6px}
+.bio-chk{font-size:13px;color:#c3c6cf;display:flex;align-items:center;gap:6px;cursor:pointer}
+.bio-note{font-size:12px;color:var(--amber)}
+.mug-preview{width:44px;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--border-d)}
+
+/* seizure rows in arrest modal */
+.sz-row{display:grid;grid-template-columns:1.4fr .7fr .8fr auto;gap:8px;margin-bottom:8px;align-items:center}
+.sz-row .fi{margin:0}
+.sz-row .sz-line{font-size:13px;color:var(--green);font-weight:600;text-align:right;white-space:nowrap}
+.sz-row .sz-del{background:none;border:none;color:#f08080;cursor:pointer;font-size:16px}
+.seizure-total{text-align:right;font-size:14px;color:#c3c6cf;margin-top:.5rem;padding-top:.6rem;border-top:1px solid var(--border-d)}
+.seizure-total strong{color:var(--green)}
+
+@media(max-width:640px){.an-grid{grid-template-columns:1fr}.sz-row{grid-template-columns:1fr 1fr}.bar-lbl{width:90px}}
 @media(max-width:820px){.hb-wrap{grid-template-columns:1fr}.hb-toc{position:static;max-height:none;display:flex;flex-wrap:wrap;gap:4px}.hb-toc-link{border-left:none;border-bottom:2px solid transparent}.hb-cmd-grid,.hb-two-col,.hb-infobox{grid-template-columns:1fr}}
 
 .sec{padding:3rem 2rem;max-width:1150px;margin:0 auto}
@@ -217,7 +277,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     <button class="btn ghost" onclick="showPage('apply')">Apply</button>
     <button class="btn ghost" onclick="showPage('faq')">FAQ</button>
     <button class="btn ghost" onclick="showPage('handbook')">Handbook</button>
-    <button class="btn primary" onclick="showAuth('login')">Officer Login</button>
+    <button class="btn primary" id="nav-login-btn" onclick="officerLoginClick()">Officer Login</button>
   </div>
 </nav>
 
@@ -237,7 +297,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     <p>Arrest reporting. Suspect intelligence. Seizure tracking. And command oversight — built for the streets of San Andreas.</p>
     <div class="hero-strip">
       <div class="hs"><div class="hs-ic">⛓️</div><div class="hs-num" id="hs-arrests">—</div><div class="hs-lbl">Arrests Logged</div></div>
-      <div class="hs"><div class="hs-ic">📦</div><div class="hs-num" id="hs-seizures">—</div><div class="hs-lbl">Seizures Recorded</div></div>
+      <div class="hs"><div class="hs-ic">📦</div><div class="hs-num" id="hs-seizures">—</div><div class="hs-lbl">Items Seized</div></div>
       <div class="hs"><div class="hs-ic">👮</div><div class="hs-num" id="hs-officers">—</div><div class="hs-lbl">Active Officers</div></div>
     </div>
   </div>
@@ -828,46 +888,122 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     <div class="nl">
       <button class="btn" onclick="showDash('overview')">Overview</button>
       <button class="btn" onclick="showDash('arrests')">Arrests</button>
-      <button class="btn" onclick="showDash('seizures')">Seizures</button>
+      <button class="btn" onclick="showDash('impounds')">Impounds</button>
+      <button class="btn" onclick="showDash('tickets')">Tickets</button>
+      <button class="btn" onclick="showDash('suspects')">Suspects</button>
+      <button class="btn" onclick="showDash('analysis')">Analysis</button>
       <button class="btn" onclick="showDash('applications')" id="nav-apps-btn" style="display:none">Applications</button>
+      <button class="btn ghost" onclick="showPage('home')">Public Site ↗</button>
       <button class="btn danger" onclick="doLogout()">Log Out</button>
     </div>
   </nav>
 
   <div id="pending-banner" style="display:none;background:rgba(209,151,47,.1);border-bottom:1px solid rgba(209,151,47,.3);color:var(--amber);padding:10px 2rem;font-size:13px;text-align:center">
-    Your account is pending admin approval. You can browse but not log arrests/seizures yet.
+    Your account is pending admin approval. You can browse but not log arrests yet.
   </div>
 
+  <!-- OVERVIEW -->
   <div class="sec" id="dash-overview">
     <div class="sec-hd"><div><div class="tag">Overview</div><h2>Department Snapshot</h2></div></div>
     <div class="sg">
       <div class="sc"><div class="sc-lbl">Total Arrests</div><div class="sc-val red" id="ov-arrests">0</div></div>
-      <div class="sc"><div class="sc-lbl">Total Seizures</div><div class="sc-val amber" id="ov-seizures">0</div></div>
+      <div class="sc"><div class="sc-lbl">Items Seized</div><div class="sc-val amber" id="ov-seizures">0</div></div>
       <div class="sc"><div class="sc-lbl">Est. Seizure Value</div><div class="sc-val green" id="ov-value">$0</div></div>
       <div class="sc"><div class="sc-lbl">Approved Officers</div><div class="sc-val blue" id="ov-officers">0</div></div>
     </div>
-    <div class="tbl-wrap">
+
+    <div class="lb-grid">
+      <div class="lb-card">
+        <div class="lb-head">🏅 Most Arrests</div>
+        <div id="lb-arrests"><div class="empty">Loading…</div></div>
+      </div>
+      <div class="lb-card">
+        <div class="lb-head">📦 Most Items Seized</div>
+        <div id="lb-seizures"><div class="empty">Loading…</div></div>
+      </div>
+      <div class="lb-card">
+        <div class="lb-head">💰 Highest Seizure Value</div>
+        <div id="lb-value"><div class="empty">Loading…</div></div>
+      </div>
+    </div>
+
+    <div class="tbl-wrap" style="margin-top:1.5rem">
       <div class="tbl-head"><h3>Recent Activity</h3></div>
       <div id="ov-recent"><div class="empty">Loading…</div></div>
     </div>
   </div>
 
+  <!-- ARRESTS -->
   <div class="sec" id="dash-arrests" style="display:none">
     <div class="sec-hd">
-      <div><div class="tag">Records</div><h2>Arrest Log</h2><p>All arrests logged department-wide.</p></div>
+      <div><div class="tag">Records</div><h2>Arrest Log</h2><p>All arrests logged department-wide. Seizures are recorded inside each arrest.</p></div>
       <button class="btn primary" id="new-arrest-btn" onclick="openArrestModal()">+ Log Arrest</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap">
+      <input class="fi" id="arrests-search" placeholder="🔍 Search suspect, officer, charge, location…" style="flex:1;min-width:220px" oninput="renderArrests()">
+      <select class="fi" id="arrests-filter" style="max-width:200px" onchange="renderArrests()">
+        <option value="">All types</option>
+        <option value="normal">Normal</option>
+        <option value="narcotics">Narcotics</option>
+        <option value="firearms">Firearms</option>
+        <option value="both">Narcotics &amp; Firearms</option>
+      </select>
     </div>
     <div class="grid-cards" id="arrests-list"><div class="empty">Loading…</div></div>
   </div>
 
-  <div class="sec" id="dash-seizures" style="display:none">
+  <!-- IMPOUNDS -->
+  <div class="sec" id="dash-impounds" style="display:none">
     <div class="sec-hd">
-      <div><div class="tag">Records</div><h2>Seizure Log</h2><p>All items seized department-wide.</p></div>
-      <button class="btn primary" id="new-seizure-btn" onclick="openSeizureModal()">+ Log Seizure</button>
+      <div><div class="tag">Records</div><h2>Impound Log</h2><p>Vehicles impounded department-wide.</p></div>
+      <button class="btn primary" id="new-impound-btn" onclick="openImpoundModal()">+ Log Impound</button>
     </div>
-    <div class="grid-cards" id="seizures-list"><div class="empty">Loading…</div></div>
+    <input class="fi" id="impounds-search" placeholder="🔍 Search vehicle, plate, owner, officer…" style="margin-bottom:1.2rem" oninput="renderImpounds()">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Vehicle</th><th>Plate</th><th>Owner</th><th>Reason</th><th>Fee</th><th>Officer</th><th>Status</th><th>Date</th><th></th></tr></thead>
+        <tbody id="impounds-table-body"><tr><td colspan="9" class="empty">Loading…</td></tr></tbody>
+      </table>
+    </div>
   </div>
 
+  <!-- TICKETS -->
+  <div class="sec" id="dash-tickets" style="display:none">
+    <div class="sec-hd">
+      <div><div class="tag">Records</div><h2>Ticket Log</h2><p>Citations issued department-wide.</p></div>
+      <button class="btn primary" id="new-ticket-btn" onclick="openTicketModal()">+ Issue Ticket</button>
+    </div>
+    <input class="fi" id="tickets-search" placeholder="🔍 Search recipient, plate, violation, officer…" style="margin-bottom:1.2rem" oninput="renderTickets()">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Recipient</th><th>Plate</th><th>Violation</th><th>Fine</th><th>Officer</th><th>Status</th><th>Date</th><th></th></tr></thead>
+        <tbody id="tickets-table-body"><tr><td colspan="8" class="empty">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SUSPECTS -->
+  <div class="sec" id="dash-suspects" style="display:none">
+    <div class="sec-hd">
+      <div><div class="tag">Records</div><h2>Suspect Files</h2><p>Known offenders — mugshots, biometrics, and arrest history.</p></div>
+      <button class="btn primary" id="new-suspect-btn" onclick="openSuspectModal()">+ Add Suspect</button>
+    </div>
+    <input class="fi" id="suspects-search" placeholder="🔍 Search suspects…" style="margin-bottom:1.2rem" oninput="renderSuspects()">
+    <div class="grid-cards" id="suspects-list"><div class="empty">Loading…</div></div>
+  </div>
+
+  <!-- ANALYSIS -->
+  <div class="sec" id="dash-analysis" style="display:none">
+    <div class="sec-hd"><div><div class="tag">Intelligence</div><h2>Crime Analysis</h2><p>Department-wide breakdown of arrests, charges, and evidence.</p></div></div>
+    <div class="an-grid">
+      <div class="an-card"><div class="an-head">Arrests by Type</div><div id="an-types"><div class="empty">Loading…</div></div></div>
+      <div class="an-card"><div class="an-head">Biometric Collection</div><div id="an-bio"><div class="empty">Loading…</div></div></div>
+      <div class="an-card an-wide"><div class="an-head">Most Common Charges</div><div id="an-charges"><div class="empty">Loading…</div></div></div>
+      <div class="an-card an-wide"><div class="an-head">Top Seized Items by Value</div><div id="an-items"><div class="empty">Loading…</div></div></div>
+    </div>
+  </div>
+
+  <!-- APPLICATIONS (admin) -->
   <div class="sec" id="dash-applications" style="display:none">
     <div class="sec-hd"><div><div class="tag">Admin</div><h2>Divisional Applications</h2><p>Review and action incoming applications.</p></div></div>
     <div class="tbl-wrap">
@@ -894,8 +1030,18 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     <div class="modal-bd">
       <div id="arrest-form-msg"></div>
       <input type="hidden" id="ar-id">
+      <input type="hidden" id="ar-suspect-id">
+      <input type="hidden" id="ar-mugshot-url">
+
       <div class="frow">
-        <div class="fgrp"><label class="flbl">Suspect Name</label><input class="fi" id="ar-suspect"></div>
+        <div class="fgrp"><label class="flbl">Arrest Type</label>
+          <select class="fi" id="ar-type" onchange="onArrestTypeChange()">
+            <option value="normal">Normal Arrest</option>
+            <option value="narcotics">Narcotics</option>
+            <option value="firearms">Firearms</option>
+            <option value="both">Narcotics &amp; Firearms</option>
+          </select>
+        </div>
         <div class="fgrp"><label class="flbl">Status</label>
           <select class="fi" id="ar-status">
             <option value="booked">Booked</option>
@@ -905,13 +1051,58 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
           </select>
         </div>
       </div>
-      <div class="fgrp"><label class="flbl">Charges</label><input class="fi" id="ar-charges" placeholder="e.g. Possession, Evading, Resisting Arrest"></div>
+
+      <!-- Suspect + biometrics -->
+      <div class="ar-suspect-block">
+        <div class="frow">
+          <div class="fgrp" style="position:relative">
+            <label class="flbl">Suspect Name</label>
+            <input class="fi" id="ar-suspect" autocomplete="off" oninput="onSuspectNameInput()" placeholder="Start typing…">
+            <div id="ar-suspect-suggest" class="suggest-box"></div>
+          </div>
+          <div class="fgrp">
+            <label class="flbl">Mugshot</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <img id="ar-mugshot-preview" class="mug-preview" style="display:none">
+              <input class="fi" type="file" id="ar-mugshot-file" accept="image/*" style="flex:1;font-size:12px">
+            </div>
+          </div>
+        </div>
+        <div class="bio-row">
+          <label class="bio-chk"><input type="checkbox" id="ar-dna"> 🧬 DNA sample collected</label>
+          <label class="bio-chk"><input type="checkbox" id="ar-prints"> 🖐 Fingerprints collected</label>
+          <span id="ar-bio-note" class="bio-note"></span>
+        </div>
+      </div>
+
+      <div class="fgrp"><label class="flbl">Charges</label>
+        <div id="ar-charge-tags" class="charge-tags"></div>
+        <div style="position:relative">
+          <input class="fi" id="ar-charge-input" autocomplete="off" placeholder="Type to add a charge…" oninput="onChargeInput()" onkeydown="onChargeKeydown(event)">
+          <div id="ar-charge-suggest" class="suggest-box"></div>
+        </div>
+      </div>
+
       <div class="frow">
         <div class="fgrp"><label class="flbl">Arresting Officer</label><input class="fi" id="ar-officer"></div>
         <div class="fgrp"><label class="flbl">Location</label><input class="fi" id="ar-location"></div>
       </div>
+      <div class="fgrp"><label class="flbl">Assisting Officers (optional)</label><input class="fi" id="ar-assist" placeholder="Comma-separated"></div>
       <div class="fgrp"><label class="flbl">Narrative</label><textarea class="fi" id="ar-narrative" placeholder="What happened…"></textarea></div>
-      <div class="fgrp"><label class="flbl">Evidence / Notes</label><textarea class="fi" id="ar-evidence"></textarea></div>
+
+      <!-- Nested seizures -->
+      <div id="ar-seizure-block" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:1.2rem 0 .6rem">
+          <label class="flbl" style="margin:0">Items Seized</label>
+          <div style="display:flex;gap:6px">
+            <button type="button" class="btn" id="ar-add-drug" style="font-size:12px;padding:4px 12px" onclick="addSeizureRow('drug')">+ Drug</button>
+            <button type="button" class="btn" id="ar-add-firearm" style="font-size:12px;padding:4px 12px" onclick="addSeizureRow('firearm')">+ Firearm</button>
+            <button type="button" class="btn" style="font-size:12px;padding:4px 12px" onclick="addSeizureRow('other')">+ Other</button>
+          </div>
+        </div>
+        <div id="ar-seizure-rows"></div>
+        <div class="seizure-total">Total seizure value: <strong id="ar-seizure-total">$0</strong></div>
+      </div>
     </div>
     <div class="modal-ft">
       <button class="sbtn" style="margin:0" onclick="saveArrest()">Save Arrest</button>
@@ -920,55 +1111,110 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
   </div>
 </div>
 
-<!-- ================= SEIZURE MODAL ================= -->
-<div class="modal-overlay" id="seizure-modal-overlay" onclick="if(event.target===this)closeModal('seizure-modal-overlay')">
-  <div class="modal-box wide">
-    <button class="modal-close" onclick="closeModal('seizure-modal-overlay')">✕</button>
-    <div class="modal-hd"><h3 style="font-size:17px;font-weight:700" id="seizure-modal-title">Log Seizure</h3></div>
+<!-- ================= SUSPECT MODAL ================= -->
+<div class="modal-overlay" id="suspect-modal-overlay" onclick="if(event.target===this)closeModal('suspect-modal-overlay')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('suspect-modal-overlay')">✕</button>
+    <div class="modal-hd"><h3 style="font-size:17px;font-weight:700" id="suspect-modal-title">Add Suspect</h3></div>
     <div class="modal-bd">
-      <div id="seizure-form-msg"></div>
-      <input type="hidden" id="sz-id">
-      <div class="frow">
-        <div class="fgrp"><label class="flbl">Item Type</label>
-          <select class="fi" id="sz-type">
-            <option value="narcotics">Narcotics</option>
-            <option value="weapon">Weapon</option>
-            <option value="cash">Cash</option>
-            <option value="vehicle">Vehicle</option>
-            <option value="contraband">Contraband</option>
-            <option value="other">Other</option>
-          </select>
+      <div id="suspect-form-msg"></div>
+      <input type="hidden" id="su-id">
+      <input type="hidden" id="su-mugshot-url">
+      <div class="fgrp"><label class="flbl">Name</label><input class="fi" id="su-name"></div>
+      <div class="fgrp"><label class="flbl">Mugshot</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <img id="su-mugshot-preview" class="mug-preview" style="display:none">
+          <input class="fi" type="file" id="su-mugshot-file" accept="image/*" style="flex:1;font-size:12px">
         </div>
+      </div>
+      <div class="bio-row">
+        <label class="bio-chk"><input type="checkbox" id="su-dna"> 🧬 DNA on file</label>
+        <label class="bio-chk"><input type="checkbox" id="su-prints"> 🖐 Prints on file</label>
+      </div>
+      <div class="fgrp"><label class="flbl">Notes</label><textarea class="fi" id="su-notes"></textarea></div>
+    </div>
+    <div class="modal-ft">
+      <button class="sbtn" style="margin:0" onclick="saveSuspect()">Save Suspect</button>
+      <button class="btn danger" id="su-delete-btn" style="display:none" onclick="deleteSuspect()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= IMPOUND MODAL ================= -->
+<div class="modal-overlay" id="impound-modal-overlay" onclick="if(event.target===this)closeModal('impound-modal-overlay')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('impound-modal-overlay')">✕</button>
+    <div class="modal-hd"><h3 style="font-size:17px;font-weight:700" id="impound-modal-title">Log Impound</h3></div>
+    <div class="modal-bd">
+      <div id="impound-form-msg"></div>
+      <input type="hidden" id="im-id">
+      <div class="frow">
+        <div class="fgrp"><label class="flbl">Vehicle</label><input class="fi" id="im-vehicle" placeholder="e.g. Blue Sultan"></div>
+        <div class="fgrp"><label class="flbl">Plate</label><input class="fi" id="im-plate"></div>
+      </div>
+      <div class="frow">
+        <div class="fgrp"><label class="flbl">Owner Name</label><input class="fi" id="im-owner"></div>
+        <div class="fgrp"><label class="flbl">Impound Fee ($)</label><input class="fi" type="number" id="im-fee"></div>
+      </div>
+      <div class="fgrp"><label class="flbl">Reason</label><input class="fi" id="im-reason" placeholder="e.g. Illegal parking, contraband vehicle"></div>
+      <div class="frow">
+        <div class="fgrp"><label class="flbl">Location</label><input class="fi" id="im-location"></div>
         <div class="fgrp"><label class="flbl">Status</label>
-          <select class="fi" id="sz-status">
-            <option value="in_evidence">In Evidence</option>
-            <option value="destroyed">Destroyed</option>
-            <option value="returned">Returned</option>
+          <select class="fi" id="im-status">
+            <option value="impounded">Impounded</option>
+            <option value="released">Released</option>
             <option value="auctioned">Auctioned</option>
           </select>
         </div>
       </div>
-      <div class="frow">
-        <div class="fgrp"><label class="flbl">Quantity</label><input class="fi" id="sz-qty" placeholder="e.g. 3 units, 2x pistols"></div>
-        <div class="fgrp"><label class="flbl">Estimated Value ($)</label><input class="fi" id="sz-value" type="number"></div>
-      </div>
-      <div class="fgrp"><label class="flbl">Description</label><textarea class="fi" id="sz-desc"></textarea></div>
-      <div class="frow">
-        <div class="fgrp"><label class="flbl">Seizing Officer</label><input class="fi" id="sz-officer"></div>
-        <div class="fgrp"><label class="flbl">Location</label><input class="fi" id="sz-location"></div>
-      </div>
-      <div class="fgrp"><label class="flbl">Linked Arrest ID (optional)</label><input class="fi" id="sz-linked" type="number" placeholder="e.g. 12"></div>
+      <div class="fgrp"><label class="flbl">Officer</label><input class="fi" id="im-officer"></div>
     </div>
     <div class="modal-ft">
-      <button class="sbtn" style="margin:0" onclick="saveSeizure()">Save Seizure</button>
-      <button class="btn danger" id="sz-delete-btn" style="display:none" onclick="deleteSeizure()">Delete</button>
+      <button class="sbtn" style="margin:0" onclick="saveImpound()">Save Impound</button>
+      <button class="btn danger" id="im-delete-btn" style="display:none" onclick="deleteImpound()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= TICKET MODAL ================= -->
+<div class="modal-overlay" id="ticket-modal-overlay" onclick="if(event.target===this)closeModal('ticket-modal-overlay')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('ticket-modal-overlay')">✕</button>
+    <div class="modal-hd"><h3 style="font-size:17px;font-weight:700" id="ticket-modal-title">Issue Ticket</h3></div>
+    <div class="modal-bd">
+      <div id="ticket-form-msg"></div>
+      <input type="hidden" id="tk-id">
+      <div class="frow">
+        <div class="fgrp"><label class="flbl">Recipient Name</label><input class="fi" id="tk-recipient"></div>
+        <div class="fgrp"><label class="flbl">Plate (if vehicle)</label><input class="fi" id="tk-plate"></div>
+      </div>
+      <div class="fgrp"><label class="flbl">Violation</label><input class="fi" id="tk-violation" placeholder="e.g. Speeding, Reckless Driving"></div>
+      <div class="frow">
+        <div class="fgrp"><label class="flbl">Fine ($)</label><input class="fi" type="number" id="tk-fine"></div>
+        <div class="fgrp"><label class="flbl">Status</label>
+          <select class="fi" id="tk-status">
+            <option value="unpaid">Unpaid</option>
+            <option value="paid">Paid</option>
+            <option value="contested">Contested</option>
+            <option value="void">Void</option>
+          </select>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fgrp"><label class="flbl">Location</label><input class="fi" id="tk-location"></div>
+        <div class="fgrp"><label class="flbl">Officer</label><input class="fi" id="tk-officer"></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="sbtn" style="margin:0" onclick="saveTicket()">Save Ticket</button>
+      <button class="btn danger" id="tk-delete-btn" style="display:none" onclick="deleteTicket()">Delete</button>
     </div>
   </div>
 </div>
 
 <!-- ================= VIEW MODAL (read-only detail) ================= -->
 <div class="modal-overlay" id="view-modal-overlay" onclick="if(event.target===this)closeModal('view-modal-overlay')">
-  <div class="modal-box">
+  <div class="modal-box wide">
     <button class="modal-close" onclick="closeModal('view-modal-overlay')">✕</button>
     <div id="view-modal-content"></div>
   </div>
@@ -991,6 +1237,22 @@ function showPage(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   $('pg-'+name).classList.add('active');
   if(name==='home') loadHomeStats();
+  window.scrollTo(0,0);
+}
+// Return to the dashboard without re-running auth if a session is already loaded.
+function goDashboard(){
+  if(currentOfficer){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    $('pg-dash').classList.add('active');
+    showDash('overview');
+    window.scrollTo(0,0);
+  } else {
+    showAuth('login');
+  }
+}
+// Called by the "Officer Login" nav button — smart about existing sessions.
+function officerLoginClick(){
+  if(currentOfficer){ goDashboard(); } else { showAuth('login'); }
 }
 function showAuth(tab){ showPage('auth'); switchAuthTab(tab); }
 function hbGo(el, id){
@@ -1013,14 +1275,15 @@ async function loadHomeStats(){
   try{
     const [arRes, szRes, ofRes] = await Promise.all([
       sb.from('arrests').select('*',{count:'exact',head:true}),
-      sb.from('seizures').select('*',{count:'exact',head:true}),
+      sb.from('seizures').select('quantity'),
       sb.from('officers').select('*',{count:'exact',head:true}).eq('status','approved')
     ]);
     if(arRes.error) throw arRes.error;
     if(szRes.error) throw szRes.error;
     if(ofRes.error) throw ofRes.error;
+    const itemsSeized = (szRes.data||[]).reduce((s,x)=>s+(Number(x.quantity)||0),0);
     $('hs-arrests').textContent = arRes.count ?? 0;
-    $('hs-seizures').textContent = szRes.count ?? 0;
+    $('hs-seizures').textContent = itemsSeized;
     $('hs-officers').textContent = ofRes.count ?? 0;
   }catch(err){
     console.error('loadHomeStats error: ' + (err && (err.message || err.details || String(err))));
@@ -1038,22 +1301,17 @@ async function loadPublicActivity(){
   const el = $('public-recent');
   if(!el) return;
   try{
-    const [{data:recentArrests,error:e1},{data:recentSeizures,error:e2}] = await Promise.all([
-      sb.from('arrests').select('*').order('created_at',{ascending:false}).limit(6),
-      sb.from('seizures').select('*').order('created_at',{ascending:false}).limit(6)
-    ]);
-    if(e1) throw e1;
-    if(e2) throw e2;
-    const combined = [
-      ...(recentArrests||[]).map(a=>({type:'Arrest',label:a.suspect_name,sub:a.charges,by:a.arresting_officer,at:a.created_at})),
-      ...(recentSeizures||[]).map(s=>({type:'Seizure',label:s.item_type,sub:s.description,by:s.seizing_officer,at:s.created_at}))
-    ].sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,8);
-    el.innerHTML = combined.length ? `<table><tbody>${combined.map(c=>`
-      <tr><td><span class="badge ${c.type==='Arrest'?'bg-red':'bg-amber'}">${c.type}</span></td>
-      <td style="font-weight:600">${escapeHTML(c.label||'—')}</td>
-      <td style="color:var(--ts)">${escapeHTML(c.sub||'—')}</td>
-      <td style="color:var(--ts)">${escapeHTML(c.by||'—')}</td>
-      <td style="color:var(--ts);font-size:12px">${fmtDate(c.at)}</td></tr>`).join('')}</tbody></table>`
+    const {data:recentArrests,error} = await sb.from('arrests').select('*').order('created_at',{ascending:false}).limit(10);
+    if(error) throw error;
+    const list = recentArrests||[];
+    const typeLabel = t => ({normal:'Normal',narcotics:'Narcotics',firearms:'Firearms',both:'Narcotics & Firearms'}[t]||'Arrest');
+    const typeCls = t => ({normal:'bg-gray',narcotics:'bg-red',firearms:'bg-blue',both:'bg-amber'}[t]||'bg-red');
+    el.innerHTML = list.length ? `<table><tbody>${list.map(a=>`
+      <tr><td><span class="badge ${typeCls(a.arrest_type)}">${typeLabel(a.arrest_type)}</span></td>
+      <td style="font-weight:600">${escapeHTML(a.suspect_name||'—')}</td>
+      <td style="color:var(--ts)">${escapeHTML((a.charges||'').split(',')[0]||'—')}</td>
+      <td style="color:var(--ts)">${escapeHTML(a.arresting_officer||'—')}</td>
+      <td style="color:var(--ts);font-size:12px">${fmtDate(a.created_at)}</td></tr>`).join('')}</tbody></table>`
       : '<div class="empty">No activity logged yet.</div>';
   }catch(err){
     console.error('loadPublicActivity error: ' + (err && (err.message || err.details || String(err))));
@@ -1118,6 +1376,7 @@ async function doLogin(){
 async function doLogout(){
   await sb.auth.signOut();
   currentUser=null; currentOfficer=null;
+  const navBtn = $('nav-login-btn'); if(navBtn) navBtn.textContent = 'Officer Login';
   showPage('home');
 }
 
@@ -1153,10 +1412,11 @@ async function loadSession(){
     return false;
   }
   currentOfficer = officer;
+  const navBtn = $('nav-login-btn'); if(navBtn) navBtn.textContent = 'Dashboard';
   $('dash-officer-name').textContent = `${officer.callsign} · ${officer.rank||'Officer'}`;
   $('pending-banner').style.display = officer.status==='approved' ? 'none':'flex';
-  $('new-arrest-btn').style.display = officer.status==='approved' ? 'inline-block':'none';
-  $('new-seizure-btn').style.display = officer.status==='approved' ? 'inline-block':'none';
+  const approved = officer.status==='approved';
+  ['new-arrest-btn','new-impound-btn','new-ticket-btn','new-suspect-btn'].forEach(id=>{ const b=$(id); if(b) b.style.display = approved ? 'inline-block':'none'; });
   $('nav-apps-btn').style.display = officer.role==='admin' ? 'inline-block':'none';
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   $('pg-dash').classList.add('active');
@@ -1164,236 +1424,660 @@ async function loadSession(){
   return true;
 }
 
+/* ============ CONSTANTS ============ */
+const DRUG_PRICES = {'Cocaine':70,'Marijuana':40};
+const FIREARM_PRICES = {'SD Pistol':200,'MP5':800,'Tec-9':1100,'Mac-10':1100,'Deagle':3000,'M4':6500,'Combat Shotgun':8000,'Sniper':10000};
+const DRUGS = Object.keys(DRUG_PRICES);
+const FIREARMS = Object.keys(FIREARM_PRICES);
+const CHARGES = ['Aiding a Prison Break','Aiding and Abetting','Assault','Attempted Murder','Battery','Brandishing a Weapon in Public','Bribery','Conspiracy','Criminal Negligence','Criminal Trespassing','Cultivation/Manufacture/Delivery of a Controlled Substance','Destruction of Public Property','Destruction/Falsification of Evidence','Discharge of a Firearm in Public','Disturbance of Peace','Driving Over the Speed Limit','Evading a Law Enforcement Officer','Excessive Use of Force','Extortion','Failure to Identify','Failure to Pay a Ticket','False Imprisonment','Fraud','Grand Theft Auto','Impersonating a Government Employee','Indecency','Kidnapping','Murder','Mutual Combat','Obstructing a Government Employee','Operating a Vehicle Without a License','Parking Violation','Possession of a Controlled Substance','Possession of a Controlled Substance With Intent to Sell','Possession of an Illegal Firearm','Prison Break','Reckless Driving','Resisting a Law Enforcement Officer','Riot','Robbery','Terrorism','Transporting Illegal Goods','Trespassing','Unlawful Assembly','Unlawful Distribution of a Weapon','Vandalism','Vehicular Assault'];
+const STORAGE_BUCKET = 'mugshots';
+
+let _arrests = [];       // cached arrest list (with nested seizures)
+let _suspects = [];      // cached suspect list
+let _chargeTags = [];    // current arrest modal's charges
+let _chargeActiveIdx = -1;
+
 /* ---------------- DASHBOARD NAV ---------------- */
 function showDash(section){
-  ['overview','arrests','seizures','applications'].forEach(s=>{
-    $('dash-'+s).style.display = s===section ? 'block':'none';
+  ['overview','arrests','impounds','tickets','suspects','analysis','applications'].forEach(s=>{
+    const el = $('dash-'+s); if(el) el.style.display = s===section ? 'block':'none';
   });
   if(section==='overview') loadOverview();
   if(section==='arrests') loadArrests();
-  if(section==='seizures') loadSeizures();
+  if(section==='impounds') loadImpounds();
+  if(section==='tickets') loadTickets();
+  if(section==='suspects') loadSuspects();
+  if(section==='analysis') loadAnalysis();
   if(section==='applications') { loadApplications(); loadRoster(); }
 }
 
-/* ---------------- OVERVIEW ---------------- */
+/* ---------------- DATA LOADING ---------------- */
+async function fetchArrestsWithSeizures(){
+  const {data:arrests,error} = await sb.from('arrests').select('*').order('created_at',{ascending:false});
+  if(error) throw error;
+  const {data:seizures} = await sb.from('seizures').select('*');
+  const byArrest = {};
+  (seizures||[]).forEach(s=>{ (byArrest[s.arrest_id] = byArrest[s.arrest_id]||[]).push(s); });
+  (arrests||[]).forEach(a=>{ a._seizures = byArrest[a.id]||[]; });
+  return arrests||[];
+}
+
+/* ---------------- OVERVIEW + LEADERBOARDS ---------------- */
 async function loadOverview(){
-  const [{count:ac},{count:sc},{data:szs},{count:oc}] = await Promise.all([
-    sb.from('arrests').select('*',{count:'exact',head:true}),
-    sb.from('seizures').select('*',{count:'exact',head:true}),
-    sb.from('seizures').select('estimated_value'),
-    sb.from('officers').select('*',{count:'exact',head:true}).eq('status','approved')
-  ]);
-  $('ov-arrests').textContent = ac ?? 0;
-  $('ov-seizures').textContent = sc ?? 0;
+  try{
+    _arrests = await fetchArrestsWithSeizures();
+  }catch(err){
+    $('ov-recent').innerHTML = `<div class="empty">Error: ${escapeHTML(err.message||String(err))}</div>`;
+    return;
+  }
+  const {count:oc} = await sb.from('officers').select('*',{count:'exact',head:true}).eq('status','approved');
+
+  const totalArrests = _arrests.length;
+  let totalItems = 0, totalValue = 0;
+  _arrests.forEach(a=>{ a._seizures.forEach(s=>{ totalItems += Number(s.quantity)||0; totalValue += Number(s.line_value)||0; }); });
+
+  $('ov-arrests').textContent = totalArrests;
+  $('ov-seizures').textContent = totalItems;
+  $('ov-value').textContent = money(totalValue);
   $('ov-officers').textContent = oc ?? 0;
-  const total = (szs||[]).reduce((a,b)=>a+(Number(b.estimated_value)||0),0);
-  $('ov-value').textContent = money(total);
 
-  const {data:recentArrests} = await sb.from('arrests').select('*').order('created_at',{ascending:false}).limit(5);
-  const {data:recentSeizures} = await sb.from('seizures').select('*').order('created_at',{ascending:false}).limit(5);
-  const combined = [
-    ...(recentArrests||[]).map(a=>({type:'Arrest',label:a.suspect_name,sub:a.charges,by:a.arresting_officer,at:a.created_at})),
-    ...(recentSeizures||[]).map(s=>({type:'Seizure',label:s.item_type,sub:s.description,by:s.seizing_officer,at:s.created_at}))
-  ].sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,8);
+  // Leaderboards by officer
+  const byOfficer = {};
+  _arrests.forEach(a=>{
+    const key = a.arresting_officer || 'Unknown';
+    const o = byOfficer[key] = byOfficer[key] || {name:key, arrests:0, items:0, value:0};
+    o.arrests++;
+    a._seizures.forEach(s=>{ o.items += Number(s.quantity)||0; o.value += Number(s.line_value)||0; });
+  });
+  const officers = Object.values(byOfficer);
+  renderLeaderboard('lb-arrests', officers, 'arrests', v=>v);
+  renderLeaderboard('lb-seizures', officers, 'items', v=>v);
+  renderLeaderboard('lb-value', officers, 'value', v=>money(v));
 
-  $('ov-recent').innerHTML = combined.length ? `<table><tbody>${combined.map(c=>`
-    <tr><td><span class="badge ${c.type==='Arrest'?'bg-red':'bg-amber'}">${c.type}</span></td>
-    <td style="font-weight:600">${escapeHTML(c.label||'—')}</td>
-    <td style="color:var(--ts)">${escapeHTML(c.sub||'—')}</td>
-    <td style="color:var(--ts)">${escapeHTML(c.by||'—')}</td>
-    <td style="color:var(--ts);font-size:12px">${fmtDate(c.at)}</td></tr>`).join('')}</tbody></table>`
+  // Recent activity
+  const recent = _arrests.slice(0,8);
+  $('ov-recent').innerHTML = recent.length ? `<table><tbody>${recent.map(a=>`
+    <tr><td><span class="badge ${arrestTypeCls(a.arrest_type)}">${arrestTypeLabel(a.arrest_type)}</span></td>
+    <td style="font-weight:600">${escapeHTML(a.suspect_name||'—')}</td>
+    <td style="color:var(--ts)">${escapeHTML((a.charges||'').split(',')[0]||'—')}</td>
+    <td style="color:var(--ts)">${escapeHTML(a.arresting_officer||'—')}</td>
+    <td style="color:var(--ts);font-size:12px">${fmtDate(a.created_at)}</td></tr>`).join('')}</tbody></table>`
     : '<div class="empty">No activity logged yet.</div>';
 }
 
-/* ---------------- ARRESTS ---------------- */
-async function loadArrests(){
-  const {data,error} = await sb.from('arrests').select('*').order('created_at',{ascending:false});
-  if(error){ $('arrests-list').innerHTML = `<div class="empty">Error loading: ${escapeHTML(error.message)}</div>`; return; }
-  if(!data.length){ $('arrests-list').innerHTML = '<div class="empty">No arrests logged yet.</div>'; return; }
-  const statusBadge = s => ({booked:'bg-red',released:'bg-gray',pending_trial:'bg-amber',convicted:'bg-green'}[s]||'bg-gray');
-  $('arrests-list').innerHTML = data.map(a=>`
-    <div class="ccard" onclick="viewArrest(${a.id})">
-      <div class="ccard-top">
-        <div><div class="ccard-title">${escapeHTML(a.suspect_name)}</div><div class="ccard-meta">#${a.id} · ${fmtDate(a.occurred_at)}</div></div>
-        <span class="badge ${statusBadge(a.status)}">${escapeHTML((a.status||'').replace('_',' '))}</span>
-      </div>
-      <div class="ccard-body">${escapeHTML(a.charges)}</div>
-      <div class="ccard-foot"><span>👮 ${escapeHTML(a.arresting_officer)}</span><span>${escapeHTML(a.location||'')}</span></div>
+function renderLeaderboard(elId, officers, field, fmt){
+  const sorted = officers.filter(o=>o[field]>0).sort((a,b)=>b[field]-a[field]).slice(0,5);
+  const el = $(elId);
+  if(!sorted.length){ el.innerHTML = '<div class="empty">No data yet.</div>'; return; }
+  el.innerHTML = sorted.map((o,i)=>`
+    <div class="lb-row">
+      <span class="lb-rank ${i===0?'gold':''}">${i+1}</span>
+      <span class="lb-name">${escapeHTML(o.name)}</span>
+      <span class="lb-val">${fmt(o[field])}</span>
     </div>`).join('');
+}
+
+/* ---------------- ARRESTS LIST ---------------- */
+async function loadArrests(){
+  try{ _arrests = await fetchArrestsWithSeizures(); }
+  catch(err){ $('arrests-list').innerHTML = `<div class="empty">Error: ${escapeHTML(err.message||String(err))}</div>`; return; }
+  // suspect mugshots for cards
+  await ensureSuspectsLoaded();
+  renderArrests();
+}
+
+function renderArrests(){
+  const q = ($('arrests-search').value||'').toLowerCase().trim();
+  const filter = $('arrests-filter').value;
+  let list = _arrests;
+  if(filter) list = list.filter(a=>a.arrest_type===filter);
+  if(q) list = list.filter(a=>[a.suspect_name,a.arresting_officer,a.charges,a.location,a.narrative].join(' ').toLowerCase().includes(q));
+  const el = $('arrests-list');
+  if(!list.length){ el.innerHTML = '<div class="empty">No arrests match.</div>'; return; }
+  el.innerHTML = list.map(a=>{
+    const mug = a.mugshot_url || mugForSuspect(a.suspect_id);
+    const bio = [a.dna&&'🧬', a.fingerprints&&'🖐'].filter(Boolean).join(' ');
+    const val = a._seizures.reduce((s,x)=>s+(Number(x.line_value)||0),0);
+    return `<div class="ar-card" onclick="viewArrest(${a.id})">
+      ${mug?`<img class="ar-mug" src="${escapeHTML(mug)}">`:`<div class="ar-mug-ph">👤</div>`}
+      <div class="ar-body">
+        <div class="ar-top">
+          <div><div class="ar-name">${escapeHTML(a.suspect_name)}</div><div class="ar-meta">#${a.id} · ${fmtDate(a.occurred_at)}</div></div>
+          <span class="badge ${arrestTypeCls(a.arrest_type)}">${arrestTypeLabel(a.arrest_type)}</span>
+        </div>
+        <div class="ar-charges">${escapeHTML(a.charges||'No charges listed')}</div>
+        <div class="ar-foot">
+          <span>👮 ${escapeHTML(a.arresting_officer||'—')}</span>
+          <span class="ar-bio">${bio}${val>0?` · <span style="color:var(--green)">${money(val)}</span>`:''}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function arrestTypeLabel(t){return {normal:'Normal',narcotics:'Narcotics',firearms:'Firearms',both:'Narcotics & Firearms'}[t]||'Normal';}
+function arrestTypeCls(t){return {normal:'bg-gray',narcotics:'bg-red',firearms:'bg-blue',both:'bg-amber'}[t]||'bg-gray';}
+
+/* ---------------- ARREST MODAL ---------------- */
+function onArrestTypeChange(){
+  const t = $('ar-type').value;
+  const showSeize = (t==='narcotics'||t==='firearms'||t==='both');
+  $('ar-seizure-block').style.display = showSeize ? 'block':'none';
+  $('ar-add-drug').style.display = (t==='narcotics'||t==='both')?'inline-block':'none';
+  $('ar-add-firearm').style.display = (t==='firearms'||t==='both')?'inline-block':'none';
 }
 
 function openArrestModal(existing){
   $('arrest-form-msg').innerHTML='';
+  _chargeTags = [];
+  $('ar-seizure-rows').innerHTML='';
+  $('ar-mugshot-url').value='';
+  $('ar-suspect-id').value='';
+  $('ar-mugshot-file').value='';
+  $('ar-mugshot-preview').style.display='none';
+  $('ar-bio-note').textContent='';
   if(existing){
     $('arrest-modal-title').textContent = 'Edit Arrest #'+existing.id;
     $('ar-id').value = existing.id;
-    $('ar-suspect').value = existing.suspect_name||'';
+    $('ar-type').value = existing.arrest_type||'normal';
     $('ar-status').value = existing.status||'booked';
-    $('ar-charges').value = existing.charges||'';
+    $('ar-suspect').value = existing.suspect_name||'';
+    $('ar-suspect-id').value = existing.suspect_id||'';
     $('ar-officer').value = existing.arresting_officer||'';
     $('ar-location').value = existing.location||'';
+    $('ar-assist').value = existing.assisting_officers||'';
     $('ar-narrative').value = existing.narrative||'';
-    $('ar-evidence').value = existing.evidence||'';
+    $('ar-dna').checked = !!existing.dna;
+    $('ar-prints').checked = !!existing.fingerprints;
+    $('ar-mugshot-url').value = existing.mugshot_url||'';
+    if(existing.mugshot_url){ $('ar-mugshot-preview').src = existing.mugshot_url; $('ar-mugshot-preview').style.display='block'; }
+    _chargeTags = (existing.charges||'').split(',').map(c=>c.trim()).filter(Boolean);
+    (existing._seizures||[]).forEach(s=>addSeizureRow(s.category, s));
     $('ar-delete-btn').style.display='inline-block';
   } else {
     $('arrest-modal-title').textContent = 'Log Arrest';
-    ['ar-id','ar-suspect','ar-charges','ar-officer','ar-location','ar-narrative','ar-evidence'].forEach(id=>$(id).value='');
-    $('ar-status').value='booked';
+    ['ar-id','ar-suspect','ar-officer','ar-location','ar-assist','ar-narrative'].forEach(id=>$(id).value='');
+    $('ar-type').value='normal'; $('ar-status').value='booked';
+    $('ar-dna').checked=false; $('ar-prints').checked=false;
     $('ar-officer').value = currentOfficer ? `${currentOfficer.callsign} (${currentOfficer.full_name})` : '';
     $('ar-delete-btn').style.display='none';
   }
+  renderChargeTags();
+  onArrestTypeChange();
+  updateSeizureTotal();
   $('arrest-modal-overlay').style.display='block';
 }
-function closeModal(id){ $(id).style.display='none'; }
 
+/* ----- suspect name autocomplete + biometric prefill ----- */
+async function ensureSuspectsLoaded(){
+  if(_suspects.length===0){
+    const {data} = await sb.from('suspects').select('*').order('name');
+    _suspects = data||[];
+  }
+}
+function mugForSuspect(id){ if(!id) return null; const s=_suspects.find(x=>x.id===id); return s?s.mugshot_url:null; }
+
+async function onSuspectNameInput(){
+  await ensureSuspectsLoaded();
+  const val = $('ar-suspect').value.toLowerCase().trim();
+  const box = $('ar-suspect-suggest');
+  if(!val){ box.classList.remove('show'); return; }
+  const matches = _suspects.filter(s=>s.name.toLowerCase().includes(val)).slice(0,6);
+  if(!matches.length){ box.classList.remove('show'); return; }
+  box.innerHTML = matches.map(s=>`<div class="suggest-item" onclick="pickSuspect(${s.id})">${escapeHTML(s.name)} ${s.dna_on_file?'🧬':''}${s.prints_on_file?'🖐':''}</div>`).join('');
+  box.classList.add('show');
+}
+function pickSuspect(id){
+  const s = _suspects.find(x=>x.id===id); if(!s) return;
+  $('ar-suspect').value = s.name;
+  $('ar-suspect-id').value = s.id;
+  $('ar-suspect-suggest').classList.remove('show');
+  // prefill biometrics + mugshot from file
+  if(s.dna_on_file){ $('ar-dna').checked=true; }
+  if(s.prints_on_file){ $('ar-prints').checked=true; }
+  const notes=[]; if(s.dna_on_file)notes.push('DNA already on file'); if(s.prints_on_file)notes.push('prints already on file');
+  $('ar-bio-note').textContent = notes.length?`✓ ${notes.join(' & ')} — pre-ticked.`:'';
+  if(s.mugshot_url){ $('ar-mugshot-url').value=s.mugshot_url; $('ar-mugshot-preview').src=s.mugshot_url; $('ar-mugshot-preview').style.display='block'; }
+}
+
+/* ----- charge tag input ----- */
+function renderChargeTags(){
+  $('ar-charge-tags').innerHTML = _chargeTags.map((c,i)=>`<span class="charge-tag">${escapeHTML(c)}<button onclick="removeCharge(${i})">✕</button></span>`).join('');
+}
+function removeCharge(i){ _chargeTags.splice(i,1); renderChargeTags(); }
+function addCharge(c){ c=c.trim(); if(c && !_chargeTags.includes(c)){ _chargeTags.push(c); renderChargeTags(); } $('ar-charge-input').value=''; $('ar-charge-suggest').classList.remove('show'); _chargeActiveIdx=-1; }
+function onChargeInput(){
+  const val = $('ar-charge-input').value.toLowerCase().trim();
+  const box = $('ar-charge-suggest');
+  if(!val){ box.classList.remove('show'); return; }
+  const matches = CHARGES.filter(c=>c.toLowerCase().includes(val) && !_chargeTags.includes(c)).slice(0,8);
+  if(!matches.length){ box.classList.remove('show'); return; }
+  _chargeActiveIdx=-1;
+  box.innerHTML = matches.map((c,i)=>`<div class="suggest-item" data-charge="${escapeHTML(c)}" onclick="addCharge('${c.replace(/'/g,"\\'")}')">${escapeHTML(c)}</div>`).join('');
+  box.classList.add('show');
+}
+function onChargeKeydown(e){
+  const box = $('ar-charge-suggest');
+  const items = [...box.querySelectorAll('.suggest-item')];
+  if(e.key==='ArrowDown'){ e.preventDefault(); _chargeActiveIdx=Math.min(_chargeActiveIdx+1,items.length-1); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); _chargeActiveIdx=Math.max(_chargeActiveIdx-1,0); }
+  else if(e.key==='Enter'){ e.preventDefault(); if(_chargeActiveIdx>=0&&items[_chargeActiveIdx]){ addCharge(items[_chargeActiveIdx].dataset.charge); } else if($('ar-charge-input').value.trim()){ addCharge($('ar-charge-input').value); } return; }
+  else return;
+  items.forEach((it,i)=>it.classList.toggle('active',i===_chargeActiveIdx));
+}
+
+/* ----- nested seizure rows ----- */
+function addSeizureRow(cat, existing){
+  const rows = $('ar-seizure-rows');
+  const rid = 'sz'+Math.random().toString(36).slice(2,8);
+  const options = cat==='drug' ? DRUGS : cat==='firearm' ? FIREARMS : null;
+  const div = document.createElement('div');
+  div.className='sz-row'; div.id=rid; div.dataset.cat=cat;
+  let itemField;
+  if(options){
+    itemField = `<select class="fi sz-item" onchange="updateSeizureTotal()">${options.map(o=>`<option value="${o}">${o}</option>`).join('')}</select>`;
+  } else {
+    itemField = `<input class="fi sz-item" placeholder="Item description" oninput="updateSeizureTotal()">`;
+  }
+  div.innerHTML = `${itemField}
+    <input class="fi sz-qty" type="number" min="1" value="1" placeholder="Qty" oninput="updateSeizureTotal()">
+    <span class="sz-line" data-line>$0</span>
+    <button type="button" class="sz-del" onclick="this.parentElement.remove();updateSeizureTotal()">✕</button>`;
+  rows.appendChild(div);
+  if(existing){
+    div.querySelector('.sz-item').value = existing.item||'';
+    div.querySelector('.sz-qty').value = existing.quantity||1;
+  }
+  updateSeizureTotal();
+}
+function unitPriceFor(cat, item){
+  if(cat==='drug') return DRUG_PRICES[item]||0;
+  if(cat==='firearm') return FIREARM_PRICES[item]||0;
+  return 0;
+}
+function updateSeizureTotal(){
+  let total=0;
+  [...$('ar-seizure-rows').children].forEach(row=>{
+    const cat=row.dataset.cat;
+    const item=row.querySelector('.sz-item').value;
+    const qty=Number(row.querySelector('.sz-qty').value)||0;
+    const line = unitPriceFor(cat,item)*qty;
+    row.querySelector('[data-line]').textContent = money(line);
+    total += line;
+  });
+  $('ar-seizure-total').textContent = money(total);
+  return total;
+}
+
+/* ----- mugshot upload helper ----- */
+async function uploadMugshot(fileInput){
+  const file = fileInput.files[0];
+  if(!file) return null;
+  const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
+  const path = `${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+  const {error} = await sb.storage.from(STORAGE_BUCKET).upload(path, file, {upsert:false});
+  if(error){ throw new Error('Mugshot upload failed: '+error.message); }
+  const {data} = sb.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+/* ----- save / delete arrest (with suspect + seizures) ----- */
+async function saveArrest(){
+  const msg = $('arrest-form-msg');
+  const suspectName = $('ar-suspect').value.trim();
+  if(!suspectName){ msg.innerHTML='<div class="msg msg-err">Suspect name is required.</div>'; return; }
+  if(_chargeTags.length===0){ msg.innerHTML='<div class="msg msg-err">Add at least one charge.</div>'; return; }
+  msg.innerHTML='<div class="msg">Saving…</div>';
+
+  try{
+    // 1. mugshot upload if a new file chosen
+    let mugUrl = $('ar-mugshot-url').value || null;
+    if($('ar-mugshot-file').files[0]){ mugUrl = await uploadMugshot($('ar-mugshot-file')); }
+
+    const dna = $('ar-dna').checked, prints = $('ar-prints').checked;
+
+    // 2. upsert suspect record (find-or-create by name)
+    let suspectId = $('ar-suspect-id').value ? Number($('ar-suspect-id').value) : null;
+    if(!suspectId){
+      const {data:existing} = await sb.from('suspects').select('*').ilike('name', suspectName).limit(1);
+      if(existing && existing.length){ suspectId = existing[0].id; }
+    }
+    if(suspectId){
+      // update biometric flags / mugshot upward (don't unset existing)
+      const patch = {};
+      if(dna) patch.dna_on_file = true;
+      if(prints) patch.prints_on_file = true;
+      if(mugUrl) patch.mugshot_url = mugUrl;
+      if(Object.keys(patch).length) await sb.from('suspects').update(patch).eq('id',suspectId);
+    } else {
+      const {data:newSusp,error:se} = await sb.from('suspects').insert({
+        name: suspectName, mugshot_url: mugUrl, dna_on_file: dna, prints_on_file: prints
+      }).select().single();
+      if(se) throw se;
+      suspectId = newSusp.id;
+    }
+
+    // 3. save arrest
+    const seizeTotal = updateSeizureTotal();
+    const payload = {
+      arrest_type: $('ar-type').value,
+      suspect_id: suspectId,
+      suspect_name: suspectName,
+      charges: _chargeTags.join(', '),
+      arresting_officer: $('ar-officer').value.trim(),
+      officer_badge: currentOfficer?.badge_number||null,
+      assisting_officers: $('ar-assist').value.trim(),
+      location: $('ar-location').value.trim(),
+      narrative: $('ar-narrative').value.trim(),
+      dna, fingerprints: prints,
+      mugshot_url: mugUrl,
+      seized_value: seizeTotal,
+      status: $('ar-status').value
+    };
+    const id = $('ar-id').value;
+    let arrestId;
+    if(id){
+      const {error} = await sb.from('arrests').update(payload).eq('id',id);
+      if(error) throw error;
+      arrestId = Number(id);
+      await sb.from('seizures').delete().eq('arrest_id',arrestId); // replace nested seizures
+    } else {
+      payload.officer_id = currentUser.id;
+      const {data:newArr,error} = await sb.from('arrests').insert(payload).select().single();
+      if(error) throw error;
+      arrestId = newArr.id;
+    }
+
+    // 4. insert nested seizures
+    const seizureRows = [...$('ar-seizure-rows').children].map(row=>{
+      const cat=row.dataset.cat, item=row.querySelector('.sz-item').value, qty=Number(row.querySelector('.sz-qty').value)||0;
+      const unit=unitPriceFor(cat,item);
+      return {arrest_id:arrestId, category:cat, item, quantity:qty, unit_value:unit, line_value:unit*qty};
+    }).filter(r=>r.item);
+    if(seizureRows.length) await sb.from('seizures').insert(seizureRows);
+
+    _suspects = []; // bust cache
+    closeModal('arrest-modal-overlay');
+    loadArrests();
+  }catch(err){
+    msg.innerHTML = `<div class="msg msg-err">${escapeHTML(err.message||String(err))}</div>`;
+  }
+}
+
+async function deleteArrest(){
+  const id = $('ar-id').value;
+  if(!id || !confirm('Delete this arrest and its seizures?')) return;
+  await sb.from('arrests').delete().eq('id',id); // seizures cascade
+  closeModal('arrest-modal-overlay');
+  loadArrests();
+}
+
+/* ---------------- VIEW ARREST (detail) ---------------- */
 async function viewArrest(id){
-  const {data:a} = await sb.from('arrests').select('*').eq('id',id).single();
+  const a = _arrests.find(x=>x.id===id);
   if(!a) return;
-  const canEdit = currentOfficer && (currentOfficer.role==='admin' || currentOfficer.id===a.officer_id);
+  const canEdit = currentOfficer && (currentOfficer.role==='admin' || currentOfficer.id===a.officer_id) && currentOfficer.status==='approved';
+  const mug = a.mugshot_url || mugForSuspect(a.suspect_id);
+  const bio = [a.dna&&'🧬 DNA collected', a.fingerprints&&'🖐 Fingerprints collected'].filter(Boolean).join(' · ') || 'None recorded';
+  const chargesList = (a.charges||'').split(',').map(c=>c.trim()).filter(Boolean);
+  const seizeRows = a._seizures.map(s=>`<tr><td>${escapeHTML(s.item)}</td><td style="color:var(--ts)">${s.category}</td><td>${s.quantity}</td><td style="color:var(--green)">${money(s.line_value)}</td></tr>`).join('');
+  const seizeTotal = a._seizures.reduce((t,s)=>t+(Number(s.line_value)||0),0);
   $('view-modal-content').innerHTML = `
-    <div class="modal-hd"><div class="tag">Arrest #${a.id}</div><h3 style="font-size:18px;font-weight:700">${escapeHTML(a.suspect_name)}</h3></div>
+    <div class="modal-hd" style="display:flex;gap:14px;align-items:center">
+      ${mug?`<img class="ar-mug" style="width:56px;height:56px" src="${escapeHTML(mug)}">`:`<div class="ar-mug-ph" style="width:56px;height:56px">👤</div>`}
+      <div><div class="tag">Arrest #${a.id} · ${arrestTypeLabel(a.arrest_type)}</div><h3 style="font-size:19px;font-weight:700">${escapeHTML(a.suspect_name)}</h3></div>
+    </div>
     <div class="modal-bd">
-      <div class="frow" style="margin-bottom:1.2rem">
-        <div><div class="flbl">Charges</div><div style="font-size:14px">${escapeHTML(a.charges)}</div></div>
+      <div class="frow" style="margin-bottom:1.1rem">
         <div><div class="flbl">Status</div><div style="font-size:14px">${escapeHTML((a.status||'').replace('_',' '))}</div></div>
+        <div><div class="flbl">Date</div><div style="font-size:14px">${fmtDate(a.occurred_at)}</div></div>
       </div>
-      <div class="frow" style="margin-bottom:1.2rem">
-        <div><div class="flbl">Officer</div><div style="font-size:14px">${escapeHTML(a.arresting_officer)}</div></div>
+      <div style="margin-bottom:1.1rem"><div class="flbl">Charges</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">${chargesList.map(c=>`<span class="charge-tag" style="cursor:default">${escapeHTML(c)}</span>`).join('')||'<span style="font-size:13px;color:var(--ts)">None</span>'}</div></div>
+      <div class="frow" style="margin-bottom:1.1rem">
+        <div><div class="flbl">Arresting Officer</div><div style="font-size:14px">${escapeHTML(a.arresting_officer||'—')}</div></div>
         <div><div class="flbl">Location</div><div style="font-size:14px">${escapeHTML(a.location||'—')}</div></div>
       </div>
-      <div style="margin-bottom:1.2rem"><div class="flbl">Narrative</div><div style="font-size:14px;line-height:1.6">${escapeHTML(a.narrative||'—')}</div></div>
-      <div><div class="flbl">Evidence / Notes</div><div style="font-size:14px;line-height:1.6">${escapeHTML(a.evidence||'—')}</div></div>
-      ${canEdit ? `<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-d)"><button class="btn" onclick='closeModal("view-modal-overlay");openArrestModal(${JSON.stringify(a).replace(/'/g,"&apos;")})'>✏️ Edit</button></div>` : ''}
+      ${a.assisting_officers?`<div style="margin-bottom:1.1rem"><div class="flbl">Assisting</div><div style="font-size:14px">${escapeHTML(a.assisting_officers)}</div></div>`:''}
+      <div style="margin-bottom:1.1rem"><div class="flbl">Biometric Evidence</div><div style="font-size:14px">${bio}</div></div>
+      <div style="margin-bottom:1.1rem"><div class="flbl">Narrative</div><div style="font-size:14px;line-height:1.6">${escapeHTML(a.narrative||'—')}</div></div>
+      ${a._seizures.length?`<div class="flbl">Items Seized</div>
+        <table style="width:100%;font-size:13px;margin-top:6px"><thead><tr><th style="text-align:left;color:var(--ts);font-size:11px;text-transform:uppercase;padding:4px">Item</th><th style="text-align:left;color:var(--ts);font-size:11px;text-transform:uppercase;padding:4px">Type</th><th style="text-align:left;color:var(--ts);font-size:11px;text-transform:uppercase;padding:4px">Qty</th><th style="text-align:left;color:var(--ts);font-size:11px;text-transform:uppercase;padding:4px">Value</th></tr></thead><tbody>${seizeRows}</tbody></table>
+        <div style="text-align:right;margin-top:6px;font-size:14px">Total: <strong style="color:var(--green)">${money(seizeTotal)}</strong></div>`:''}
+      ${canEdit?`<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-d)"><button class="btn" onclick='closeModal("view-modal-overlay");openArrestModal(${JSON.stringify(a).replace(/'/g,"&apos;").replace(/</g,"\\u003c")})'>✏️ Edit</button></div>`:''}
     </div>`;
   $('view-modal-overlay').style.display='block';
 }
 
-async function saveArrest(){
-  const id = $('ar-id').value;
-  const payload = {
-    suspect_name: $('ar-suspect').value.trim(),
-    charges: $('ar-charges').value.trim(),
-    status: $('ar-status').value,
-    arresting_officer: $('ar-officer').value.trim(),
-    location: $('ar-location').value.trim(),
-    narrative: $('ar-narrative').value.trim(),
-    evidence: $('ar-evidence').value.trim(),
-  };
-  if(!payload.suspect_name || !payload.charges){ $('arrest-form-msg').innerHTML='<div class="msg msg-err">Suspect name and charges are required.</div>'; return; }
-  let error;
-  if(id){
-    ({error} = await sb.from('arrests').update(payload).eq('id',id));
-  } else {
-    payload.officer_id = currentUser.id;
-    ({error} = await sb.from('arrests').insert(payload));
-  }
-  if(error){ $('arrest-form-msg').innerHTML = `<div class="msg msg-err">${escapeHTML(error.message)}</div>`; return; }
-  closeModal('arrest-modal-overlay');
-  loadArrests();
+/* ---------------- SUSPECTS ---------------- */
+async function loadSuspects(){
+  const {data,error} = await sb.from('suspects').select('*').order('name');
+  if(error){ $('suspects-list').innerHTML=`<div class="empty">Error: ${escapeHTML(error.message)}</div>`; return; }
+  _suspects = data||[];
+  renderSuspects();
 }
-async function deleteArrest(){
-  const id = $('ar-id').value;
-  if(!id || !confirm('Delete this arrest record?')) return;
-  await sb.from('arrests').delete().eq('id',id);
-  closeModal('arrest-modal-overlay');
-  loadArrests();
+function renderSuspects(){
+  const q=($('suspects-search').value||'').toLowerCase().trim();
+  let list=_suspects;
+  if(q) list=list.filter(s=>s.name.toLowerCase().includes(q));
+  const el=$('suspects-list');
+  if(!list.length){ el.innerHTML='<div class="empty">No suspects on file.</div>'; return; }
+  el.innerHTML=list.map(s=>{
+    const arrests=_arrests.filter(a=>a.suspect_id===s.id).length;
+    const bio=[s.dna_on_file&&'🧬',s.prints_on_file&&'🖐'].filter(Boolean).join(' ');
+    return `<div class="ar-card" onclick="openSuspectModal(${s.id})">
+      ${s.mugshot_url?`<img class="ar-mug" src="${escapeHTML(s.mugshot_url)}">`:`<div class="ar-mug-ph">👤</div>`}
+      <div class="ar-body">
+        <div class="ar-top"><div><div class="ar-name">${escapeHTML(s.name)}</div><div class="ar-meta">${arrests} arrest${arrests===1?'':'s'} on record</div></div><span>${bio}</span></div>
+        <div class="ar-charges">${escapeHTML(s.notes||'No notes')}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openSuspectModal(id){
+  $('suspect-form-msg').innerHTML='';
+  $('su-mugshot-file').value='';
+  $('su-mugshot-preview').style.display='none';
+  const s = id ? _suspects.find(x=>x.id===id) : null;
+  if(s){
+    $('suspect-modal-title').textContent='Edit Suspect';
+    $('su-id').value=s.id; $('su-name').value=s.name;
+    $('su-notes').value=s.notes||''; $('su-dna').checked=!!s.dna_on_file; $('su-prints').checked=!!s.prints_on_file;
+    $('su-mugshot-url').value=s.mugshot_url||'';
+    if(s.mugshot_url){ $('su-mugshot-preview').src=s.mugshot_url; $('su-mugshot-preview').style.display='block'; }
+    $('su-delete-btn').style.display='inline-block';
+  } else {
+    $('suspect-modal-title').textContent='Add Suspect';
+    ['su-id','su-name','su-notes','su-mugshot-url'].forEach(i=>$(i).value='');
+    $('su-dna').checked=false; $('su-prints').checked=false;
+    $('su-delete-btn').style.display='none';
+  }
+  $('suspect-modal-overlay').style.display='block';
+}
+async function saveSuspect(){
+  const msg=$('suspect-form-msg');
+  const name=$('su-name').value.trim();
+  if(!name){ msg.innerHTML='<div class="msg msg-err">Name is required.</div>'; return; }
+  msg.innerHTML='<div class="msg">Saving…</div>';
+  try{
+    let mugUrl=$('su-mugshot-url').value||null;
+    if($('su-mugshot-file').files[0]){ mugUrl=await uploadMugshot($('su-mugshot-file')); }
+    const payload={name, notes:$('su-notes').value.trim(), dna_on_file:$('su-dna').checked, prints_on_file:$('su-prints').checked, mugshot_url:mugUrl};
+    const id=$('su-id').value;
+    if(id){ const {error}=await sb.from('suspects').update(payload).eq('id',id); if(error) throw error; }
+    else { const {error}=await sb.from('suspects').insert(payload); if(error) throw error; }
+    _suspects=[]; closeModal('suspect-modal-overlay'); loadSuspects();
+  }catch(err){ msg.innerHTML=`<div class="msg msg-err">${escapeHTML(err.message||String(err))}</div>`; }
+}
+async function deleteSuspect(){
+  const id=$('su-id').value;
+  if(!id||!confirm('Delete this suspect file? Arrests will keep their names but lose the linked file.')) return;
+  await sb.from('suspects').delete().eq('id',id);
+  _suspects=[]; closeModal('suspect-modal-overlay'); loadSuspects();
 }
 
-/* ---------------- SEIZURES ---------------- */
-async function loadSeizures(){
-  const {data,error} = await sb.from('seizures').select('*').order('created_at',{ascending:false});
-  if(error){ $('seizures-list').innerHTML = `<div class="empty">Error loading: ${escapeHTML(error.message)}</div>`; return; }
-  if(!data.length){ $('seizures-list').innerHTML = '<div class="empty">No seizures logged yet.</div>'; return; }
-  const statusBadge = s => ({in_evidence:'bg-blue',destroyed:'bg-red',returned:'bg-gray',auctioned:'bg-green'}[s]||'bg-gray');
-  $('seizures-list').innerHTML = data.map(s=>`
-    <div class="ccard" onclick="viewSeizure(${s.id})">
-      <div class="ccard-top">
-        <div><div class="ccard-title">${escapeHTML(s.item_type)}</div><div class="ccard-meta">#${s.id} · ${fmtDate(s.occurred_at)}</div></div>
-        <span class="badge ${statusBadge(s.status)}">${escapeHTML((s.status||'').replace('_',' '))}</span>
-      </div>
-      <div class="ccard-body">${escapeHTML(s.description||'—')}</div>
-      <div class="ccard-foot"><span>👮 ${escapeHTML(s.seizing_officer)}</span><span>${s.estimated_value?money(s.estimated_value):''}</span></div>
+/* ---------------- IMPOUNDS ---------------- */
+let _impounds = [];
+async function loadImpounds(){
+  const {data,error} = await sb.from('impounds').select('*').order('created_at',{ascending:false});
+  const tb = $('impounds-table-body');
+  if(error){ tb.innerHTML=`<tr><td colspan="9" class="empty">Error: ${escapeHTML(error.message)}</td></tr>`; return; }
+  _impounds = data||[];
+  renderImpounds();
+}
+function renderImpounds(){
+  const q=($('impounds-search').value||'').toLowerCase().trim();
+  let list=_impounds;
+  if(q) list=list.filter(i=>[i.vehicle,i.plate,i.owner_name,i.officer_name,i.reason].join(' ').toLowerCase().includes(q));
+  const tb=$('impounds-table-body');
+  if(!list.length){ tb.innerHTML='<tr><td colspan="9" class="empty">No impounds logged.</td></tr>'; return; }
+  const sc = s=>({impounded:'bg-red',released:'bg-gray',auctioned:'bg-green'}[s]||'bg-gray');
+  tb.innerHTML=list.map(i=>`<tr style="cursor:pointer" onclick="openImpoundModal(${i.id})">
+    <td style="font-weight:600">${escapeHTML(i.vehicle)}${i.source==='auto'?' <span class="badge bg-blue" style="font-size:9px">AUTO</span>':''}</td>
+    <td>${escapeHTML(i.plate||'—')}</td>
+    <td>${escapeHTML(i.owner_name||'—')}</td>
+    <td style="color:var(--ts)">${escapeHTML(i.reason||'—')}</td>
+    <td>${i.fee?money(i.fee):'—'}</td>
+    <td style="color:var(--ts)">${escapeHTML(i.officer_name||'—')}</td>
+    <td><span class="badge ${sc(i.status)}">${escapeHTML(i.status)}</span></td>
+    <td style="color:var(--ts);font-size:12px">${fmtDate(i.created_at)}</td>
+    <td style="color:var(--red-l)">Edit</td></tr>`).join('');
+}
+function openImpoundModal(id){
+  $('impound-form-msg').innerHTML='';
+  const i = id ? _impounds.find(x=>x.id===id) : null;
+  if(i){
+    $('impound-modal-title').textContent='Edit Impound #'+i.id;
+    $('im-id').value=i.id; $('im-vehicle').value=i.vehicle||''; $('im-plate').value=i.plate||'';
+    $('im-owner').value=i.owner_name||''; $('im-fee').value=i.fee||''; $('im-reason').value=i.reason||'';
+    $('im-location').value=i.location||''; $('im-status').value=i.status||'impounded'; $('im-officer').value=i.officer_name||'';
+    $('im-delete-btn').style.display='inline-block';
+  } else {
+    $('impound-modal-title').textContent='Log Impound';
+    ['im-id','im-vehicle','im-plate','im-owner','im-fee','im-reason','im-location'].forEach(x=>$(x).value='');
+    $('im-status').value='impounded';
+    $('im-officer').value = currentOfficer ? `${currentOfficer.callsign} (${currentOfficer.full_name})` : '';
+    $('im-delete-btn').style.display='none';
+  }
+  $('impound-modal-overlay').style.display='block';
+}
+async function saveImpound(){
+  const msg=$('impound-form-msg');
+  if(!$('im-vehicle').value.trim()){ msg.innerHTML='<div class="msg msg-err">Vehicle is required.</div>'; return; }
+  const payload={
+    vehicle:$('im-vehicle').value.trim(), plate:$('im-plate').value.trim(), owner_name:$('im-owner').value.trim(),
+    reason:$('im-reason').value.trim(), fee:$('im-fee').value?Number($('im-fee').value):0,
+    location:$('im-location').value.trim(), status:$('im-status').value, officer_name:$('im-officer').value.trim()
+  };
+  const id=$('im-id').value; let error;
+  if(id){ ({error}=await sb.from('impounds').update(payload).eq('id',id)); }
+  else { payload.officer_id=currentUser.id; payload.source='manual'; ({error}=await sb.from('impounds').insert(payload)); }
+  if(error){ msg.innerHTML=`<div class="msg msg-err">${escapeHTML(error.message)}</div>`; return; }
+  closeModal('impound-modal-overlay'); loadImpounds();
+}
+async function deleteImpound(){
+  const id=$('im-id').value;
+  if(!id||!confirm('Delete this impound record?')) return;
+  await sb.from('impounds').delete().eq('id',id);
+  closeModal('impound-modal-overlay'); loadImpounds();
+}
+
+/* ---------------- TICKETS ---------------- */
+let _tickets = [];
+async function loadTickets(){
+  const {data,error} = await sb.from('tickets').select('*').order('created_at',{ascending:false});
+  const tb = $('tickets-table-body');
+  if(error){ tb.innerHTML=`<tr><td colspan="8" class="empty">Error: ${escapeHTML(error.message)}</td></tr>`; return; }
+  _tickets = data||[];
+  renderTickets();
+}
+function renderTickets(){
+  const q=($('tickets-search').value||'').toLowerCase().trim();
+  let list=_tickets;
+  if(q) list=list.filter(t=>[t.recipient_name,t.plate,t.violation,t.officer_name].join(' ').toLowerCase().includes(q));
+  const tb=$('tickets-table-body');
+  if(!list.length){ tb.innerHTML='<tr><td colspan="8" class="empty">No tickets issued.</td></tr>'; return; }
+  const sc = s=>({unpaid:'bg-red',paid:'bg-green',contested:'bg-amber',void:'bg-gray'}[s]||'bg-gray');
+  tb.innerHTML=list.map(t=>`<tr style="cursor:pointer" onclick="openTicketModal(${t.id})">
+    <td style="font-weight:600">${escapeHTML(t.recipient_name)}${t.source==='auto'?' <span class="badge bg-blue" style="font-size:9px">AUTO</span>':''}</td>
+    <td>${escapeHTML(t.plate||'—')}</td>
+    <td style="color:var(--ts)">${escapeHTML(t.violation||'—')}</td>
+    <td>${t.fine?money(t.fine):'—'}</td>
+    <td style="color:var(--ts)">${escapeHTML(t.officer_name||'—')}</td>
+    <td><span class="badge ${sc(t.status)}">${escapeHTML(t.status)}</span></td>
+    <td style="color:var(--ts);font-size:12px">${fmtDate(t.created_at)}</td>
+    <td style="color:var(--red-l)">Edit</td></tr>`).join('');
+}
+function openTicketModal(id){
+  $('ticket-form-msg').innerHTML='';
+  const t = id ? _tickets.find(x=>x.id===id) : null;
+  if(t){
+    $('ticket-modal-title').textContent='Edit Ticket #'+t.id;
+    $('tk-id').value=t.id; $('tk-recipient').value=t.recipient_name||''; $('tk-plate').value=t.plate||'';
+    $('tk-violation').value=t.violation||''; $('tk-fine').value=t.fine||''; $('tk-location').value=t.location||'';
+    $('tk-status').value=t.status||'unpaid'; $('tk-officer').value=t.officer_name||'';
+    $('tk-delete-btn').style.display='inline-block';
+  } else {
+    $('ticket-modal-title').textContent='Issue Ticket';
+    ['tk-id','tk-recipient','tk-plate','tk-violation','tk-fine','tk-location'].forEach(x=>$(x).value='');
+    $('tk-status').value='unpaid';
+    $('tk-officer').value = currentOfficer ? `${currentOfficer.callsign} (${currentOfficer.full_name})` : '';
+    $('tk-delete-btn').style.display='none';
+  }
+  $('ticket-modal-overlay').style.display='block';
+}
+async function saveTicket(){
+  const msg=$('ticket-form-msg');
+  if(!$('tk-recipient').value.trim()){ msg.innerHTML='<div class="msg msg-err">Recipient is required.</div>'; return; }
+  const payload={
+    recipient_name:$('tk-recipient').value.trim(), plate:$('tk-plate').value.trim(), violation:$('tk-violation').value.trim(),
+    fine:$('tk-fine').value?Number($('tk-fine').value):0, location:$('tk-location').value.trim(),
+    status:$('tk-status').value, officer_name:$('tk-officer').value.trim()
+  };
+  const id=$('tk-id').value; let error;
+  if(id){ ({error}=await sb.from('tickets').update(payload).eq('id',id)); }
+  else { payload.officer_id=currentUser.id; payload.source='manual'; ({error}=await sb.from('tickets').insert(payload)); }
+  if(error){ msg.innerHTML=`<div class="msg msg-err">${escapeHTML(error.message)}</div>`; return; }
+  closeModal('ticket-modal-overlay'); loadTickets();
+}
+async function deleteTicket(){
+  const id=$('tk-id').value;
+  if(!id||!confirm('Delete this ticket?')) return;
+  await sb.from('tickets').delete().eq('id',id);
+  closeModal('ticket-modal-overlay'); loadTickets();
+}
+
+/* ---------------- ANALYSIS ---------------- */
+async function loadAnalysis(){
+  try{ if(_arrests.length===0) _arrests = await fetchArrestsWithSeizures(); }catch(err){}
+  // by type
+  const types={normal:0,narcotics:0,firearms:0,both:0};
+  _arrests.forEach(a=>{ types[a.arrest_type]=(types[a.arrest_type]||0)+1; });
+  renderBars('an-types', Object.entries(types).map(([k,v])=>[arrestTypeLabel(k),v]));
+  // biometrics
+  const dna=_arrests.filter(a=>a.dna).length, prints=_arrests.filter(a=>a.fingerprints).length, none=_arrests.filter(a=>!a.dna&&!a.fingerprints).length;
+  renderBars('an-bio', [['🧬 DNA collected',dna],['🖐 Prints collected',prints],['No biometrics',none]]);
+  // charges
+  const chargeCount={};
+  _arrests.forEach(a=>(a.charges||'').split(',').map(c=>c.trim()).filter(Boolean).forEach(c=>chargeCount[c]=(chargeCount[c]||0)+1));
+  const topCharges=Object.entries(chargeCount).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  renderBars('an-charges', topCharges.length?topCharges:[['No charges yet',0]]);
+  // items by value
+  const itemVal={};
+  _arrests.forEach(a=>a._seizures.forEach(s=>{ itemVal[s.item]=(itemVal[s.item]||0)+(Number(s.line_value)||0); }));
+  const topItems=Object.entries(itemVal).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  renderBars('an-items', topItems.length?topItems:[['No seizures yet',0]], true);
+}
+function renderBars(elId, pairs, isMoney){
+  const el=$(elId);
+  const max=Math.max(...pairs.map(p=>p[1]),1);
+  el.innerHTML=pairs.map(([label,val])=>`
+    <div class="bar-row">
+      <span class="bar-lbl" title="${escapeHTML(label)}">${escapeHTML(label)}</span>
+      <span class="bar-track"><span class="bar-fill" style="width:${(val/max*100)}%"></span></span>
+      <span class="bar-num">${isMoney?money(val):val}</span>
     </div>`).join('');
 }
 
-function openSeizureModal(existing){
-  $('seizure-form-msg').innerHTML='';
-  if(existing){
-    $('seizure-modal-title').textContent = 'Edit Seizure #'+existing.id;
-    $('sz-id').value = existing.id;
-    $('sz-type').value = existing.item_type||'narcotics';
-    $('sz-status').value = existing.status||'in_evidence';
-    $('sz-qty').value = existing.quantity||'';
-    $('sz-value').value = existing.estimated_value||'';
-    $('sz-desc').value = existing.description||'';
-    $('sz-officer').value = existing.seizing_officer||'';
-    $('sz-location').value = existing.location||'';
-    $('sz-linked').value = existing.linked_arrest_id||'';
-    $('sz-delete-btn').style.display='inline-block';
-  } else {
-    $('seizure-modal-title').textContent = 'Log Seizure';
-    ['sz-id','sz-qty','sz-value','sz-desc','sz-location','sz-linked'].forEach(id=>$(id).value='');
-    $('sz-type').value='narcotics'; $('sz-status').value='in_evidence';
-    $('sz-officer').value = currentOfficer ? `${currentOfficer.callsign} (${currentOfficer.full_name})` : '';
-    $('sz-delete-btn').style.display='none';
-  }
-  $('seizure-modal-overlay').style.display='block';
-}
-
-async function viewSeizure(id){
-  const {data:s} = await sb.from('seizures').select('*').eq('id',id).single();
-  if(!s) return;
-  const canEdit = currentOfficer && (currentOfficer.role==='admin' || currentOfficer.id===s.officer_id);
-  $('view-modal-content').innerHTML = `
-    <div class="modal-hd"><div class="tag">Seizure #${s.id}</div><h3 style="font-size:18px;font-weight:700">${escapeHTML(s.item_type)}</h3></div>
-    <div class="modal-bd">
-      <div class="frow" style="margin-bottom:1.2rem">
-        <div><div class="flbl">Quantity</div><div style="font-size:14px">${escapeHTML(s.quantity||'—')}</div></div>
-        <div><div class="flbl">Est. Value</div><div style="font-size:14px">${s.estimated_value?money(s.estimated_value):'—'}</div></div>
-      </div>
-      <div class="frow" style="margin-bottom:1.2rem">
-        <div><div class="flbl">Officer</div><div style="font-size:14px">${escapeHTML(s.seizing_officer)}</div></div>
-        <div><div class="flbl">Location</div><div style="font-size:14px">${escapeHTML(s.location||'—')}</div></div>
-      </div>
-      <div style="margin-bottom:1.2rem"><div class="flbl">Description</div><div style="font-size:14px;line-height:1.6">${escapeHTML(s.description||'—')}</div></div>
-      ${s.linked_arrest_id ? `<div style="margin-bottom:1.2rem"><span style="font-size:12px;color:var(--red-l)">🔗 Linked to Arrest #${s.linked_arrest_id}</span></div>` : ''}
-      <div><div class="flbl">Status</div><div style="font-size:14px">${escapeHTML((s.status||'').replace('_',' '))}</div></div>
-      ${canEdit ? `<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-d)"><button class="btn" onclick='closeModal("view-modal-overlay");openSeizureModal(${JSON.stringify(s).replace(/'/g,"&apos;")})'>✏️ Edit</button></div>` : ''}
-    </div>`;
-  $('view-modal-overlay').style.display='block';
-}
-
-async function saveSeizure(){
-  const id = $('sz-id').value;
-  const payload = {
-    item_type: $('sz-type').value,
-    status: $('sz-status').value,
-    quantity: $('sz-qty').value.trim(),
-    estimated_value: $('sz-value').value ? Number($('sz-value').value) : null,
-    description: $('sz-desc').value.trim(),
-    seizing_officer: $('sz-officer').value.trim(),
-    location: $('sz-location').value.trim(),
-    linked_arrest_id: $('sz-linked').value ? Number($('sz-linked').value) : null,
-  };
-  if(!payload.seizing_officer){ $('seizure-form-msg').innerHTML='<div class="msg msg-err">Seizing officer is required.</div>'; return; }
-  let error;
-  if(id){
-    ({error} = await sb.from('seizures').update(payload).eq('id',id));
-  } else {
-    payload.officer_id = currentUser.id;
-    ({error} = await sb.from('seizures').insert(payload));
-  }
-  if(error){ $('seizure-form-msg').innerHTML = `<div class="msg msg-err">${escapeHTML(error.message)}</div>`; return; }
-  closeModal('seizure-modal-overlay');
-  loadSeizures();
-}
-async function deleteSeizure(){
-  const id = $('sz-id').value;
-  if(!id || !confirm('Delete this seizure record?')) return;
-  await sb.from('seizures').delete().eq('id',id);
-  closeModal('seizure-modal-overlay');
-  loadSeizures();
-}
 
 /* ---------------- ADMIN: APPLICATIONS ---------------- */
 async function loadApplications(){
@@ -1452,6 +2136,18 @@ async function setOfficerStatus(id,status){
 document.addEventListener('keydown', e=>{
   if(e.key==='Escape'){
     document.querySelectorAll('.modal-overlay').forEach(m=>m.style.display='none');
+  }
+});
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#ar-suspect') && !e.target.closest('#ar-suspect-suggest')){ const b=$('ar-suspect-suggest'); if(b) b.classList.remove('show'); }
+  if(!e.target.closest('#ar-charge-input') && !e.target.closest('#ar-charge-suggest')){ const b=$('ar-charge-suggest'); if(b) b.classList.remove('show'); }
+});
+// live mugshot preview on file pick
+document.addEventListener('change', e=>{
+  if(e.target.id==='ar-mugshot-file' || e.target.id==='su-mugshot-file'){
+    const f=e.target.files[0]; if(!f) return;
+    const previewId = e.target.id==='ar-mugshot-file'?'ar-mugshot-preview':'su-mugshot-preview';
+    const img=$(previewId); img.src=URL.createObjectURL(f); img.style.display='block';
   }
 });
 
