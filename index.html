@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LSPD Operations — Central Command</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0b0d10;color:#e6e8ec;min-height:100vh}
+:root{
+  --red:#c1352c;--red-l:#e2544a;--red-d:#8f251f;
+  --ink:#0b0d10;--panel:#14171b;--panel-l:#1b1f24;
+  --border:rgba(193,53,44,.22);--border-d:rgba(255,255,255,.07);
+  --tp:#e6e8ec;--ts:#93989f;
+  --green:#3fa66b;--blue:#4a8fe0;--amber:#d1972f
+}
+body>nav{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.97);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nb{display:flex;align-items:center;gap:12px}
+.nb-badge{background:var(--red);color:#fff;font-size:9px;font-weight:700;letter-spacing:2px;padding:3px 8px;border-radius:2px;text-transform:uppercase}
+.nb-title{font-size:15px;font-weight:700;letter-spacing:.3px}
+.nb-sub{font-size:11px;color:var(--red-l);letter-spacing:1.5px;text-transform:uppercase}
+.nl{display:flex;gap:8px;align-items:center}
+.btn{background:none;border:1px solid var(--border-d);color:var(--ts);padding:7px 16px;border-radius:4px;cursor:pointer;font-size:13px;transition:all .15s;font-family:inherit}
+.btn:hover{border-color:var(--red-l);color:var(--red-l)}
+.btn.primary{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
+.btn.primary:hover{background:var(--red-l);color:#fff}
+.btn.danger{border-color:rgba(214,69,69,.35);color:#f08080}
+.btn.danger:hover{background:rgba(214,69,69,.1)}
+.btn.ghost{border-color:transparent}
+
+.page{display:none}
+.page.active{display:block}
+#pg-dash{display:none}
+#pg-dash.active{display:flex;flex-direction:column;min-height:100vh}
+
+/* hero */
+.hero{min-height:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem 3rem;position:relative;overflow:hidden;background:
+  repeating-linear-gradient(135deg, rgba(255,255,255,.015) 0 2px, transparent 2px 40px)}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(193,53,44,.14) 0%,transparent 65%);pointer-events:none}
+.hero>*{position:relative;z-index:1}
+.hero-eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--red-l);margin-bottom:1.5rem;border:1px solid var(--border);padding:5px 16px;border-radius:2px;display:inline-block;background:rgba(11,13,16,.5)}
+.hero h1{font-size:clamp(2rem,5vw,3.3rem);font-weight:800;line-height:1.1;margin-bottom:1rem;letter-spacing:-.5px}
+.hero h1 span{color:var(--red-l)}
+.hero p{font-size:16px;color:#c3c6cf;max-width:560px;line-height:1.7;margin-bottom:2.5rem}
+.hero-strip{display:flex;gap:1px;background:var(--border);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+.hs{background:rgba(20,23,27,.92);padding:1.2rem 2.3rem;text-align:center}
+.hs-num{font-size:26px;font-weight:800;color:var(--red-l)}
+.hs-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ts);margin-top:3px}
+
+.sec{padding:3rem 2rem;max-width:1150px;margin:0 auto}
+.sec-hd{margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.sec-hd h2{font-size:21px;font-weight:700}
+.sec-hd p{font-size:13px;color:var(--ts);margin-top:4px}
+.tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--red-l);margin-bottom:8px;font-weight:600}
+.divider{height:1px;background:var(--border-d);margin:0 2rem}
+
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--border-d);border-radius:4px;overflow:hidden;border:1px solid var(--border-d);margin-bottom:2rem}
+.sc{background:var(--panel-l);padding:1.4rem}
+.sc-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ts);margin-bottom:8px}
+.sc-val{font-size:25px;font-weight:800}
+.sc-val.red{color:var(--red-l)}
+.sc-val.green{color:var(--green)}
+.sc-val.blue{color:var(--blue)}
+.sc-val.amber{color:var(--amber)}
+
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem}
+.ccard{background:var(--panel-l);border:1px solid var(--border-d);border-radius:8px;padding:1.3rem;cursor:pointer;transition:border-color .15s}
+.ccard:hover{border-color:var(--border)}
+.ccard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem}
+.ccard-title{font-size:15px;font-weight:700}
+.ccard-meta{font-size:12px;color:var(--ts);margin-top:2px}
+.ccard-body{font-size:13px;color:#c3c6cf;line-height:1.5;margin:.6rem 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ccard-foot{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--ts);margin-top:.6rem;border-top:1px solid var(--border-d);padding-top:.6rem}
+
+.badge{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:3px}
+.bg-red{background:rgba(193,53,44,.15);color:var(--red-l);border:1px solid var(--border)}
+.bg-green{background:rgba(63,166,107,.15);color:var(--green);border:1px solid rgba(63,166,107,.3)}
+.bg-amber{background:rgba(209,151,47,.15);color:var(--amber);border:1px solid rgba(209,151,47,.3)}
+.bg-blue{background:rgba(74,143,224,.15);color:var(--blue);border:1px solid rgba(74,143,224,.3)}
+.bg-gray{background:rgba(255,255,255,.06);color:var(--ts);border:1px solid var(--border-d)}
+
+.fgrp{margin-bottom:1.15rem}
+.flbl{display:block;font-size:11px;letter-spacing:.5px;color:var(--ts);margin-bottom:6px;text-transform:uppercase}
+input.fi,select.fi,textarea.fi{width:100%;background:var(--ink);border:1px solid var(--border-d);border-radius:6px;padding:10px 14px;color:var(--tp);font-size:14px;outline:none;font-family:inherit;transition:border-color .15s}
+input.fi:focus,select.fi:focus,textarea.fi:focus{border-color:var(--red)}
+input.fi::placeholder,textarea.fi::placeholder{color:#4a4f57}
+textarea.fi{resize:vertical;min-height:80px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.sbtn{width:100%;padding:11px;border-radius:6px;border:none;cursor:pointer;font-size:14px;font-weight:700;letter-spacing:.4px;background:var(--red);color:#fff;margin-top:4px;font-family:inherit}
+.sbtn:hover{background:var(--red-l)}
+.sbtn:disabled{opacity:.5;cursor:not-allowed}
+
+.msg{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:1rem}
+.msg-err{background:rgba(214,69,69,.1);border:1px solid rgba(214,69,69,.3);color:#f08080}
+.msg-ok{background:rgba(63,166,107,.1);border:1px solid rgba(63,166,107,.3);color:#6ad391}
+
+.auth-wrap{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;padding:2rem}
+.auth-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:2.4rem;width:100%;max-width:400px}
+.auth-logo{text-align:center;margin-bottom:2rem}
+.auth-logo .sh{font-size:44px;margin-bottom:8px}
+.auth-logo h2{font-size:18px;font-weight:700;color:var(--red-l)}
+.auth-logo p{font-size:11px;color:var(--ts);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+.auth-tabs{display:flex;margin-bottom:2rem;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.auth-tab{flex:1;padding:9px;background:transparent;border:none;color:var(--ts);cursor:pointer;font-size:13px;font-family:inherit}
+.auth-tab.active{background:var(--red);color:#fff;font-weight:700}
+.auth-note{font-size:11px;color:var(--ts);text-align:center;margin-top:1.5rem;line-height:1.6;padding:10px;background:rgba(193,53,44,.05);border-radius:6px;border:1px solid var(--border)}
+
+.divisions{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem;margin-bottom:2rem}
+.dcard{background:var(--panel-l);border:1px solid var(--border-d);border-radius:8px;padding:1.5rem;cursor:pointer;transition:all .15s;text-align:left}
+.dcard:hover{border-color:var(--red);transform:translateY(-2px)}
+.dcard.selected{border-color:var(--red);background:rgba(193,53,44,.08)}
+.dcard-ic{font-size:26px;margin-bottom:.6rem}
+.dcard h3{font-size:15px;font-weight:700;margin-bottom:4px}
+.dcard p{font-size:12px;color:var(--ts);line-height:1.5}
+
+.apply-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:2.2rem;max-width:640px;margin:0 auto}
+
+.tbl-wrap{background:var(--panel-l);border:1px solid var(--border-d);border-radius:8px;overflow:hidden}
+.tbl-head{padding:1rem 1.4rem;border-bottom:1px solid var(--border-d);display:flex;justify-content:space-between;align-items:center}
+.tbl-head h3{font-size:14px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:10px 16px;text-align:left;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ts);border-bottom:1px solid var(--border-d);font-weight:600}
+td{padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;overflow-y:auto;padding:2rem 1rem}
+.modal-box{background:var(--panel);border:1px solid var(--border-d);border-radius:10px;max-width:640px;margin:0 auto;padding:0;overflow:hidden;position:relative}
+.modal-box.wide{max-width:780px}
+.modal-close{position:absolute;top:1rem;right:1.2rem;background:none;border:none;color:var(--ts);font-size:22px;cursor:pointer;z-index:1;line-height:1}
+.modal-hd{padding:1.6rem 2rem;border-bottom:1px solid var(--border-d)}
+.modal-bd{padding:1.6rem 2rem}
+.modal-ft{display:flex;gap:8px;padding:1.2rem 2rem;border-top:1px solid var(--border-d)}
+
+.empty{padding:3rem;text-align:center;color:var(--ts);font-size:13px}
+footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(--ts);border-top:1px solid var(--border-d)}
+@media(max-width:640px){.frow{grid-template-columns:1fr}.hero-strip{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<!-- ================= MARKETING NAV ================= -->
+<nav id="nav-marketing">
+  <div class="nb">
+    <span class="nb-badge">LSPD</span>
+    <div>
+      <div class="nb-title">LSPD Operations</div>
+      <div class="nb-sub">Central Command</div>
+    </div>
+  </div>
+  <div class="nl">
+    <button class="btn" onclick="showPage('apply')">Apply</button>
+    <button class="btn primary" onclick="showAuth('login')">Officer Login</button>
+  </div>
+</nav>
+
+<!-- ================= HOME PAGE ================= -->
+<div id="pg-home" class="page active">
+  <div class="hero">
+    <div class="hero-eyebrow">Los Santos Police Department</div>
+    <h1>Every arrest. Every seizure.<br><span>One command record.</span></h1>
+    <p>LSPD Operations is the department's central log for arrests and seizures across every division, plus the intake system for divisional applications.</p>
+    <div class="hero-strip">
+      <div class="hs"><div class="hs-num" id="hs-arrests">—</div><div class="hs-lbl">Arrests Logged</div></div>
+      <div class="hs"><div class="hs-num" id="hs-seizures">—</div><div class="hs-lbl">Seizures Recorded</div></div>
+      <div class="hs"><div class="hs-num" id="hs-officers">—</div><div class="hs-lbl">Active Officers</div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">
+      <div>
+        <div class="tag">Divisions</div>
+        <h2>Apply to a division</h2>
+        <p>Traffic, FTO, and SWAT applications are handled here. Vice Unit applications are handled on their own site.</p>
+      </div>
+      <button class="btn primary" onclick="showPage('apply')">Start Application →</button>
+    </div>
+    <div class="divisions">
+      <div class="dcard" onclick="showPage('apply');selectDivision('Traffic')">
+        <div class="dcard-ic">🚓</div><h3>Traffic Division</h3>
+        <p>Highway patrol, pursuit response, and accident investigation.</p>
+      </div>
+      <div class="dcard" onclick="showPage('apply');selectDivision('FTO')">
+        <div class="dcard-ic">🎓</div><h3>Field Training (FTO)</h3>
+        <p>Train and evaluate incoming cadets on department procedure.</p>
+      </div>
+      <div class="dcard" onclick="showPage('apply');selectDivision('SWAT')">
+        <div class="dcard-ic">🛡️</div><h3>SWAT</h3>
+        <p>Tactical response to high-risk warrants and barricaded suspects.</p>
+      </div>
+      <div class="dcard" onclick="window.open('https://vice-unit.com','_blank')" style="border-color:rgba(193,53,44,.4)">
+        <div class="dcard-ic">💊</div><h3>Vice Unit ↗</h3>
+        <p>Drug enforcement applications are handled at vice-unit.com, not here.</p>
+      </div>
+    </div>
+  </div>
+  <footer>LSPD Operations — Internal Department System · Not affiliated with any real law enforcement agency</footer>
+</div>
+
+<!-- ================= APPLY PAGE ================= -->
+<div id="pg-apply" class="page">
+  <nav>
+    <div class="nb">
+      <span class="nb-badge">LSPD</span>
+      <div><div class="nb-title">LSPD Operations</div><div class="nb-sub">Divisional Applications</div></div>
+    </div>
+    <div class="nl"><button class="btn" onclick="showPage('home')">← Back</button></div>
+  </nav>
+  <div class="sec apply-card">
+    <div class="tag">Application</div>
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:1.5rem">Apply to a Division</h2>
+    <div id="apply-msg"></div>
+    <div class="fgrp">
+      <label class="flbl">Division</label>
+      <select class="fi" id="ap-division" onchange="checkViceRedirect()">
+        <option value="">Select a division…</option>
+        <option value="Traffic">Traffic Division</option>
+        <option value="FTO">Field Training Officer (FTO)</option>
+        <option value="SWAT">SWAT</option>
+        <option value="Vice">Vice Unit (external)</option>
+      </select>
+    </div>
+    <div id="ap-form">
+      <div class="frow">
+        <div class="fgrp"><label class="flbl">Full Name / Callsign</label><input class="fi" id="ap-name" placeholder="John Doe"></div>
+        <div class="fgrp"><label class="flbl">Discord</label><input class="fi" id="ap-discord" placeholder="username#0000"></div>
+      </div>
+      <div class="fgrp"><label class="flbl">Relevant Experience</label><textarea class="fi" id="ap-exp" placeholder="Prior units, time in department, certifications…"></textarea></div>
+      <div class="fgrp"><label class="flbl">Why this division?</label><textarea class="fi" id="ap-reason" placeholder="Tell us why you want to join…"></textarea></div>
+      <button class="sbtn" onclick="submitApplication()">Submit Application</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= AUTH PAGE ================= -->
+<div id="pg-auth" class="page">
+  <nav>
+    <div class="nb"><span class="nb-badge">LSPD</span><div><div class="nb-title">LSPD Operations</div><div class="nb-sub">Officer Access</div></div></div>
+    <div class="nl"><button class="btn" onclick="showPage('home')">← Back</button></div>
+  </nav>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo"><div class="sh">🚔</div><h2>LSPD Operations</h2><p>Restricted Access</p></div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Login</button>
+        <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Register</button>
+      </div>
+      <div id="auth-msg"></div>
+      <div id="auth-login-form">
+        <div class="fgrp"><label class="flbl">Email</label><input class="fi" id="li-email" type="email"></div>
+        <div class="fgrp"><label class="flbl">Password</label><input class="fi" id="li-pass" type="password"></div>
+        <button class="sbtn" onclick="doLogin()">Sign In</button>
+      </div>
+      <div id="auth-register-form" style="display:none">
+        <div class="frow">
+          <div class="fgrp"><label class="flbl">Full Name</label><input class="fi" id="re-name"></div>
+          <div class="fgrp"><label class="flbl">Callsign</label><input class="fi" id="re-callsign" placeholder="1-Adam-12"></div>
+        </div>
+        <div class="fgrp"><label class="flbl">Badge Number</label><input class="fi" id="re-badge"></div>
+        <div class="fgrp"><label class="flbl">Email</label><input class="fi" id="re-email" type="email"></div>
+        <div class="fgrp"><label class="flbl">Password</label><input class="fi" id="re-pass" type="password"></div>
+        <button class="sbtn" onclick="doRegister()">Create Account</button>
+        <div class="auth-note">New accounts require admin approval before you can log arrests or seizures.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= DASHBOARD ================= -->
+<div id="pg-dash" class="page">
+  <nav>
+    <div class="nb"><span class="nb-badge">LSPD</span><div><div class="nb-title">LSPD Operations</div><div class="nb-sub" id="dash-officer-name">—</div></div></div>
+    <div class="nl">
+      <button class="btn" onclick="showDash('overview')">Overview</button>
+      <button class="btn" onclick="showDash('arrests')">Arrests</button>
+      <button class="btn" onclick="showDash('seizures')">Seizures</button>
+      <button class="btn" onclick="showDash('applications')" id="nav-apps-btn" style="display:none">Applications</button>
+      <button class="btn danger" onclick="doLogout()">Log Out</button>
+    </div>
+  </nav>
+
+  <div id="pending-banner" style="display:none;background:rgba(209,151,47,.1);border-bottom:1px solid rgba(209,151,47,.3);color:var(--amber);padding:10px 2rem;font-size:13px;text-align:center">
+    Your account is pending admin approval. You can browse but not log arrests/seizures yet.
+  </div>
+
+  <div class="sec" id="dash-overview">
+    <div class="sec-hd"><div><div class="tag">Overview</div><h2>Department Snapshot</h2></div></div>
+    <div class="sg">
+      <div class="sc"><div class="sc-lbl">Total Arrests</div><div class="sc-val red" id="ov-arrests">0</div></div>
+      <div class="sc"><div class="sc-lbl">Total Seizures</div><div class="sc-val amber" id="ov-seizures">0</div></div>
+      <div class="sc"><div class="sc-lbl">Est. Seizure Value</div><div class="sc-val green" id="ov-value">$0</div></div>
+      <div class="sc"><div class="sc-lbl">Approved Officers</div><div class="sc-val blue" id="ov-officers">0</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <div class="tbl-head"><h3>Recent Activity</h3></div>
+      <div id="ov-recent"><div class="empty">Loading…</div></div>
+    </div>
+  </div>
+
+  <div class="sec" id="dash-arrests" style="display:none">
+    <div class="sec-hd">
+      <div><div class="tag">Records</div><h2>Arrest Log</h2><p>All arrests logged department-wide.</p></div>
+      <button class="btn primary" id="new-arrest-btn" onclick="openArrestModal()">+ Log Arrest</button>
+    </div>
+    <div class="grid-cards" id="arrests-list"><div class="empty">Loading…</div></div>
+  </div>
+
+  <div class="sec" id="dash-seizures" style="display:none">
+    <div class="sec-hd">
+      <div><div class="tag">Records</div><h2>Seizure Log</h2><p>All items seized department-wide.</p></div>
+      <button class="btn primary" id="new-seizure-btn" onclick="openSeizureModal()">+ Log Seizure</button>
+    </div>
+    <div class="grid-cards" id="seizures-list"><div class="empty">Loading…</div></div>
+  </div>
+
+  <div class="sec" id="dash-applications" style="display:none">
+    <div class="sec-hd"><div><div class="tag">Admin</div><h2>Divisional Applications</h2><p>Review and action incoming applications.</p></div></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Applicant</th><th>Division</th><th>Discord</th><th>Status</th><th>Submitted</th><th></th></tr></thead>
+        <tbody id="apps-table-body"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="sec-hd" style="margin-top:2.5rem"><div><div class="tag">Admin</div><h2>Officer Roster</h2><p>Approve pending accounts, manage roles.</p></div></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Callsign</th><th>Badge</th><th>Role</th><th>Status</th><th></th></tr></thead>
+        <tbody id="roster-table-body"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ARREST MODAL ================= -->
+<div class="modal-overlay" id="arrest-modal-overlay" onclick="if(event.target===this)closeModal('arrest-modal-overlay')">
+  <div class="modal-box wide">
+    <button class="modal-close" onclick="closeModal('arrest-modal-overlay')">✕</button>
+    <div class="modal-hd"><h3 style="font-size:17px;font-weight:700" id="arrest-modal-title">Log Arrest</h3></div>
+    <div class="modal-bd">
+      <div id="arrest-form-msg"></div>
+      <input type="hidden" id="ar-id">
+      <div class="frow">
+        <div class="fgrp"><label class="flbl">Suspect Name</label><input class="fi" id="ar-suspect"></div>
+        <div class="fgrp"><label class="flbl">Status</label>
+          <select class="fi" id="ar-status">
+            <option value="booked">Booked</option>
+            <option value="released">Released</option>
+            <option value="pending_trial">Pending Trial</option>
+            <option value="convicted">Convicted</option>
+          </select>
+        </div>
+      </div>
+      <div class="fgrp"><label class="flbl">Charges</label><input class="fi" id="ar-charges" placeholder="e.g. Possession, Evading, Resisting Arrest"></div>
+      <div class="frow">
+        <div class="fgrp"><label class="flbl">Arresting Officer</label><input class="fi" id="ar-officer"></div>
+        <div class="fgrp"><label class="flbl">Location</label><input class="fi" id="ar-location"></div>
+      </div>
+      <div class="fgrp"><label class="flbl">Narrative</label><textarea class="fi" id="ar-narrative" placeholder="What happened…"></textarea></div>
+      <div class="fgrp"><label class="flbl">Evidence / Notes</label><textarea class="fi" id="ar-evidence"></textarea></div>
+    </div>
+    <div class="modal-ft">
+      <button class="sbtn" style="margin:0" onclick="saveArrest()">Save Arrest</button>
+      <button class="btn danger" id="ar-delete-btn" style="display:none" onclick="deleteArrest()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SEIZURE MODAL ================= -->
+<div class="modal-overlay" id="seizure-modal-overlay" onclick="if(event.target===this)closeModal('seizure-modal-overlay')">
+  <div class="modal-box wide">
+    <button class="modal-close" onclick="closeModal('seizure-modal-overlay')">✕</button>
+    <div class="modal-hd"><h3 style="font-size:17px;font-weight:700" id="seizure-modal-title">Log Seizure</h3></div>
+    <div class="modal-bd">
+      <div id="seizure-form-msg"></div>
+      <input type="hidden" id="sz-id">
+      <div class="frow">
+        <div class="fgrp"><label class="flbl">Item Type</label>
+          <select class="fi" id="sz-type">
+            <option value="narcotics">Narcotics</option>
+            <option value="weapon">Weapon</option>
+            <option value="cash">Cash</option>
+            <option value="vehicle">Vehicle</option>
+            <option value="contraband">Contraband</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="fgrp"><label class="flbl">Status</label>
+          <select class="fi" id="sz-status">
+            <option value="in_evidence">In Evidence</option>
+            <option value="destroyed">Destroyed</option>
+            <option value="returned">Returned</option>
+            <option value="auctioned">Auctioned</option>
+          </select>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fgrp"><label class="flbl">Quantity</label><input class="fi" id="sz-qty" placeholder="e.g. 3 units, 2x pistols"></div>
+        <div class="fgrp"><label class="flbl">Estimated Value ($)</label><input class="fi" id="sz-value" type="number"></div>
+      </div>
+      <div class="fgrp"><label class="flbl">Description</label><textarea class="fi" id="sz-desc"></textarea></div>
+      <div class="frow">
+        <div class="fgrp"><label class="flbl">Seizing Officer</label><input class="fi" id="sz-officer"></div>
+        <div class="fgrp"><label class="flbl">Location</label><input class="fi" id="sz-location"></div>
+      </div>
+      <div class="fgrp"><label class="flbl">Linked Arrest ID (optional)</label><input class="fi" id="sz-linked" type="number" placeholder="e.g. 12"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="sbtn" style="margin:0" onclick="saveSeizure()">Save Seizure</button>
+      <button class="btn danger" id="sz-delete-btn" style="display:none" onclick="deleteSeizure()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= VIEW MODAL (read-only detail) ================= -->
+<div class="modal-overlay" id="view-modal-overlay" onclick="if(event.target===this)closeModal('view-modal-overlay')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('view-modal-overlay')">✕</button>
+    <div id="view-modal-content"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://bmamckgbanaudewanylf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_WXuN9DQa14hhCeCQ5gkcMA_N5sO5y80';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null, currentOfficer = null;
+
+function $(id){return document.getElementById(id)}
+function escapeHTML(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function money(n){ return '$' + (Number(n)||0).toLocaleString(); }
+function fmtDate(d){ return d ? new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'; }
+
+/* ---------------- NAV / PAGES ---------------- */
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $('pg-'+name).classList.add('active');
+  if(name==='home') loadHomeStats();
+}
+function showAuth(tab){ showPage('auth'); switchAuthTab(tab); }
+function switchAuthTab(tab){
+  $('tab-login').classList.toggle('active',tab==='login');
+  $('tab-register').classList.toggle('active',tab==='register');
+  $('auth-login-form').style.display = tab==='login' ? 'block':'none';
+  $('auth-register-form').style.display = tab==='register' ? 'block':'none';
+  $('auth-msg').innerHTML='';
+}
+function authMsg(el,text,ok){ $(el).innerHTML = `<div class="msg ${ok?'msg-ok':'msg-err'}">${escapeHTML(text)}</div>`; }
+
+/* ---------------- HOME STATS ---------------- */
+async function loadHomeStats(){
+  const [{count:ac}, {count:sc}, {count:oc}] = await Promise.all([
+    sb.from('arrests').select('*',{count:'exact',head:true}),
+    sb.from('seizures').select('*',{count:'exact',head:true}),
+    sb.from('officers').select('*',{count:'exact',head:true}).eq('status','approved')
+  ]);
+  $('hs-arrests').textContent = ac ?? 0;
+  $('hs-seizures').textContent = sc ?? 0;
+  $('hs-officers').textContent = oc ?? 0;
+}
+
+/* ---------------- APPLICATIONS (public) ---------------- */
+function selectDivision(div){ $('ap-division').value = div; checkViceRedirect(); }
+function checkViceRedirect(){
+  const v = $('ap-division').value;
+  if(v==='Vice'){
+    window.open('https://vice-unit.com','_blank');
+    $('ap-division').value='';
+    authMsgLike('apply-msg','Vice Unit applications are handled at vice-unit.com — opened in a new tab.',true);
+  }
+}
+function authMsgLike(el,text,ok){ $(el).innerHTML = `<div class="msg ${ok?'msg-ok':'msg-err'}">${escapeHTML(text)}</div>`; }
+
+async function submitApplication(){
+  const division = $('ap-division').value;
+  const name = $('ap-name').value.trim();
+  if(!division){ authMsgLike('apply-msg','Please select a division.',false); return; }
+  if(!name){ authMsgLike('apply-msg','Please enter your name.',false); return; }
+  const payload = {
+    applicant_name: name,
+    division,
+    discord: $('ap-discord').value.trim(),
+    experience: $('ap-exp').value.trim(),
+    reason: $('ap-reason').value.trim()
+  };
+  const {error} = await sb.from('applications').insert(payload);
+  if(error){ authMsgLike('apply-msg','Error: '+error.message,false); return; }
+  authMsgLike('apply-msg','Application submitted! The division will review it and reach out.',true);
+  ['ap-name','ap-discord','ap-exp','ap-reason'].forEach(id=>$(id).value='');
+  $('ap-division').value='';
+}
+
+/* ---------------- AUTH ---------------- */
+async function doRegister(){
+  const email=$('re-email').value.trim(), pass=$('re-pass').value;
+  const name=$('re-name').value.trim(), callsign=$('re-callsign').value.trim(), badge=$('re-badge').value.trim();
+  if(!email||!pass||!name||!callsign){ authMsg('auth-msg','Please fill out all fields.',false); return; }
+  const {data,error} = await sb.auth.signUp({email,password:pass});
+  if(error){ authMsg('auth-msg',error.message,false); return; }
+  const uid = data.user?.id;
+  if(uid){
+    await sb.from('officers').insert({id:uid, full_name:name, callsign, badge_number:badge, status:'pending', role:'officer'});
+  }
+  authMsg('auth-msg','Account created! Pending admin approval. You can log in now.',true);
+  setTimeout(()=>switchAuthTab('login'),1200);
+}
+
+async function doLogin(){
+  const email=$('li-email').value.trim(), pass=$('li-pass').value;
+  if(!email||!pass){ authMsg('auth-msg','Please enter email and password.',false); return; }
+  const {data,error} = await sb.auth.signInWithPassword({email,password:pass});
+  if(error){ authMsg('auth-msg',error.message,false); return; }
+  await loadSession();
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  currentUser=null; currentOfficer=null;
+  showPage('home');
+}
+
+async function loadSession(){
+  const {data:{session}} = await sb.auth.getSession();
+  if(!session){ return false; }
+  currentUser = session.user;
+  const {data: officer} = await sb.from('officers').select('*').eq('id',currentUser.id).single();
+  currentOfficer = officer;
+  if(!officer){ showPage('home'); return false; }
+  $('dash-officer-name').textContent = `${officer.callsign} · ${officer.rank||'Officer'}`;
+  $('pending-banner').style.display = officer.status==='approved' ? 'none':'flex';
+  $('new-arrest-btn').style.display = officer.status==='approved' ? 'inline-block':'none';
+  $('new-seizure-btn').style.display = officer.status==='approved' ? 'inline-block':'none';
+  $('nav-apps-btn').style.display = officer.role==='admin' ? 'inline-block':'none';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $('pg-dash').classList.add('active');
+  showDash('overview');
+  return true;
+}
+
+/* ---------------- DASHBOARD NAV ---------------- */
+function showDash(section){
+  ['overview','arrests','seizures','applications'].forEach(s=>{
+    $('dash-'+s).style.display = s===section ? 'block':'none';
+  });
+  if(section==='overview') loadOverview();
+  if(section==='arrests') loadArrests();
+  if(section==='seizures') loadSeizures();
+  if(section==='applications') { loadApplications(); loadRoster(); }
+}
+
+/* ---------------- OVERVIEW ---------------- */
+async function loadOverview(){
+  const [{count:ac},{count:sc},{data:szs},{count:oc}] = await Promise.all([
+    sb.from('arrests').select('*',{count:'exact',head:true}),
+    sb.from('seizures').select('*',{count:'exact',head:true}),
+    sb.from('seizures').select('estimated_value'),
+    sb.from('officers').select('*',{count:'exact',head:true}).eq('status','approved')
+  ]);
+  $('ov-arrests').textContent = ac ?? 0;
+  $('ov-seizures').textContent = sc ?? 0;
+  $('ov-officers').textContent = oc ?? 0;
+  const total = (szs||[]).reduce((a,b)=>a+(Number(b.estimated_value)||0),0);
+  $('ov-value').textContent = money(total);
+
+  const {data:recentArrests} = await sb.from('arrests').select('*').order('created_at',{ascending:false}).limit(5);
+  const {data:recentSeizures} = await sb.from('seizures').select('*').order('created_at',{ascending:false}).limit(5);
+  const combined = [
+    ...(recentArrests||[]).map(a=>({type:'Arrest',label:a.suspect_name,sub:a.charges,by:a.arresting_officer,at:a.created_at})),
+    ...(recentSeizures||[]).map(s=>({type:'Seizure',label:s.item_type,sub:s.description,by:s.seizing_officer,at:s.created_at}))
+  ].sort((a,b)=>new Date(b.at)-new Date(a.at)).slice(0,8);
+
+  $('ov-recent').innerHTML = combined.length ? `<table><tbody>${combined.map(c=>`
+    <tr><td><span class="badge ${c.type==='Arrest'?'bg-red':'bg-amber'}">${c.type}</span></td>
+    <td style="font-weight:600">${escapeHTML(c.label||'—')}</td>
+    <td style="color:var(--ts)">${escapeHTML(c.sub||'—')}</td>
+    <td style="color:var(--ts)">${escapeHTML(c.by||'—')}</td>
+    <td style="color:var(--ts);font-size:12px">${fmtDate(c.at)}</td></tr>`).join('')}</tbody></table>`
+    : '<div class="empty">No activity logged yet.</div>';
+}
+
+/* ---------------- ARRESTS ---------------- */
+async function loadArrests(){
+  const {data,error} = await sb.from('arrests').select('*').order('created_at',{ascending:false});
+  if(error){ $('arrests-list').innerHTML = `<div class="empty">Error loading: ${escapeHTML(error.message)}</div>`; return; }
+  if(!data.length){ $('arrests-list').innerHTML = '<div class="empty">No arrests logged yet.</div>'; return; }
+  const statusBadge = s => ({booked:'bg-red',released:'bg-gray',pending_trial:'bg-amber',convicted:'bg-green'}[s]||'bg-gray');
+  $('arrests-list').innerHTML = data.map(a=>`
+    <div class="ccard" onclick="viewArrest(${a.id})">
+      <div class="ccard-top">
+        <div><div class="ccard-title">${escapeHTML(a.suspect_name)}</div><div class="ccard-meta">#${a.id} · ${fmtDate(a.occurred_at)}</div></div>
+        <span class="badge ${statusBadge(a.status)}">${escapeHTML((a.status||'').replace('_',' '))}</span>
+      </div>
+      <div class="ccard-body">${escapeHTML(a.charges)}</div>
+      <div class="ccard-foot"><span>👮 ${escapeHTML(a.arresting_officer)}</span><span>${escapeHTML(a.location||'')}</span></div>
+    </div>`).join('');
+}
+
+function openArrestModal(existing){
+  $('arrest-form-msg').innerHTML='';
+  if(existing){
+    $('arrest-modal-title').textContent = 'Edit Arrest #'+existing.id;
+    $('ar-id').value = existing.id;
+    $('ar-suspect').value = existing.suspect_name||'';
+    $('ar-status').value = existing.status||'booked';
+    $('ar-charges').value = existing.charges||'';
+    $('ar-officer').value = existing.arresting_officer||'';
+    $('ar-location').value = existing.location||'';
+    $('ar-narrative').value = existing.narrative||'';
+    $('ar-evidence').value = existing.evidence||'';
+    $('ar-delete-btn').style.display='inline-block';
+  } else {
+    $('arrest-modal-title').textContent = 'Log Arrest';
+    ['ar-id','ar-suspect','ar-charges','ar-officer','ar-location','ar-narrative','ar-evidence'].forEach(id=>$(id).value='');
+    $('ar-status').value='booked';
+    $('ar-officer').value = currentOfficer ? `${currentOfficer.callsign} (${currentOfficer.full_name})` : '';
+    $('ar-delete-btn').style.display='none';
+  }
+  $('arrest-modal-overlay').style.display='block';
+}
+function closeModal(id){ $(id).style.display='none'; }
+
+async function viewArrest(id){
+  const {data:a} = await sb.from('arrests').select('*').eq('id',id).single();
+  if(!a) return;
+  const canEdit = currentOfficer && (currentOfficer.role==='admin' || currentOfficer.id===a.officer_id);
+  $('view-modal-content').innerHTML = `
+    <div class="modal-hd"><div class="tag">Arrest #${a.id}</div><h3 style="font-size:18px;font-weight:700">${escapeHTML(a.suspect_name)}</h3></div>
+    <div class="modal-bd">
+      <div class="frow" style="margin-bottom:1.2rem">
+        <div><div class="flbl">Charges</div><div style="font-size:14px">${escapeHTML(a.charges)}</div></div>
+        <div><div class="flbl">Status</div><div style="font-size:14px">${escapeHTML((a.status||'').replace('_',' '))}</div></div>
+      </div>
+      <div class="frow" style="margin-bottom:1.2rem">
+        <div><div class="flbl">Officer</div><div style="font-size:14px">${escapeHTML(a.arresting_officer)}</div></div>
+        <div><div class="flbl">Location</div><div style="font-size:14px">${escapeHTML(a.location||'—')}</div></div>
+      </div>
+      <div style="margin-bottom:1.2rem"><div class="flbl">Narrative</div><div style="font-size:14px;line-height:1.6">${escapeHTML(a.narrative||'—')}</div></div>
+      <div><div class="flbl">Evidence / Notes</div><div style="font-size:14px;line-height:1.6">${escapeHTML(a.evidence||'—')}</div></div>
+      ${canEdit ? `<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-d)"><button class="btn" onclick='closeModal("view-modal-overlay");openArrestModal(${JSON.stringify(a).replace(/'/g,"&apos;")})'>✏️ Edit</button></div>` : ''}
+    </div>`;
+  $('view-modal-overlay').style.display='block';
+}
+
+async function saveArrest(){
+  const id = $('ar-id').value;
+  const payload = {
+    suspect_name: $('ar-suspect').value.trim(),
+    charges: $('ar-charges').value.trim(),
+    status: $('ar-status').value,
+    arresting_officer: $('ar-officer').value.trim(),
+    location: $('ar-location').value.trim(),
+    narrative: $('ar-narrative').value.trim(),
+    evidence: $('ar-evidence').value.trim(),
+  };
+  if(!payload.suspect_name || !payload.charges){ $('arrest-form-msg').innerHTML='<div class="msg msg-err">Suspect name and charges are required.</div>'; return; }
+  let error;
+  if(id){
+    ({error} = await sb.from('arrests').update(payload).eq('id',id));
+  } else {
+    payload.officer_id = currentUser.id;
+    ({error} = await sb.from('arrests').insert(payload));
+  }
+  if(error){ $('arrest-form-msg').innerHTML = `<div class="msg msg-err">${escapeHTML(error.message)}</div>`; return; }
+  closeModal('arrest-modal-overlay');
+  loadArrests();
+}
+async function deleteArrest(){
+  const id = $('ar-id').value;
+  if(!id || !confirm('Delete this arrest record?')) return;
+  await sb.from('arrests').delete().eq('id',id);
+  closeModal('arrest-modal-overlay');
+  loadArrests();
+}
+
+/* ---------------- SEIZURES ---------------- */
+async function loadSeizures(){
+  const {data,error} = await sb.from('seizures').select('*').order('created_at',{ascending:false});
+  if(error){ $('seizures-list').innerHTML = `<div class="empty">Error loading: ${escapeHTML(error.message)}</div>`; return; }
+  if(!data.length){ $('seizures-list').innerHTML = '<div class="empty">No seizures logged yet.</div>'; return; }
+  const statusBadge = s => ({in_evidence:'bg-blue',destroyed:'bg-red',returned:'bg-gray',auctioned:'bg-green'}[s]||'bg-gray');
+  $('seizures-list').innerHTML = data.map(s=>`
+    <div class="ccard" onclick="viewSeizure(${s.id})">
+      <div class="ccard-top">
+        <div><div class="ccard-title">${escapeHTML(s.item_type)}</div><div class="ccard-meta">#${s.id} · ${fmtDate(s.occurred_at)}</div></div>
+        <span class="badge ${statusBadge(s.status)}">${escapeHTML((s.status||'').replace('_',' '))}</span>
+      </div>
+      <div class="ccard-body">${escapeHTML(s.description||'—')}</div>
+      <div class="ccard-foot"><span>👮 ${escapeHTML(s.seizing_officer)}</span><span>${s.estimated_value?money(s.estimated_value):''}</span></div>
+    </div>`).join('');
+}
+
+function openSeizureModal(existing){
+  $('seizure-form-msg').innerHTML='';
+  if(existing){
+    $('seizure-modal-title').textContent = 'Edit Seizure #'+existing.id;
+    $('sz-id').value = existing.id;
+    $('sz-type').value = existing.item_type||'narcotics';
+    $('sz-status').value = existing.status||'in_evidence';
+    $('sz-qty').value = existing.quantity||'';
+    $('sz-value').value = existing.estimated_value||'';
+    $('sz-desc').value = existing.description||'';
+    $('sz-officer').value = existing.seizing_officer||'';
+    $('sz-location').value = existing.location||'';
+    $('sz-linked').value = existing.linked_arrest_id||'';
+    $('sz-delete-btn').style.display='inline-block';
+  } else {
+    $('seizure-modal-title').textContent = 'Log Seizure';
+    ['sz-id','sz-qty','sz-value','sz-desc','sz-location','sz-linked'].forEach(id=>$(id).value='');
+    $('sz-type').value='narcotics'; $('sz-status').value='in_evidence';
+    $('sz-officer').value = currentOfficer ? `${currentOfficer.callsign} (${currentOfficer.full_name})` : '';
+    $('sz-delete-btn').style.display='none';
+  }
+  $('seizure-modal-overlay').style.display='block';
+}
+
+async function viewSeizure(id){
+  const {data:s} = await sb.from('seizures').select('*').eq('id',id).single();
+  if(!s) return;
+  const canEdit = currentOfficer && (currentOfficer.role==='admin' || currentOfficer.id===s.officer_id);
+  $('view-modal-content').innerHTML = `
+    <div class="modal-hd"><div class="tag">Seizure #${s.id}</div><h3 style="font-size:18px;font-weight:700">${escapeHTML(s.item_type)}</h3></div>
+    <div class="modal-bd">
+      <div class="frow" style="margin-bottom:1.2rem">
+        <div><div class="flbl">Quantity</div><div style="font-size:14px">${escapeHTML(s.quantity||'—')}</div></div>
+        <div><div class="flbl">Est. Value</div><div style="font-size:14px">${s.estimated_value?money(s.estimated_value):'—'}</div></div>
+      </div>
+      <div class="frow" style="margin-bottom:1.2rem">
+        <div><div class="flbl">Officer</div><div style="font-size:14px">${escapeHTML(s.seizing_officer)}</div></div>
+        <div><div class="flbl">Location</div><div style="font-size:14px">${escapeHTML(s.location||'—')}</div></div>
+      </div>
+      <div style="margin-bottom:1.2rem"><div class="flbl">Description</div><div style="font-size:14px;line-height:1.6">${escapeHTML(s.description||'—')}</div></div>
+      ${s.linked_arrest_id ? `<div style="margin-bottom:1.2rem"><span style="font-size:12px;color:var(--red-l)">🔗 Linked to Arrest #${s.linked_arrest_id}</span></div>` : ''}
+      <div><div class="flbl">Status</div><div style="font-size:14px">${escapeHTML((s.status||'').replace('_',' '))}</div></div>
+      ${canEdit ? `<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-d)"><button class="btn" onclick='closeModal("view-modal-overlay");openSeizureModal(${JSON.stringify(s).replace(/'/g,"&apos;")})'>✏️ Edit</button></div>` : ''}
+    </div>`;
+  $('view-modal-overlay').style.display='block';
+}
+
+async function saveSeizure(){
+  const id = $('sz-id').value;
+  const payload = {
+    item_type: $('sz-type').value,
+    status: $('sz-status').value,
+    quantity: $('sz-qty').value.trim(),
+    estimated_value: $('sz-value').value ? Number($('sz-value').value) : null,
+    description: $('sz-desc').value.trim(),
+    seizing_officer: $('sz-officer').value.trim(),
+    location: $('sz-location').value.trim(),
+    linked_arrest_id: $('sz-linked').value ? Number($('sz-linked').value) : null,
+  };
+  if(!payload.seizing_officer){ $('seizure-form-msg').innerHTML='<div class="msg msg-err">Seizing officer is required.</div>'; return; }
+  let error;
+  if(id){
+    ({error} = await sb.from('seizures').update(payload).eq('id',id));
+  } else {
+    payload.officer_id = currentUser.id;
+    ({error} = await sb.from('seizures').insert(payload));
+  }
+  if(error){ $('seizure-form-msg').innerHTML = `<div class="msg msg-err">${escapeHTML(error.message)}</div>`; return; }
+  closeModal('seizure-modal-overlay');
+  loadSeizures();
+}
+async function deleteSeizure(){
+  const id = $('sz-id').value;
+  if(!id || !confirm('Delete this seizure record?')) return;
+  await sb.from('seizures').delete().eq('id',id);
+  closeModal('seizure-modal-overlay');
+  loadSeizures();
+}
+
+/* ---------------- ADMIN: APPLICATIONS ---------------- */
+async function loadApplications(){
+  const {data,error} = await sb.from('applications').select('*').order('created_at',{ascending:false});
+  const tbody = $('apps-table-body');
+  if(error){ tbody.innerHTML = `<tr><td colspan="6" class="empty">${escapeHTML(error.message)}</td></tr>`; return; }
+  if(!data.length){ tbody.innerHTML = '<tr><td colspan="6" class="empty">No applications yet.</td></tr>'; return; }
+  const statusBadge = s => ({pending:'bg-amber',accepted:'bg-green',denied:'bg-red'}[s]||'bg-gray');
+  tbody.innerHTML = data.map(a=>`
+    <tr>
+      <td style="font-weight:600">${escapeHTML(a.applicant_name)}</td>
+      <td><span class="badge bg-blue">${escapeHTML(a.division)}</span></td>
+      <td style="color:var(--ts)">${escapeHTML(a.discord||'—')}</td>
+      <td><span class="badge ${statusBadge(a.status)}">${escapeHTML(a.status)}</span></td>
+      <td style="color:var(--ts);font-size:12px">${fmtDate(a.created_at)}</td>
+      <td>
+        ${a.status==='pending' ? `
+          <button class="btn success" style="padding:4px 10px;font-size:11px" onclick="reviewApp(${a.id},'accepted')">Accept</button>
+          <button class="btn danger" style="padding:4px 10px;font-size:11px" onclick="reviewApp(${a.id},'denied')">Deny</button>
+        ` : '—'}
+      </td>
+    </tr>`).join('');
+}
+async function reviewApp(id,status){
+  await sb.from('applications').update({status, reviewed_by: currentOfficer?.callsign||'admin'}).eq('id',id);
+  loadApplications();
+}
+
+/* ---------------- ADMIN: ROSTER ---------------- */
+async function loadRoster(){
+  const {data,error} = await sb.from('officers').select('*').order('created_at',{ascending:false});
+  const tbody = $('roster-table-body');
+  if(error){ tbody.innerHTML = `<tr><td colspan="6" class="empty">${escapeHTML(error.message)}</td></tr>`; return; }
+  const statusBadge = s => ({pending:'bg-amber',approved:'bg-green',denied:'bg-red',suspended:'bg-gray'}[s]||'bg-gray');
+  tbody.innerHTML = data.map(o=>`
+    <tr>
+      <td style="font-weight:600">${escapeHTML(o.full_name)}</td>
+      <td>${escapeHTML(o.callsign)}</td>
+      <td style="color:var(--ts)">${escapeHTML(o.badge_number||'—')}</td>
+      <td><span class="badge ${o.role==='admin'?'bg-red':'bg-gray'}">${escapeHTML(o.role)}</span></td>
+      <td><span class="badge ${statusBadge(o.status)}">${escapeHTML(o.status)}</span></td>
+      <td>
+        ${o.status==='pending' ? `<button class="btn success" style="padding:4px 10px;font-size:11px" onclick="setOfficerStatus('${o.id}','approved')">Approve</button>
+        <button class="btn danger" style="padding:4px 10px;font-size:11px" onclick="setOfficerStatus('${o.id}','denied')">Deny</button>` :
+        o.status==='approved' ? `<button class="btn danger" style="padding:4px 10px;font-size:11px" onclick="setOfficerStatus('${o.id}','suspended')">Suspend</button>` :
+        `<button class="btn success" style="padding:4px 10px;font-size:11px" onclick="setOfficerStatus('${o.id}','approved')">Reinstate</button>`}
+      </td>
+    </tr>`).join('');
+}
+async function setOfficerStatus(id,status){
+  await sb.from('officers').update({status}).eq('id',id);
+  loadRoster();
+}
+
+/* ---------------- INIT ---------------- */
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-overlay').forEach(m=>m.style.display='none');
+  }
+});
+
+(async function init(){
+  loadHomeStats();
+  await loadSession();
+})();
+</script>
+</body>
+</html>
