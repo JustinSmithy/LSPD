@@ -138,6 +138,11 @@ body>nav{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.97);border-
 .pill-off{background:rgba(255,255,255,.04);color:var(--ts);border-color:var(--border-d)}
 .rap-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border-d);border-radius:6px;margin-bottom:6px;cursor:pointer;transition:border-color .12s}
 .rap-row:hover{border-color:var(--border)}
+.off-avatar{width:52px;height:52px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--red-d),var(--red));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff}
+.off-rank{text-align:center;padding:8px 14px;background:rgba(209,151,47,.12);border:1px solid rgba(209,151,47,.3);border-radius:8px}
+.off-rank-num{font-size:22px;font-weight:800;color:#e0b25a}
+.off-rank-lbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ts)}
+.admin-panel{margin-top:1.5rem;padding:1.2rem;background:rgba(193,53,44,.05);border:1px solid var(--border);border-radius:8px}
 .hs-toggle{font-size:12px;padding:5px 12px}
 .hs-toggle.active{background:var(--red);border-color:var(--red);color:#fff}
 .heat-bar{display:inline-block;width:80px;height:10px;background:rgba(255,255,255,.05);border-radius:5px;overflow:hidden;vertical-align:middle}
@@ -920,9 +925,11 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     <div class="nb"><span class="nb-badge">LSPD</span><div><div class="nb-title">LSPD Operations</div><div class="nb-sub" id="dash-officer-name">—</div></div></div>
     <div class="nl">
       <button class="btn" onclick="showDash('overview')">Overview</button>
+      <button class="btn" onclick="viewMyStats()">My Stats</button>
       <button class="btn" onclick="showDash('arrests')">Arrests</button>
       <button class="btn" onclick="showDash('dmv')">DMV / Enforcement</button>
       <button class="btn" onclick="showDash('suspects')">Suspects</button>
+      <button class="btn" onclick="showDash('officers')">Officers</button>
       <button class="btn" onclick="showDash('analysis')">Analysis</button>
       <button class="btn" onclick="showDash('applications')" id="nav-apps-btn" style="display:none">Applications</button>
       <button class="btn ghost" onclick="showPage('home')">Public Site ↗</button>
@@ -1092,6 +1099,13 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- OFFICERS (roster, viewable by all) -->
+  <div class="sec" id="dash-officers" style="display:none">
+    <div class="sec-hd"><div><div class="tag">Personnel</div><h2>Officer Roster</h2><p>Click an officer to view their profile, stats, and arrest history.</p></div></div>
+    <input class="fi" id="officers-search" placeholder="🔍 Search officers…" style="margin-bottom:1.2rem" oninput="renderOfficers()">
+    <div class="grid-cards" id="officers-list"><div class="empty">Loading…</div></div>
   </div>
 
   <!-- APPLICATIONS (admin) -->
@@ -1527,6 +1541,8 @@ const FIREARMS = Object.keys(FIREARM_PRICES);
 const CHARGES = ['Aiding a Prison Break','Aiding and Abetting','Assault','Attempted Murder','Battery','Brandishing a Weapon in Public','Bribery','Conspiracy','Criminal Negligence','Criminal Trespassing','Cultivation/Manufacture/Delivery of a Controlled Substance','Destruction of Public Property','Destruction/Falsification of Evidence','Discharge of a Firearm in Public','Disturbance of Peace','Driving Over the Speed Limit','Evading a Law Enforcement Officer','Excessive Use of Force','Extortion','Failure to Identify','Failure to Pay a Ticket','False Imprisonment','Fraud','Grand Theft Auto','Impersonating a Government Employee','Indecency','Kidnapping','Murder','Mutual Combat','Obstructing a Government Employee','Operating a Vehicle Without a License','Parking Violation','Possession of a Controlled Substance','Possession of a Controlled Substance With Intent to Sell','Possession of an Illegal Firearm','Prison Break','Reckless Driving','Resisting a Law Enforcement Officer','Riot','Robbery','Terrorism','Transporting Illegal Goods','Trespassing','Unlawful Assembly','Unlawful Distribution of a Weapon','Vandalism','Vehicular Assault'];
 const STORAGE_BUCKET = 'mugshots';
 const DISTRICTS = ['Idlewood','Ganton','East Los Santos','Jefferson','Glen Park','El Corona','Willowfield','Los Flores','East Beach','Playa del Seville','Commerce','Downtown LS','Pershing Square','Little Mexico','Vinewood','Rodeo','Richman','Mulholland','Marina','Verona Beach','Santa Maria Beach','Verdant Bluffs','Ocean Docks','LS International','Montgomery','Red County','Blueberry','Dillimore','Palomino Creek','Other / Unlisted'];
+const RANKS = ['Cadet','Officer','Officer II','Sergeant','Lieutenant','Captain I','Captain II','Deputy Chief','Assistant Chief','Chief of Police'];
+const DIVISIONS = ['Patrol','Field Training (FTO)','Traffic Enforcement (TE)','SWAT','Internal Affairs (IA)'];
 
 let _arrests = [];       // cached arrest list (with nested seizures)
 let _suspects = [];      // cached suspect list
@@ -1535,13 +1551,14 @@ let _chargeActiveIdx = -1;
 
 /* ---------------- DASHBOARD NAV ---------------- */
 function showDash(section){
-  ['overview','arrests','dmv','suspects','analysis','applications'].forEach(s=>{
+  ['overview','arrests','dmv','suspects','officers','analysis','applications'].forEach(s=>{
     const el = $('dash-'+s); if(el) el.style.display = s===section ? 'block':'none';
   });
   if(section==='overview') loadOverview();
   if(section==='arrests') loadArrests();
   if(section==='dmv'){ loadImpounds(); loadTickets(); }
   if(section==='suspects') loadSuspects();
+  if(section==='officers') loadOfficers();
   if(section==='analysis'){ loadAnalysis(); loadHotspots(); }
   if(section==='applications') { loadApplications(); loadRoster(); }
 }
@@ -1577,35 +1594,7 @@ async function loadOverview(){
   $('ov-officers').textContent = oc ?? 0;
 
   // Leaderboards by officer
-  const byOfficer = {};
-  function offRec(key){ return byOfficer[key] = byOfficer[key] || {name:key, arrests:0, items:0, value:0, points:0}; }
-  _arrests.forEach(a=>{
-    const o = offRec(a.arresting_officer || 'Unknown');
-    o.arrests++;
-    // points: base arrest + type bonus + biometrics
-    o.points += 10;
-    if(a.arrest_type==='narcotics'||a.arrest_type==='firearms') o.points += 15;
-    else if(a.arrest_type==='both') o.points += 20;
-    if(a.dna) o.points += 3;
-    if(a.fingerprints) o.points += 3;
-    a._seizures.forEach(s=>{
-      const qty=Number(s.quantity)||0, val=Number(s.line_value)||0;
-      o.items += qty; o.value += val;
-      o.points += qty*2;                     // +2 per item
-      o.points += Math.floor(val/1000);      // +1 per $1000 value
-    });
-  });
-  // pull impounds + tickets into points too
-  try{
-    const [{data:imps},{data:tks}] = await Promise.all([
-      sb.from('impounds').select('officer_name'),
-      sb.from('tickets').select('officer_name')
-    ]);
-    (imps||[]).forEach(i=>{ offRec(i.officer_name||'Unknown').points += 5; });
-    (tks||[]).forEach(t=>{ offRec(t.officer_name||'Unknown').points += 3; });
-  }catch(e){}
-
-  const officers = Object.values(byOfficer);
+  const officers = await computeOfficerStats();
   renderLeaderboard('lb-points', officers, 'points', v=>v+' pts');
   renderLeaderboard('lb-arrests', officers, 'arrests', v=>v);
   renderLeaderboard('lb-seizures', officers, 'items', v=>v);
@@ -1623,6 +1612,190 @@ async function loadOverview(){
 }
 
 function togglePointsInfo(){ const el=$('lb-points-legend'); if(el) el.style.display = el.style.display==='none'?'block':'none'; }
+let _officerStats = [];
+// Shared scoring — used by leaderboards AND officer profiles so they never diverge.
+async function computeOfficerStats(){
+  if(_arrests.length===0){ try{ _arrests = await fetchArrestsWithSeizures(); }catch(e){} }
+  const byOfficer = {};
+  const offRec = key => byOfficer[key] = byOfficer[key] || {name:key, arrests:0, items:0, value:0, points:0, impounds:0, tickets:0, narc:0, firearm:0, dna:0, prints:0};
+  _arrests.forEach(a=>{
+    const o = offRec(a.arresting_officer || 'Unknown');
+    o.arrests++;
+    o.points += 10;
+    if(a.arrest_type==='narcotics'||a.arrest_type==='firearms') o.points += 15;
+    else if(a.arrest_type==='both') o.points += 20;
+    if(a.arrest_type==='narcotics'||a.arrest_type==='both') o.narc++;
+    if(a.arrest_type==='firearms'||a.arrest_type==='both') o.firearm++;
+    if(a.dna){ o.points += 3; o.dna++; }
+    if(a.fingerprints){ o.points += 3; o.prints++; }
+    a._seizures.forEach(s=>{
+      const qty=Number(s.quantity)||0, val=Number(s.line_value)||0;
+      o.items += qty; o.value += val;
+      o.points += qty*2 + Math.floor(val/1000);
+    });
+  });
+  try{
+    const [{data:imps},{data:tks}] = await Promise.all([
+      sb.from('impounds').select('officer_name'),
+      sb.from('tickets').select('officer_name')
+    ]);
+    (imps||[]).forEach(i=>{ const o=offRec(i.officer_name||'Unknown'); o.points += 5; o.impounds++; });
+    (tks||[]).forEach(t=>{ const o=offRec(t.officer_name||'Unknown'); o.points += 3; o.tickets++; });
+  }catch(e){}
+  _officerStats = Object.values(byOfficer);
+  return _officerStats;
+}
+
+// Match a roster officer to their activity stats. Arrests store the officer as a
+// text label like "1-Adam-12 (John Doe)", so we match on callsign or full name appearing in it.
+function statsForOfficer(off){
+  const cs=(off.callsign||'').toLowerCase(), fn=(off.full_name||'').toLowerCase();
+  return _officerStats.find(s=>{ const n=s.name.toLowerCase(); return (cs&&n.includes(cs))||(fn&&n.includes(fn)); })
+    || {name:off.callsign||off.full_name, arrests:0,items:0,value:0,points:0,impounds:0,tickets:0,narc:0,firearm:0,dna:0,prints:0};
+}
+
+function viewMyStats(){
+  if(currentOfficer) viewOfficerProfile(currentOfficer.id);
+}
+async function viewOfficerProfile(officerId){
+  await computeOfficerStats();
+  const {data:off} = await sb.from('officers').select('*').eq('id',officerId).single();
+  if(!off) return;
+  const st = statsForOfficer(off);
+  // find this officer's arrests by the same name match
+  const cs=(off.callsign||'').toLowerCase(), fn=(off.full_name||'').toLowerCase();
+  const theirArrests=_arrests.filter(a=>{const n=(a.arresting_officer||'').toLowerCase(); return (cs&&n.includes(cs))||(fn&&n.includes(fn));})
+    .sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  // rank on points board
+  const ranked=[..._officerStats].sort((a,b)=>b.points-a.points);
+  const rank=ranked.findIndex(s=>s.name===st.name)+1;
+  const statusBadge = {pending:'bg-amber',approved:'bg-green',denied:'bg-red',suspended:'bg-gray'}[off.status]||'bg-gray';
+
+  $('view-modal-content').innerHTML=`
+    <div class="modal-hd" style="display:flex;gap:16px;align-items:center">
+      <div class="off-avatar">${escapeHTML((off.callsign||off.full_name||'?').charAt(0).toUpperCase())}</div>
+      <div style="flex:1">
+        <div class="tag">${escapeHTML(off.rank||'Officer')} · ${escapeHTML(off.division||'Patrol')}</div>
+        <h3 style="font-size:21px;font-weight:700">${escapeHTML(off.full_name||'—')}</h3>
+        <div style="font-size:13px;color:var(--ts);margin-top:2px">${escapeHTML(off.callsign||'')}${off.badge_number?` · Badge ${escapeHTML(off.badge_number)}`:''}
+          <span class="badge ${statusBadge}" style="margin-left:6px">${escapeHTML(off.status)}</span>
+          ${off.role==='admin'?'<span class="badge bg-red" style="margin-left:4px">admin</span>':''}</div>
+      </div>
+      ${rank>0&&st.points>0?`<div class="off-rank"><div class="off-rank-num">#${rank}</div><div class="off-rank-lbl">on points board</div></div>`:''}
+    </div>
+    <div class="modal-bd">
+      <div class="sg" style="margin-bottom:1rem">
+        <div class="sc"><div class="sc-lbl">Points</div><div class="sc-val red">${st.points}</div></div>
+        <div class="sc"><div class="sc-lbl">Arrests</div><div class="sc-val blue">${st.arrests}</div></div>
+        <div class="sc"><div class="sc-lbl">Items Seized</div><div class="sc-val amber">${st.items}</div></div>
+        <div class="sc"><div class="sc-lbl">Seized Value</div><div class="sc-val green">${money(st.value)}</div></div>
+      </div>
+      <div class="sg" style="margin-bottom:1.4rem">
+        <div class="sc"><div class="sc-lbl">Narcotics</div><div class="sc-val">${st.narc}</div></div>
+        <div class="sc"><div class="sc-lbl">Firearms</div><div class="sc-val">${st.firearm}</div></div>
+        <div class="sc"><div class="sc-lbl">Impounds</div><div class="sc-val">${st.impounds}</div></div>
+        <div class="sc"><div class="sc-lbl">Tickets</div><div class="sc-val">${st.tickets}</div></div>
+      </div>
+      <div class="flbl">Arrest History (${theirArrests.length})</div>
+      ${theirArrests.length?`<div style="margin-top:6px">${theirArrests.slice(0,25).map(a=>`
+        <div class="rap-row" onclick='closeModal("view-modal-overlay");viewArrest(${a.id})'>
+          <span class="badge ${arrestTypeCls(a.arrest_type)}">${arrestTypeLabel(a.arrest_type)}</span>
+          <span style="flex:1;font-size:13px">${escapeHTML(a.suspect_name)} — ${escapeHTML((a.charges||'—').split(',')[0])}</span>
+          <span style="font-size:12px;color:var(--ts)">${fmtDate(a.occurred_at)}</span>
+        </div>`).join('')}${theirArrests.length>25?`<div style="font-size:12px;color:var(--ts);text-align:center;padding:8px">+ ${theirArrests.length-25} more</div>`:''}</div>`
+        :'<div style="font-size:13px;color:var(--ts);margin-top:6px">No arrests logged under this officer yet.</div>'}
+
+      ${(currentOfficer&&currentOfficer.role==='admin')?`
+      <div class="admin-panel">
+        <div class="flbl" style="color:var(--red-l)">⚙ Admin Controls</div>
+        <div class="frow" style="margin-top:8px">
+          <div class="fgrp" style="margin:0">
+            <label class="flbl">Rank</label>
+            <select class="fi" id="ap-rank">${RANKS.map(r=>`<option value="${r}"${off.rank===r?' selected':''}>${r}</option>`).join('')}</select>
+          </div>
+          <div class="fgrp" style="margin:0">
+            <label class="flbl">Division</label>
+            <select class="fi" id="ap-division-sel">${DIVISIONS.map(d=>`<option value="${d}"${off.division===d?' selected':''}>${d}</option>`).join('')}</select>
+          </div>
+        </div>
+        <div class="frow" style="margin-top:10px">
+          <div class="fgrp" style="margin:0">
+            <label class="flbl">Status</label>
+            <select class="fi" id="ap-status-sel">
+              ${['pending','approved','denied','suspended'].map(s=>`<option value="${s}"${off.status===s?' selected':''}>${s}</option>`).join('')}
+            </select>
+          </div>
+          <div class="fgrp" style="margin:0">
+            <label class="flbl">Role</label>
+            <select class="fi" id="ap-role-sel">
+              <option value="officer"${off.role==='officer'?' selected':''}>officer</option>
+              <option value="admin"${off.role==='admin'?' selected':''}>admin</option>
+            </select>
+          </div>
+        </div>
+        <div id="ap-admin-msg" style="margin-top:8px"></div>
+        <button class="sbtn" style="margin-top:10px" onclick="saveOfficerAdmin('${off.id}')">Save Changes</button>
+      </div>`:''}
+    </div>`;
+  $('view-modal-overlay').style.display='block';
+}
+
+async function saveOfficerAdmin(id){
+  const msg=$('ap-admin-msg');
+  const patch={
+    rank: $('ap-rank').value,
+    division: $('ap-division-sel').value,
+    status: $('ap-status-sel').value,
+    role: $('ap-role-sel').value
+  };
+  msg.innerHTML='<div class="msg">Saving…</div>';
+  const {error}=await sb.from('officers').update(patch).eq('id',id);
+  if(error){ msg.innerHTML=`<div class="msg msg-err">${escapeHTML(error.message)}</div>`; return; }
+  msg.innerHTML='<div class="msg msg-ok">Saved. Officer updated.</div>';
+  _allOfficers=[]; // bust cache
+  // if the admin edited their own account, refresh currentOfficer
+  if(currentUser && id===currentUser.id){
+    const {data}=await sb.from('officers').select('*').eq('id',id).single();
+    if(data){ currentOfficer=data; $('dash-officer-name').textContent=`${data.callsign} · ${data.rank||'Officer'}`; }
+  }
+  if($('dash-officers').style.display!=='none') loadOfficers();
+  if($('dash-applications').style.display!=='none') loadRoster();
+}
+
+let _allOfficers = [];
+async function loadOfficers(){
+  const {data,error} = await sb.from('officers').select('*').order('full_name');
+  if(error){ $('officers-list').innerHTML=`<div class="empty">Error: ${escapeHTML(error.message)}</div>`; return; }
+  _allOfficers = data||[];
+  await computeOfficerStats();
+  renderOfficers();
+}
+function renderOfficers(){
+  const q=($('officers-search').value||'').toLowerCase().trim();
+  let list=_allOfficers;
+  if(q) list=list.filter(o=>[o.full_name,o.callsign,o.rank,o.division,o.badge_number].join(' ').toLowerCase().includes(q));
+  list=[...list].sort((a,b)=>statsForOfficer(b).points-statsForOfficer(a).points);
+  const el=$('officers-list');
+  if(!list.length){ el.innerHTML='<div class="empty">No officers found.</div>'; return; }
+  const statusBadge = s => ({pending:'bg-amber',approved:'bg-green',denied:'bg-red',suspended:'bg-gray'}[s]||'bg-gray');
+  el.innerHTML=list.map(o=>{
+    const st=statsForOfficer(o);
+    return `<div class="ar-card" onclick="viewOfficerProfile('${o.id}')">
+      <div class="off-avatar">${escapeHTML((o.callsign||o.full_name||'?').charAt(0).toUpperCase())}</div>
+      <div class="ar-body">
+        <div class="ar-top">
+          <div><div class="ar-name">${escapeHTML(o.full_name||'—')}</div><div class="ar-meta">${escapeHTML(o.callsign||'')} · ${escapeHTML(o.rank||'Officer')}</div></div>
+          <span class="badge ${statusBadge(o.status)}">${escapeHTML(o.status)}</span>
+        </div>
+        <div class="ar-foot" style="margin-top:.6rem">
+          <span>🏆 ${st.points} pts · 👮 ${st.arrests} arrests</span>
+          <span style="color:var(--green)">${st.value>0?money(st.value):''}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderLeaderboard(elId, officers, field, fmt){
   const sorted = officers.filter(o=>o[field]>0).sort((a,b)=>b[field]-a[field]).slice(0,5);
   const el = $(elId);
@@ -2405,7 +2578,7 @@ async function loadRoster(){
   const statusBadge = s => ({pending:'bg-amber',approved:'bg-green',denied:'bg-red',suspended:'bg-gray'}[s]||'bg-gray');
   tbody.innerHTML = data.map(o=>`
     <tr>
-      <td style="font-weight:600">${escapeHTML(o.full_name)}</td>
+      <td style="font-weight:600;cursor:pointer;color:var(--red-l)" onclick="viewOfficerProfile('${o.id}')">${escapeHTML(o.full_name)}</td>
       <td>${escapeHTML(o.callsign)}</td>
       <td style="color:var(--ts)">${escapeHTML(o.badge_number||'—')}</td>
       <td><span class="badge ${o.role==='admin'?'bg-red':'bg-gray'}">${escapeHTML(o.role)}</span></td>
