@@ -142,6 +142,16 @@ body>nav{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.97);border-
 .hs-toggle.active{background:var(--red);border-color:var(--red);color:#fff}
 .heat-bar{display:inline-block;width:80px;height:10px;background:rgba(255,255,255,.05);border-radius:5px;overflow:hidden;vertical-align:middle}
 .heat-fill{display:block;height:100%;background:linear-gradient(90deg,var(--red-d),var(--red-l));border-radius:5px}
+.map-layout{display:grid;grid-template-columns:1fr 300px;gap:1.5rem;align-items:start}
+.map-frame{background:var(--panel-l);border:1px solid var(--border-d);border-radius:8px;overflow:hidden}
+.map-frame iframe{width:100%;height:600px;border:none;display:block}
+.map-legend{display:flex;flex-direction:column;gap:8px}
+.ml-item{display:flex;align-items:center;gap:8px;font-size:13px;color:#c3c6cf}
+.ml-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;display:inline-block}
+.map-loc{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.map-loc:last-child{border-bottom:none}
+.map-loc .ml-dot{margin-top:5px}
+@media(max-width:820px){.map-layout{grid-template-columns:1fr}.map-frame iframe{height:400px}}
 .an-head{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--red-l);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border-d)}
 .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
 .bar-lbl{width:150px;color:#c3c6cf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
@@ -914,7 +924,6 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <button class="btn" onclick="showDash('dmv')">DMV / Enforcement</button>
       <button class="btn" onclick="showDash('suspects')">Suspects</button>
       <button class="btn" onclick="showDash('analysis')">Analysis</button>
-      <button class="btn" onclick="showDash('hotspots')">Hotspots</button>
       <button class="btn" onclick="showDash('applications')" id="nav-apps-btn" style="display:none">Applications</button>
       <button class="btn ghost" onclick="showPage('home')">Public Site ↗</button>
       <button class="btn danger" onclick="doLogout()">Log Out</button>
@@ -1046,11 +1055,9 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <div class="an-card an-wide"><div class="an-head">Most Common Charges</div><div class="chart-box tall"><canvas id="chart-charges"></canvas></div></div>
       <div class="an-card an-wide"><div class="an-head">Top Seized Items by Value</div><div class="chart-box tall"><canvas id="chart-items"></canvas></div></div>
     </div>
-  </div>
 
-  <!-- HOTSPOTS -->
-  <div class="sec" id="dash-hotspots" style="display:none">
-    <div class="sec-hd">
+    <!-- Hotspots (within Analysis) -->
+    <div class="sec-hd" style="margin-top:2.5rem;border-top:1px solid var(--border-d);padding-top:2rem">
       <div><div class="tag">Intelligence</div><h2>Crime Hotspots</h2><p>Which districts are seeing the most activity.</p></div>
       <div style="display:flex;gap:6px;align-items:center">
         <span style="font-size:12px;color:var(--ts)">Rank by:</span>
@@ -1063,8 +1070,27 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <div class="an-card an-wide"><div class="an-head" id="hs-chart-head">District Ranking — by Arrest Count</div><div class="chart-box tall"><canvas id="chart-hotspots"></canvas></div></div>
       <div class="an-card an-wide"><div class="an-head">District Breakdown</div><div id="hs-table"><div class="empty">Loading…</div></div></div>
     </div>
-    <div class="hb-callout" style="margin-top:1.5rem">
-      <strong>🗺 Map view coming later.</strong> This ranks districts from the location data officers enter. A visual heat-map with pins needs latitude/longitude per arrest — when you're ready to feed coordinates in (e.g. from the game script), I can add a real map on top of this.
+
+    <div class="sec-hd" style="margin-top:2rem"><div><div class="tag">Intelligence</div><h2>Operations Map</h2><p>San Andreas map with recent arrest locations.</p></div></div>
+    <div class="map-layout">
+      <div class="map-frame">
+        <iframe src="https://interactive-game-maps.github.io/grand_theft_auto_san_andreas/" loading="lazy" allowfullscreen></iframe>
+      </div>
+      <div>
+        <div class="an-card" style="margin-bottom:1rem">
+          <div class="an-head">Legend</div>
+          <div class="map-legend">
+            <div class="ml-item"><span class="ml-dot" style="background:#4a4f57"></span> Normal arrest</div>
+            <div class="ml-item"><span class="ml-dot" style="background:#e2544a"></span> Narcotics</div>
+            <div class="ml-item"><span class="ml-dot" style="background:#4a8fe0"></span> Firearms</div>
+            <div class="ml-item"><span class="ml-dot" style="background:#d1972f"></span> Narcotics &amp; Firearms</div>
+          </div>
+        </div>
+        <div class="an-card">
+          <div class="an-head">Recent Arrest Locations</div>
+          <div id="map-recent"><div class="empty">Loading…</div></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1509,15 +1535,14 @@ let _chargeActiveIdx = -1;
 
 /* ---------------- DASHBOARD NAV ---------------- */
 function showDash(section){
-  ['overview','arrests','dmv','suspects','analysis','hotspots','applications'].forEach(s=>{
+  ['overview','arrests','dmv','suspects','analysis','applications'].forEach(s=>{
     const el = $('dash-'+s); if(el) el.style.display = s===section ? 'block':'none';
   });
   if(section==='overview') loadOverview();
   if(section==='arrests') loadArrests();
   if(section==='dmv'){ loadImpounds(); loadTickets(); }
   if(section==='suspects') loadSuspects();
-  if(section==='analysis') loadAnalysis();
-  if(section==='hotspots') loadHotspots();
+  if(section==='analysis'){ loadAnalysis(); loadHotspots(); }
   if(section==='applications') { loadApplications(); loadRoster(); }
 }
 
@@ -2328,6 +2353,21 @@ function renderHotspots(){
       <td>${r.severity}</td>
       <td><span class="heat-bar"><span class="heat-fill" style="width:${(r[field]/max*100)}%"></span></span></td>
     </tr>`).join('')}</tbody></table>`;
+
+  // recent locations list (beside the map)
+  const dotColor = {normal:'#4a4f57',narcotics:'#e2544a',firearms:'#4a8fe0',both:'#d1972f'};
+  const recent = _arrests.filter(a=>a.district||a.location).slice(0,12);
+  const mr = $('map-recent');
+  if(mr){
+    mr.innerHTML = recent.length ? recent.map(a=>`
+      <div class="map-loc">
+        <span class="ml-dot" style="background:${dotColor[a.arrest_type]||'#4a4f57'}"></span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:var(--tp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHTML(a.district||a.location)}</div>
+          <div style="font-size:11px;color:var(--ts)">${escapeHTML(a.suspect_name||'—')} · ${fmtDate(a.created_at)}${a.location&&a.district?` · ${escapeHTML(a.location)}`:''}</div>
+        </div>
+      </div>`).join('') : '<div class="empty">No location data yet.</div>';
+  }
 }
 
 /* ---------------- ADMIN: APPLICATIONS ---------------- */
