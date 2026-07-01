@@ -7,7 +7,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#0b0d10;color:#e6e8ec;min-height:100vh}
+body{font-family:'Segoe UI',system-ui,sans-serif;color:#e6e8ec;min-height:100vh;
+  background:
+    linear-gradient(180deg, rgba(8,9,11,.82) 0%, rgba(8,9,11,.88) 100%),
+    url('https://i.postimg.cc/pdgz0GRj/Chat-GPT-Image-Jul-1-2026-08-19-17-PM.png');
+  background-size:cover;background-position:center 20%;background-attachment:fixed;background-repeat:no-repeat}
 :root{
   --red:#c1352c;--red-l:#e2544a;--red-d:#8f251f;
   --ink:#0b0d10;--panel:#14171b;--panel-l:#1b1f24;
@@ -35,18 +39,73 @@ body>nav{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.97);border-
 #pg-dash.active{display:flex;flex-direction:column;min-height:100vh}
 
 /* hero */
-.hero{min-height:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem 3rem;position:relative;overflow:hidden;background:
-  repeating-linear-gradient(135deg, rgba(255,255,255,.015) 0 2px, transparent 2px 40px)}
+.hero{min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem 3rem;position:relative;overflow:hidden;background:
+  radial-gradient(ellipse at 50% -10%, rgba(193,53,44,.18) 0%, transparent 55%)}
 .hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(193,53,44,.14) 0%,transparent 65%);pointer-events:none}
 .hero>*{position:relative;z-index:1}
+.hero-badge{display:none}
 .hero-eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--red-l);margin-bottom:1.5rem;border:1px solid var(--border);padding:5px 16px;border-radius:2px;display:inline-block;background:rgba(11,13,16,.5)}
 .hero h1{font-size:clamp(2rem,5vw,3.3rem);font-weight:800;line-height:1.1;margin-bottom:1rem;letter-spacing:-.5px}
 .hero h1 span{color:var(--red-l)}
 .hero p{font-size:16px;color:#c3c6cf;max-width:560px;line-height:1.7;margin-bottom:2.5rem}
 .hero-strip{display:flex;gap:1px;background:var(--border);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
 .hs{background:rgba(20,23,27,.92);padding:1.2rem 2.3rem;text-align:center}
+.hs-ic{font-size:20px;margin-bottom:6px}
 .hs-num{font-size:26px;font-weight:800;color:var(--red-l)}
 .hs-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ts);margin-top:3px}
+
+.banner-strip{background:rgba(193,53,44,.08);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px;text-align:center;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--red-l);font-weight:600}
+
+.faq-item{margin-bottom:1.6rem;padding-bottom:1.6rem;border-bottom:1px solid var(--border-d)}
+.faq-item:last-child{border-bottom:none}
+.faq-item h3{font-size:15px;font-weight:700;margin-bottom:.5rem;color:var(--tp)}
+.faq-item p{font-size:13.5px;color:var(--ts);line-height:1.7}
+
+/* handbook */
+.hb-wrap{display:grid;grid-template-columns:220px 1fr;max-width:1150px;margin:0 auto;gap:2rem;padding:2rem}
+.hb-toc{position:sticky;top:80px;align-self:start;background:var(--panel-l);border:1px solid var(--border-d);border-radius:8px;padding:1rem;max-height:calc(100vh - 100px);overflow-y:auto}
+.hb-toc-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ts);margin-bottom:.8rem;font-weight:600}
+.hb-toc-link{display:block;padding:8px 10px;font-size:13px;color:var(--ts);cursor:pointer;border-radius:5px;border-left:2px solid transparent;transition:all .12s}
+.hb-toc-link:hover{color:var(--tp);background:rgba(255,255,255,.03)}
+.hb-toc-link.active{color:var(--red-l);border-left-color:var(--red);background:rgba(193,53,44,.08)}
+.hb-content{min-width:0}
+.hb-header{text-align:center;padding:1.5rem 0 2rem;border-bottom:1px solid var(--border-d);margin-bottom:2rem}
+.hb-title{font-size:26px;font-weight:800;margin:.5rem 0 .3rem}
+.hb-motto{font-size:13px;font-style:italic;color:var(--red-l)}
+.hb-motto-sm{font-size:13px;font-style:italic;color:var(--red-l);margin-bottom:.6rem}
+.hb-infobox{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;background:var(--panel-l);border:1px solid var(--border-d);border-radius:8px;padding:1.3rem;margin-bottom:1.2rem}
+.hb-info-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--red-l);font-weight:700;margin-bottom:3px}
+.hb-info-val{font-size:13px;color:#c3c6cf;line-height:1.5}
+.hb-mission{font-size:14px;color:#c3c6cf;line-height:1.7;padding:1rem 1.2rem;background:rgba(193,53,44,.05);border-left:3px solid var(--red);border-radius:0 6px 6px 0;margin-bottom:2rem}
+.hb-section{margin-bottom:3rem;scroll-margin-top:80px}
+.hb-h2{font-size:20px;font-weight:800;color:var(--red-l);padding-bottom:.6rem;border-bottom:2px solid var(--border);margin-bottom:1.3rem}
+.hb-h3{font-size:15px;font-weight:700;margin:1.8rem 0 .7rem;color:var(--tp)}
+.hb-subhead{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--red-l);font-weight:700;margin:1.2rem 0 .5rem}
+.hb-content p{font-size:13.5px;color:#c3c6cf;line-height:1.7;margin-bottom:.8rem}
+.hb-table{width:100%;border-collapse:collapse;margin:.8rem 0 1.2rem;font-size:13px}
+.hb-table th{background:var(--red-d);color:#fff;text-align:left;padding:8px 12px;font-size:11px;letter-spacing:.5px;text-transform:uppercase;font-weight:700}
+.hb-table td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.05);color:#c3c6cf;vertical-align:top}
+.hb-table tr:nth-child(even) td{background:rgba(255,255,255,.015)}
+.hb-table.sm{font-size:12px}
+.hb-table.sm td{padding:5px 10px}
+.hb-table code{background:rgba(193,53,44,.12);color:var(--red-l);padding:1px 6px;border-radius:3px;font-size:12px;white-space:nowrap}
+.hb-cmd-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}
+.hb-cmd-block{background:var(--panel-l);border:1px solid var(--border-d);border-radius:8px;padding:1rem;overflow:hidden}
+.hb-cmd-head{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--red-l);margin-bottom:.5rem;padding-bottom:.4rem;border-bottom:1px solid var(--border-d)}
+.hb-callout{background:rgba(193,53,44,.06);border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem;margin:1rem 0;font-size:13.5px;color:#c3c6cf;line-height:1.7}
+.hb-callout p{margin-bottom:.6rem}.hb-callout p:last-child{margin-bottom:0}
+.hb-callout-red{border-color:rgba(214,69,69,.35);background:rgba(214,69,69,.06)}
+.hb-two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin:1rem 0;font-size:13px;color:#c3c6cf;line-height:1.6}
+.hb-note{font-size:12px;font-style:italic;color:var(--ts);margin-top:.5rem}
+.hb-note-red{color:#f08080;font-weight:600;font-style:normal}
+.hb-red{color:#f08080;font-weight:600}
+.hb-badge-g,.hb-badge-o,.hb-badge-r{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:3px;white-space:nowrap;display:inline-block}
+.hb-badge-g{background:rgba(63,166,107,.18);color:#6ad391;border:1px solid rgba(63,166,107,.3)}
+.hb-badge-o{background:rgba(209,151,47,.18);color:#e0b25a;border:1px solid rgba(209,151,47,.3)}
+.hb-badge-r{background:rgba(214,69,69,.18);color:#f08080;border:1px solid rgba(214,69,69,.3)}
+.hb-amber{color:#e0b25a;font-weight:600}
+.hb-footer-note{font-size:11px;color:var(--ts);text-align:center;padding:2rem 0;border-top:1px solid var(--border-d);margin-top:2rem;line-height:1.6}
+@media(max-width:820px){.hb-wrap{grid-template-columns:1fr}.hb-toc{position:static;max-height:none;display:flex;flex-wrap:wrap;gap:4px}.hb-toc-link{border-left:none;border-bottom:2px solid transparent}.hb-cmd-grid,.hb-two-col,.hb-infobox{grid-template-columns:1fr}}
 
 .sec{padding:3rem 2rem;max-width:1150px;margin:0 auto}
 .sec-hd{margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
@@ -135,7 +194,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 .empty{padding:3rem;text-align:center;color:var(--ts);font-size:13px}
 footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(--ts);border-top:1px solid var(--border-d)}
-@media(max-width:640px){.frow{grid-template-columns:1fr}.hero-strip{flex-direction:column}}
+@media(max-width:640px){.frow{grid-template-columns:1fr}.hero-strip{flex-direction:column}.hero-badge{display:none}.nl .btn.ghost{display:none}}
 </style>
 </head>
 <body>
@@ -143,14 +202,21 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
 <!-- ================= MARKETING NAV ================= -->
 <nav id="nav-marketing">
   <div class="nb">
-    <span class="nb-badge">LSPD</span>
+    <svg width="34" height="34" viewBox="0 0 100 100" style="flex-shrink:0">
+      <path d="M50 5 L90 20 L90 48 C90 72 73 88 50 96 C27 88 10 72 10 48 L10 20 Z" fill="#171a1e" stroke="#c1352c" stroke-width="3"/>
+      <path d="M50 14 L82 26 L82 48 C82 68 68 81 50 88 C32 81 18 68 18 48 L18 26 Z" fill="none" stroke="#c1352c" stroke-width="1.5" opacity=".5"/>
+      <text x="50" y="56" font-family="Segoe UI,sans-serif" font-size="30" font-weight="800" fill="#e6e8ec" text-anchor="middle">L</text>
+    </svg>
     <div>
-      <div class="nb-title">LSPD Operations</div>
-      <div class="nb-sub">Central Command</div>
+      <div class="nb-title">LSPD OPERATIONS</div>
+      <div class="nb-sub">Los Santos Police Dept</div>
     </div>
   </div>
   <div class="nl">
-    <button class="btn" onclick="showPage('apply')">Apply</button>
+    <button class="btn ghost" onclick="showPage('home')">Home</button>
+    <button class="btn ghost" onclick="showPage('apply')">Apply</button>
+    <button class="btn ghost" onclick="showPage('faq')">FAQ</button>
+    <button class="btn ghost" onclick="showPage('handbook')">Handbook</button>
     <button class="btn primary" onclick="showAuth('login')">Officer Login</button>
   </div>
 </nav>
@@ -158,13 +224,21 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
 <!-- ================= HOME PAGE ================= -->
 <div id="pg-home" class="page active">
   <div class="hero">
+    <svg class="hero-badge" width="230" height="230" viewBox="0 0 100 100">
+      <path d="M50 5 L90 20 L90 48 C90 72 73 88 50 96 C27 88 10 72 10 48 L10 20 Z" fill="none" stroke="#c1352c" stroke-width="1.2" opacity=".35"/>
+      <path d="M50 14 L82 26 L82 48 C82 68 68 81 50 88 C32 81 18 68 18 48 L18 26 Z" fill="none" stroke="#c1352c" stroke-width="1" opacity=".22"/>
+      <text x="50" y="45" font-family="Segoe UI,sans-serif" font-size="7" font-weight="700" fill="#c1352c" text-anchor="middle" opacity=".5" letter-spacing="1">POLICE OFFICER</text>
+      <text x="50" y="62" font-family="Segoe UI,sans-serif" font-size="6" font-weight="700" fill="#8f9198" text-anchor="middle" opacity=".4">TO PROTECT</text>
+      <text x="50" y="70" font-family="Segoe UI,sans-serif" font-size="6" font-weight="700" fill="#8f9198" text-anchor="middle" opacity=".4">AND TO SERVE</text>
+      <text x="50" y="82" font-family="Segoe UI,sans-serif" font-size="8" font-weight="800" fill="#e6e8ec" text-anchor="middle" opacity=".55">LSPD</text>
+    </svg>
     <div class="hero-eyebrow">Los Santos Police Department</div>
-    <h1>Every arrest. Every seizure.<br><span>One command record.</span></h1>
-    <p>LSPD Operations is the department's central log for arrests and seizures across every division, plus the intake system for divisional applications.</p>
+    <h1>Department<br><span>Operations</span> Hub</h1>
+    <p>Arrest reporting. Suspect intelligence. Seizure tracking. And command oversight — built for the streets of San Andreas.</p>
     <div class="hero-strip">
-      <div class="hs"><div class="hs-num" id="hs-arrests">—</div><div class="hs-lbl">Arrests Logged</div></div>
-      <div class="hs"><div class="hs-num" id="hs-seizures">—</div><div class="hs-lbl">Seizures Recorded</div></div>
-      <div class="hs"><div class="hs-num" id="hs-officers">—</div><div class="hs-lbl">Active Officers</div></div>
+      <div class="hs"><div class="hs-ic">⛓️</div><div class="hs-num" id="hs-arrests">—</div><div class="hs-lbl">Arrests Logged</div></div>
+      <div class="hs"><div class="hs-ic">📦</div><div class="hs-num" id="hs-seizures">—</div><div class="hs-lbl">Seizures Recorded</div></div>
+      <div class="hs"><div class="hs-ic">👮</div><div class="hs-num" id="hs-officers">—</div><div class="hs-lbl">Active Officers</div></div>
     </div>
   </div>
 
@@ -211,8 +285,472 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     </div>
   </div>
 
+  <div class="banner-strip">★ &nbsp; PROTECTING OUR COMMUNITY · TOGETHER WE SERVE &nbsp; ★</div>
   <footer>LSPD Operations — Internal Department System · Not affiliated with any real law enforcement agency</footer>
 </div>
+
+<!-- ================= FAQ PAGE ================= -->
+<div id="pg-faq" class="page">
+  <nav>
+    <div class="nb"><span class="nb-badge">LSPD</span><div><div class="nb-title">LSPD Operations</div><div class="nb-sub">FAQ</div></div></div>
+    <div class="nl"><button class="btn" onclick="showPage('home')">← Back</button></div>
+  </nav>
+  <div class="sec" style="max-width:800px">
+    <div class="tag">Frequently Asked Questions</div>
+    <h2 style="font-size:22px;font-weight:700;margin-bottom:1.5rem">Common Questions</h2>
+    <div class="faq-item"><h3>How do I apply to a division?</h3><p>Use the Apply page and select Traffic, FTO, or SWAT. Vice Unit applications are handled separately at vice-unit.com.</p></div>
+    <div class="faq-item"><h3>How long does approval take?</h3><p>New officer accounts and applications are reviewed by department admins — timing depends on admin availability.</p></div>
+    <div class="faq-item"><h3>Can the public see arrest and seizure logs?</h3><p>Yes — recent activity is shown publicly on the homepage. Full detail views require an approved officer login.</p></div>
+    <div class="faq-item"><h3>I logged in but can't log an arrest yet — why?</h3><p>New officer accounts start as "pending" and need admin approval before they can create records.</p></div>
+  </div>
+</div>
+
+<!-- ================= HANDBOOK PAGE ================= -->
+<div id="pg-handbook" class="page">
+  <nav>
+    <div class="nb"><span class="nb-badge">LSPD</span><div><div class="nb-title">LSPD Operations</div><div class="nb-sub">Department Handbook</div></div></div>
+    <div class="nl"><button class="btn" onclick="showPage('home')">← Back</button></div>
+  </nav>
+
+  <div class="hb-wrap">
+    <!-- Sidebar TOC -->
+    <aside class="hb-toc">
+      <div class="hb-toc-title">Contents</div>
+      <a class="hb-toc-link active" onclick="hbGo(this,'hb-intro')">1 · Introduction</a>
+      <a class="hb-toc-link" onclick="hbGo(this,'hb-duty1')">2 · Duty Info (I)</a>
+      <a class="hb-toc-link" onclick="hbGo(this,'hb-duty2')">3 · Duty Info (II)</a>
+      <a class="hb-toc-link" onclick="hbGo(this,'hb-ops')">4 · Daily Operations</a>
+      <a class="hb-toc-link" onclick="hbGo(this,'hb-div')">5 · Divisions</a>
+    </aside>
+
+    <!-- Content -->
+    <div class="hb-content">
+      <div class="hb-header">
+        <div class="tag">Official Department Handbook</div>
+        <h1 class="hb-title">Los Santos Police Department</h1>
+        <p class="hb-motto">"To Protect and To Serve"</p>
+      </div>
+
+      <div class="hb-infobox">
+        <div class="hb-info-col">
+          <div class="hb-info-lbl">Headquarters</div>
+          <div class="hb-info-val">Police Headquarters<br>2 Police Plaza<br>Los Santos, San Andreas</div>
+        </div>
+        <div class="hb-info-col">
+          <div class="hb-info-lbl">Established</div><div class="hb-info-val">2012</div>
+          <div class="hb-info-lbl" style="margin-top:10px">Jurisdiction</div><div class="hb-info-val">Los Santos &amp; San Andreas</div>
+        </div>
+      </div>
+      <p class="hb-mission"><strong>Mission Statement.</strong> The Los Santos Police Department is committed to enhancing public safety and reducing crime through the delivery of exceptional police services. We are dedicated to forging partnerships with the community and improving the quality of life for all citizens of Los Santos and San Andreas.</p>
+
+      <!-- SECTION 1 -->
+      <section id="hb-intro" class="hb-section">
+        <h2 class="hb-h2">Section 1 · Introduction</h2>
+
+        <h3 class="hb-h3">1.1 — Department Goals &amp; Objectives</h3>
+        <p>The Los Santos Police Department serves as the primary law enforcement agency for San Andreas. Its five core mission objectives are:</p>
+        <table class="hb-table">
+          <thead><tr><th>Objective</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Law Enforcement</strong></td><td>Enforce federal, state, and local laws throughout jurisdiction.</td></tr>
+            <tr><td><strong>Public Safety</strong></td><td>Protect and serve citizens with integrity and respect.</td></tr>
+            <tr><td><strong>Traffic Control</strong></td><td>Maintain road safety through enforcement and response.</td></tr>
+            <tr><td><strong>Criminal Apprehension</strong></td><td>Investigate crimes and support prosecution efforts.</td></tr>
+            <tr><td><strong>Gang Suppression</strong></td><td>Secure high-crime areas and gang territories.</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="hb-h3">1.2 — Mobile Data Computer (MDC) Commands</h3>
+        <div class="hb-cmd-grid">
+          <div class="hb-cmd-block">
+            <div class="hb-cmd-head">Basic Operations</div>
+            <table class="hb-table sm"><tbody>
+              <tr><td><code>/LOCKER</code></td><td>Equipment access</td></tr>
+              <tr><td><code>/MDC</code></td><td>Database terminal</td></tr>
+              <tr><td><code>/FACMOTD</code></td><td>Daily briefing</td></tr>
+              <tr><td><code>/R (text)</code></td><td>LSPD radio</td></tr>
+              <tr><td><code>/D (text)</code></td><td>Department radio</td></tr>
+              <tr><td><code>/M (text)</code></td><td>Megaphone</td></tr>
+              <tr><td><code>/BACKUP</code></td><td>Request assistance</td></tr>
+              <tr><td><code>/NOBACKUP</code></td><td>Cancel backup</td></tr>
+              <tr><td><code>/WANTED</code></td><td>View wanted list</td></tr>
+              <tr><td><code>/LISTCALLS</code></td><td>Active 911 calls</td></tr>
+              <tr><td><code>/ACCEPT911</code></td><td>Take 911 call</td></tr>
+              <tr><td><code>/REJECT911</code></td><td>Clear 911 call</td></tr>
+            </tbody></table>
+          </div>
+          <div class="hb-cmd-block">
+            <div class="hb-cmd-head">Enforcement</div>
+            <table class="hb-table sm"><tbody>
+              <tr><td><code>/SU (ID)</code></td><td>File charges</td></tr>
+              <tr><td><code>/CUFF (ID)</code></td><td>Apply restraints</td></tr>
+              <tr><td><code>/UNR (ID)</code></td><td>Allow walking</td></tr>
+              <tr><td><code>/RES (ID)</code></td><td>Restrict movement</td></tr>
+              <tr><td><code>/DRAG (ID)</code></td><td>Escort suspect</td></tr>
+              <tr><td><code>/DETAIN (ID)</code></td><td>Vehicle placement</td></tr>
+              <tr><td><code>/FRISK (ID)</code></td><td>Search suspect</td></tr>
+              <tr><td><code>/TAKE (ID)</code></td><td>Confiscate items</td></tr>
+              <tr><td><code>/FINGERPRINT</code></td><td>Identify suspect</td></tr>
+              <tr><td><code>/ARREST</code></td><td>Process booking</td></tr>
+              <tr><td><code>/DELIVER</code></td><td>Prison transfer</td></tr>
+              <tr><td><code>/RAM</code></td><td>Breach door</td></tr>
+            </tbody></table>
+          </div>
+          <div class="hb-cmd-block">
+            <div class="hb-cmd-head">Vehicle Control</div>
+            <table class="hb-table sm"><tbody>
+              <tr><td><code>/VCHECK</code></td><td>Vehicle info</td></tr>
+              <tr><td><code>/VMDC (ID)</code></td><td>Owner check</td></tr>
+              <tr><td><code>/VTICKET (ID)</code></td><td>Parking fine</td></tr>
+              <tr><td><code>/SEARCHCAR</code></td><td>Search vehicle</td></tr>
+              <tr><td><code>/CHECKTRUCK</code></td><td>Search cargo</td></tr>
+              <tr><td><code>/TOW</code></td><td>Attach vehicle</td></tr>
+              <tr><td><code>/UNTOW</code></td><td>Release vehicle</td></tr>
+              <tr><td><code>/IMPOUND</code></td><td>Seize vehicle</td></tr>
+              <tr><td><code>/RADAR</code></td><td>Speed detection</td></tr>
+              <tr><td><code>/RADARGUN</code></td><td>Handheld radar</td></tr>
+              <tr><td><code>/REVOKEDL</code></td><td>Suspend license</td></tr>
+              <tr><td><code>/DESTROYPLANT</code></td><td>Remove drugs</td></tr>
+            </tbody></table>
+          </div>
+          <div class="hb-cmd-block">
+            <div class="hb-cmd-head">Tactical</div>
+            <table class="hb-table sm"><tbody>
+              <tr><td><code>/TAZER</code></td><td>Less-lethal</td></tr>
+              <tr><td><code>/BEANBAG</code></td><td>Impact rounds</td></tr>
+              <tr><td><code>/DEPLOYSPIKES</code></td><td>Spike strip</td></tr>
+              <tr><td><code>/DESTROYSPIKES</code></td><td>Remove spikes</td></tr>
+              <tr><td><code>/DEPLOYCADE</code></td><td>Barricade</td></tr>
+              <tr><td><code>/DESTROYCADES</code></td><td>Clear barricades</td></tr>
+              <tr><td><code>/DEPLOYCONE</code></td><td>Traffic cone</td></tr>
+              <tr><td><code>/DESTROYCONES</code></td><td>Remove cones</td></tr>
+              <tr><td><code>/DEPLOYFLARE</code></td><td>Road flare</td></tr>
+              <tr><td><code>/DESTROYFLARES</code></td><td>Clear flares</td></tr>
+              <tr><td><code>/GOV (text)</code></td><td>Public announce</td></tr>
+              <tr><td><code>/MEMBERS</code></td><td>Online roster</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+        <div class="hb-cmd-block" style="margin-top:1rem">
+          <div class="hb-cmd-head">Administrative Functions</div>
+          <table class="hb-table sm"><tbody>
+            <tr><td><code>/INVITE (ID)</code></td><td>Recruit member</td><td><code>/UNINVITE (ID)</code></td><td>Remove online</td></tr>
+            <tr><td><code>/OUNINVITE</code></td><td>Remove offline</td><td><code>/LISTMEMBERS</code></td><td>Full roster</td></tr>
+            <tr><td><code>/GIVERANK</code></td><td>Set rank</td><td><code>/DIV INVITE (ID)</code></td><td>Division assign</td></tr>
+            <tr><td><code>/RFFV</code></td><td>Respawn garage vehicles</td><td><code>/RFLV</code></td><td>Respawn precinct vehicles</td></tr>
+          </tbody></table>
+        </div>
+        <p class="hb-note">All commands require appropriate authorization — unauthorized use is subject to disciplinary action.</p>
+      </section>
+
+      <!-- SECTION 2 -->
+      <section id="hb-duty1" class="hb-section">
+        <h2 class="hb-h2">Section 2 · Duty Information (I)</h2>
+
+        <h3 class="hb-h3">2.1 — Emergency Vehicles</h3>
+        <div class="hb-callout">
+          <strong>Critical vehicle regulations.</strong> Personal vehicles are <span class="hb-red">prohibited</span> in the garage — park outside the gates. <span class="hb-red">No</span> personal vehicles during active duty. Rank R4+ may override for all vehicles.
+        </div>
+        <p><strong>Authorization levels:</strong> <span class="hb-badge-g">Authorized</span> (no permission needed) · <span class="hb-badge-o">Permission</span> (Sergeant approval) · <span class="hb-badge-r">Prohibited</span> (no exceptions).</p>
+        <table class="hb-table">
+          <thead><tr><th>Vehicle</th><th>Rank Access</th><th>Division Access</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Tow Truck</strong></td><td>All ranks</td><td>All divisions</td></tr>
+            <tr><td><strong>Police Bike (HPV-1000)</strong></td><td>All ranks</td><td>All divisions</td></tr>
+            <tr><td><strong>Police Car (LSPD)</strong></td><td>Officer I (R1)+ · <span class="hb-red">not Cadet</span></td><td>All divisions</td></tr>
+            <tr><td><strong>Police Car (LVPD)</strong></td><td>Officer II (R2)+</td><td>All divisions</td></tr>
+            <tr><td><strong>Police Ranger</strong></td><td>Officer II (R2)+</td><td>All divisions</td></tr>
+            <tr><td><strong>Buffalo</strong></td><td>Officer I (R1)+</td><td>TE, IA, SWAT</td></tr>
+            <tr><td><strong>Cheetah</strong></td><td>Officer I (R1)+</td><td>TE, IA</td></tr>
+            <tr><td><strong>Turismo</strong></td><td>Officer I (R1)+</td><td>TE, IA</td></tr>
+            <tr><td><strong>Bullet</strong></td><td>Officer I (R1)+</td><td>TE, IA</td></tr>
+            <tr><td><strong>Premier</strong></td><td>Officer II (R2)+</td><td>FTO, IA</td></tr>
+            <tr><td><strong>Sultan</strong></td><td>Officer I (R1)+</td><td>SWAT</td></tr>
+            <tr><td><strong>Yosemite</strong></td><td>Officer II (R2)+</td><td>SWAT</td></tr>
+            <tr><td><strong>Burrito</strong></td><td>Officer II (R2)+</td><td>SWAT</td></tr>
+            <tr><td><strong>FBI Rancher</strong></td><td>Officer II (R2)+</td><td>SWAT</td></tr>
+            <tr><td><strong>FBI Truck</strong></td><td>Officer II (R2)+</td><td>SWAT</td></tr>
+            <tr><td><strong>SWAT Tank</strong></td><td>Officer II (R2)+</td><td>SWAT</td></tr>
+            <tr><td><strong>Coach</strong></td><td>Officer I (R1)+</td><td>All divisions</td></tr>
+            <tr><td><strong>Predator</strong></td><td>Officer I (R1)+</td><td>All divisions</td></tr>
+            <tr><td><strong>Police Maverick</strong></td><td>Officer I (R1)+</td><td>All divisions</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="hb-h3">2.2 — Police Equipment &amp; Armory</h3>
+        <p><strong>Standard issue equipment:</strong></p>
+        <table class="hb-table">
+          <thead><tr><th>Equipment</th><th>ID</th><th>Description &amp; Usage</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Desert Eagle</strong></td><td>24</td><td><span class="hb-red">Required</span> — primary .50 cal sidearm for all officers, carried at all times on duty.</td></tr>
+            <tr><td><strong>MP5A4</strong></td><td>29</td><td><span class="hb-red">Required for cadets</span> — SMG for tactical situations, close-quarters and tire disabling.</td></tr>
+            <tr><td><strong>Nightstick</strong></td><td>3</td><td>Non-lethal compliance tool — restraint, vehicle entry, glass breaking, crowd control.</td></tr>
+            <tr><td><strong>Pepper Spray</strong></td><td>41</td><td>Chemical deterrent — temporarily incapacitates aggressive suspects. Range 3–5m.</td></tr>
+            <tr><td><strong>Taser X26</strong></td><td>23</td><td>Electronic control device — 50,000-volt non-lethal apprehension. Requires certification.</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Optional tactical equipment:</strong></p>
+        <table class="hb-table">
+          <thead><tr><th>Equipment</th><th>ID</th><th>Authorization</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Tear Gas</strong></td><td>17</td><td><span class="hb-amber">SWAT/Metro only</span> — riot control, requires supervisor authorization.</td></tr>
+            <tr><td><strong>SPAS-12</strong></td><td>27</td><td>Tactical shotgun for close quarters.</td></tr>
+            <tr><td><strong>M4A1</strong></td><td>31</td><td>Assault rifle for long-range engagements, fleeing vehicles, hostile crowds.</td></tr>
+            <tr><td><strong>Sniper Rifle</strong></td><td>34</td><td>Precision rifle for overwatch and long-range threat elimination.</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Protective equipment:</strong></p>
+        <table class="hb-table">
+          <thead><tr><th>Type</th><th>Spec</th><th>Requirements</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Body Armor</strong></td><td>Level IIIA</td><td><span class="hb-red">Mandatory</span> for all field ops — Kevlar with trauma plates.</td></tr>
+            <tr><td><strong>Tactical Helmet</strong></td><td>PASGT</td><td><span class="hb-amber">SWAT/Metro only</span> — required for high-risk ops.</td></tr>
+            <tr><td><strong>Riot Shield</strong></td><td>Polycarbonate</td><td>Crowd control — <span class="hb-amber">Sergeant+ authorization required</span>.</td></tr>
+          </tbody>
+        </table>
+        <p class="hb-note">Most officers carry Desert Eagle + MP5 as standard loadout. Nightstick and pepper spray usage has declined in favor of quicker weapon access.</p>
+
+        <h3 class="hb-h3">2.3 — Radio Codes &amp; Communication</h3>
+        <div class="hb-cmd-grid">
+          <div class="hb-cmd-block">
+            <div class="hb-cmd-head">10-Codes</div>
+            <table class="hb-table sm"><tbody>
+              <tr><td><strong>10-1</strong></td><td>Transmitting poorly</td></tr>
+              <tr><td><strong>10-2</strong></td><td>Transmitting clearly</td></tr>
+              <tr><td><strong>10-3</strong></td><td>Stop transmitting</td></tr>
+              <tr><td><strong>10-4</strong></td><td>Message received</td></tr>
+              <tr><td><strong>10-6</strong></td><td>Off-duty, emergency only</td></tr>
+              <tr><td><strong>10-7</strong></td><td>Off-duty, unavailable</td></tr>
+              <tr><td><strong>10-8</strong></td><td>On-duty, active patrol</td></tr>
+              <tr><td><strong>10-9</strong></td><td>Repeat last transmission</td></tr>
+              <tr><td><strong>10-10</strong></td><td>Going out of town (logging)</td></tr>
+              <tr><td><strong>10-15</strong></td><td>Suspect in custody</td></tr>
+              <tr><td><strong>10-15a</strong></td><td>Most wanted in custody</td></tr>
+              <tr><td><strong>10-16</strong></td><td>Request to patrol with officer</td></tr>
+              <tr><td><strong>10-19</strong></td><td>Returning to station</td></tr>
+              <tr><td><strong>10-20</strong></td><td>Location / "What's your 20?"</td></tr>
+              <tr><td><strong>10-23</strong></td><td>Arrival on scene</td></tr>
+              <tr><td><strong>10-26</strong></td><td>Traffic stop</td></tr>
+              <tr><td><strong>10-26a</strong></td><td>High-risk traffic stop</td></tr>
+              <tr><td><strong>10-29</strong></td><td>Wants/warrants check</td></tr>
+              <tr><td><strong>10-62</strong></td><td>Attempting P.I.T. maneuver</td></tr>
+              <tr><td><strong>10-71</strong></td><td>Shooting in progress</td></tr>
+              <tr><td><strong>10-76</strong></td><td>En-route</td></tr>
+              <tr><td><strong>10-80</strong></td><td>Pursuit in progress</td></tr>
+              <tr><td><strong>10-88</strong></td><td>Requesting cover unit</td></tr>
+              <tr><td><strong>10-99</strong></td><td>End of situation</td></tr>
+            </tbody></table>
+          </div>
+          <div class="hb-cmd-block">
+            <div class="hb-cmd-head">11-Codes &amp; Status</div>
+            <table class="hb-table sm"><tbody>
+              <tr><td><strong>11-29</strong></td><td>Clear record (no warrants)</td></tr>
+              <tr><td><strong>11-41</strong></td><td>Ambulance required</td></tr>
+              <tr><td><strong>11-44</strong></td><td>Coroner's case (fatality)</td></tr>
+              <tr><td><strong>11-52</strong></td><td>Status check</td></tr>
+              <tr><td><strong>11-80</strong></td><td>Accident — major injury</td></tr>
+              <tr><td><strong>11-81</strong></td><td>Accident — minor injury</td></tr>
+              <tr><td><strong>11-82</strong></td><td>Accident — property damage</td></tr>
+              <tr><td><strong>11-85</strong></td><td>Tow truck needed</td></tr>
+              <tr><td><strong>11-99a</strong></td><td><span class="hb-red">Officer in extreme danger</span></td></tr>
+            </tbody></table>
+            <div class="hb-cmd-head" style="margin-top:12px">Response Codes</div>
+            <table class="hb-table sm"><tbody>
+              <tr><td><strong>Code 0</strong></td><td>Game crash</td></tr>
+              <tr><td><strong>Code 1</strong></td><td>Routine response</td></tr>
+              <tr><td><strong>Code 2</strong></td><td>Urgent — no lights/siren</td></tr>
+              <tr><td><strong>Code 3</strong></td><td><span class="hb-red">Emergency — lights &amp; siren</span></td></tr>
+              <tr><td><strong>Code 4</strong></td><td>No further assistance needed</td></tr>
+              <tr><td><strong>Code 5</strong></td><td>Stakeout / surveillance</td></tr>
+              <tr><td><strong>Code 6</strong></td><td>Stay out of area</td></tr>
+              <tr><td><strong>Code 10</strong></td><td>SWAT pre-call</td></tr>
+              <tr><td><strong>Code 11</strong></td><td><span class="hb-red">SWAT activation</span></td></tr>
+              <tr><td><strong>Code 37</strong></td><td>Subject/property wanted</td></tr>
+              <tr><td><strong>Code 99</strong></td><td>Mental health crisis</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+        <p><strong>Priority classifications:</strong> <span class="hb-badge-r">Priority 1</span> life-threatening emergency, officer in danger, armed suspect · <span class="hb-badge-o">Priority 2</span> serious incident, property crime in progress, injury accident · <span class="hb-badge-g">Priority 3</span> routine call, minor violations, admin tasks.</p>
+        <div class="hb-two-col">
+          <div><strong>Proper radio procedure:</strong> identify with unit number; clear, concise language; wait for acknowledgment; use phonetic alphabet; avoid chatter; emergency traffic takes priority; end with unit number.</div>
+          <div><strong>Radio discipline:</strong> <span class="hb-red">never use profanity</span>; keep transmissions brief; speak slowly; no eating/drinking while transmitting; test equipment at shift start; report malfunctions immediately.</div>
+        </div>
+
+        <h3 class="hb-h3">2.4 — RTO Standards (Radio Transmission Operations)</h3>
+        <p>The Watch Commander or highest-ranking officer on duty sets the RTO level based on current operations.</p>
+        <table class="hb-table">
+          <thead><tr><th>Level</th><th>Mode &amp; Rules</th></tr></thead>
+          <tbody>
+            <tr><td><span class="hb-badge-g">Passive</span></td><td><strong>Standard operations.</strong> Casual conversation permitted between calls; must maintain radio silence during active updates; harassment strictly prohibited. Default mode during routine patrol.</td></tr>
+            <tr><td><span class="hb-badge-o">Mid</span></td><td><strong>Elevated operations.</strong> Limited non-essential comms; no casual conversation; strict silence during updates. Activated during multi-unit ops or elevated threat levels.</td></tr>
+            <tr><td><span class="hb-badge-r">Strict</span></td><td><strong>Critical operations.</strong> Zero tolerance for non-essential comms; complete radio silence except updates; backup responses via text only. Reserved for critical incidents, SWAT ops, or department-wide emergencies.</td></tr>
+          </tbody>
+        </table>
+        <p class="hb-note">Failure to comply with RTO standards results in disciplinary action ranging from verbal warning to suspension.</p>
+      </section>
+
+      <!-- SECTION 3 -->
+      <section id="hb-duty2" class="hb-section">
+        <h2 class="hb-h2">Section 3 · Duty Information (II)</h2>
+
+        <h3 class="hb-h3">3.1 — Rank Structure &amp; Chain of Command</h3>
+        <p class="hb-subhead">Executive Command</p>
+        <table class="hb-table">
+          <thead><tr><th>Rank</th><th>Responsibilities &amp; Authority</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Chief of Police</strong> (R6)</td><td>Agency executive — department leadership, final authority on all matters, hire/terminate all personnel, promote/demote to all ranks, policy creation, external liaison.</td></tr>
+            <tr><td><strong>Assistant Chief</strong> (R6)</td><td>Executive assistant — supports Chief, assumes command in absence, oversees division ops, full personnel authority.</td></tr>
+            <tr><td><strong>Deputy Chief</strong> (R6)</td><td>Deputy executive — senior operational oversight, strategic planning, department-wide initiatives.</td></tr>
+            <tr><td><strong>Captain II</strong> (R5)</td><td>Operations &amp; admin oversight — Director of Operations / Administration; oversees Division Commanders.</td></tr>
+          </tbody>
+        </table>
+        <p class="hb-subhead">Command Staff</p>
+        <table class="hb-table">
+          <tbody>
+            <tr><td><strong>Captain I</strong> (R5)</td><td>Division Director — assign divisional roles, promote/demote through Sergeant.</td></tr>
+            <tr><td><strong>Lieutenant</strong> (R4)</td><td>Senior supervisor — Division/Assistant Commander, Watch Commander duties, training oversight.</td></tr>
+          </tbody>
+        </table>
+        <p class="hb-subhead">Supervisory &amp; Patrol</p>
+        <table class="hb-table">
+          <tbody>
+            <tr><td><strong>Sergeant</strong> (R3)</td><td>Field supervisor — shift supervision, Officer in Charge (OIC), scene command, evaluations.</td></tr>
+            <tr><td><strong>Officer II</strong> (R2)</td><td>Senior officer — acting supervisor, field training, specialized unit eligibility.</td></tr>
+            <tr><td><strong>Officer</strong> (R1)</td><td>Patrol officer — standard patrol, traffic enforcement, investigations, division eligibility.</td></tr>
+            <tr><td><strong>Cadet</strong> (R0)</td><td>Probationary member — training phase, supervised patrol only, limited vehicle access, must complete OIE.</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="hb-h3">3.2 — Authorized Uniforms</h3>
+        <p><strong>Standard duty (skin IDs):</strong> 71 Male Cadet · 280 Male Patrol · 265/266/267/281 Male Patrol Alts · 307 Female Patrol · 306 Female Patrol Alt.</p>
+        <p><strong>Traffic Enforcement:</strong> 311 Male Lieutenant · 310 Lieutenant Alt · 288/282 Male Supervisor · 309 Female Supervisor · 302 HSPU (Male Sergeant).</p>
+        <p><strong>Metropolitan / SWAT:</strong> 285 Male SWAT · 307 Female SWAT (<span class="hb-red">must wear vest &amp; helmet</span>).</p>
+      </section>
+
+      <!-- SECTION 4 -->
+      <section id="hb-ops" class="hb-section">
+        <h2 class="hb-h2">Section 4 · Daily Operations</h2>
+
+        <h3 class="hb-h3">4.1 — Standard Patrolling</h3>
+        <p>Standard units operate marked vehicles throughout Los Santos and San Andreas, maintaining high visibility and proactive enforcement. Duties: traffic enforcement, 911 response, crime prevention, investigation of suspicious activity, arrest of wanted suspects, community engagement.</p>
+        <div class="hb-callout"><strong>Two-officer patrol.</strong> Officers are strongly encouraged to patrol with a partner. <strong>Driver:</strong> vehicle control, navigation, radio comms, primary pursuit. <strong>Passenger:</strong> foot pursuit, suspect contact, equipment, backup coordination.</div>
+
+        <h3 class="hb-h3">4.2 — Traffic Stops</h3>
+        <table class="hb-table">
+          <thead><tr><th>Phase</th><th>Actions</th><th>Safety</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1. Initiation</strong></td><td>Activate lights; megaphone "pull over to the right"; position safely behind suspect.</td><td>Safe following distance; well-lit area; notify dispatch.</td></tr>
+            <tr><td><strong>2. Preparation</strong></td><td>Order engine off; request backup; run registration.</td><td>Observe behavior; check for weapons; assess threat.</td></tr>
+            <tr><td><strong>3. Contact</strong></td><td>Approach driver side; professional greeting; explain stop; request documents.</td><td>Tactical positioning; keep hands visible; watch for movements.</td></tr>
+            <tr><td><strong>4. Verification</strong></td><td>Return to patrol vehicle; run MDC warrant checks; verify ownership.</td><td>Maintain visual; monitor occupants; prepare for flight.</td></tr>
+            <tr><td><strong>5. Conclusion</strong></td><td>Issue citation/warning; return documents; ensure safe re-entry.</td><td>Clear roadway; monitor departure; complete documentation.</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="hb-h3">4.3 — Citations &amp; Enforcement</h3>
+        <div class="hb-two-col">
+          <div><strong>Traffic citations.</strong> Use <code>/ticket</code>: subject name (ID), fine amount, violation reason. Issue before returning documents. Remain courteous; explain violation; provide court info.</div>
+          <div><strong>Parking enforcement (MPS).</strong> Illegal parking: $1000 fine. Vehicles with $3000+ fines: mandatory impound. Contraband vehicles: immediate impound. Transport to Dillimore DMV.</div>
+        </div>
+
+        <h3 class="hb-h3">4.4 — High-Risk / Felony Stops</h3>
+        <div class="hb-callout hb-callout-red">
+          <p><strong>Phase 1 — Positioning.</strong> Stop at 45° angle (nose out); do not exit initially; request 3–4 units Code 3; all units position for cover; exit with weapons drawn.</p>
+          <p><strong>Phase 2 — Verbal commands (megaphone).</strong> "Driver and passengers, exit with hands visible" → "turn away, hands in the air" → "walk backward toward my voice" → "stop."</p>
+          <p><strong>Phase 3 — Suspect control.</strong> Primary unit secures nearest suspect; secondary units secure others; maintain cover; proper handcuffing.</p>
+          <p><strong>Phase 4 — Vehicle search.</strong> Systematic search after suspects secured; check all compartments; document evidence; arrange transport.</p>
+        </div>
+
+        <h3 class="hb-h3">4.5 — Vehicle Pursuits</h3>
+        <p><strong>Initial broadcast:</strong> "10-80 on [color] [vehicle], occupied times [number]. Heading [direction] on [street] in [area]. Requesting assistance, Code 3."</p>
+        <p><strong>Rules of engagement:</strong> Primary unit maintains pursuit and updates; secondary follows ready to take over; tertiary runs parallel/intercept; additional units stage at termination points. <span class="hb-red">Maintain single-file — no overtaking without permission.</span></p>
+        <table class="hb-table">
+          <thead><tr><th>P.I.T. Requirement</th><th>Criteria</th></tr></thead>
+          <tbody>
+            <tr><td>Time elapsed</td><td>Minimum 2 minutes of active pursuit</td></tr>
+            <tr><td>Units present</td><td>Primary, secondary, tertiary in formation</td></tr>
+            <tr><td>Authorization</td><td>Primary calls "10-62" before attempting</td></tr>
+            <tr><td>Execution</td><td>Controlled contact to disable vehicle</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Post-crash:</strong> disabled vehicle → verbal commands to exit; suspect flees on foot → Taser (all ranks) or Beanbag (Sergeant+ only); incapacitated → collect DNA, add charges; track to hospital if name known → arrest on discharge.</p>
+
+        <h3 class="hb-h3">4.6 — Arrest &amp; Detention</h3>
+        <div class="hb-callout hb-callout-red"><strong>Transport requirements.</strong> Must use a 4-door vehicle (back seat). Two-door vehicles and motorcycles <span class="hb-red">prohibited</span>. Suspect must be cuffed and restrained; unrestrain only with Sergeant+ approval.</div>
+        <table class="hb-table">
+          <thead><tr><th>Step</th><th>Procedure</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1. Identification</strong></td><td>Request name; transport to holding cells; fingerprint to verify; document false info.</td></tr>
+            <tr><td><strong>2. Search</strong></td><td>Don white search gloves; frisk for weapons/contraband; confiscate illegal items.</td></tr>
+            <tr><td><strong>3. Processing</strong></td><td>Complete <code>/arrest</code>; enter badge number; set fine + jail time; <span class="hb-red">no bail (enter 0)</span>.</td></tr>
+            <tr><td><strong>4. Completion</strong></td><td>Suspect transferred to custody by guards; radio "Resuming 10-8, 10-15 in custody"; complete paperwork.</td></tr>
+          </tbody>
+        </table>
+        <p class="hb-note hb-note-red">Warning: setting bail will result in strike/suspension.</p>
+
+        <h3 class="hb-h3">4.7 — Dispatch Priority</h3>
+        <table class="hb-table">
+          <thead><tr><th>Priority</th><th>Type &amp; Response</th></tr></thead>
+          <tbody>
+            <tr><td><span class="hb-badge-r">Priority 1</span></td><td>Immediate life threat — officer down, active shooter, serious injury accident, kidnapping. <em>Code 3, all available units.</em></td></tr>
+            <tr><td><span class="hb-badge-o">Priority 2</span></td><td>Urgent, crime in progress — robbery/burglary, domestic with weapons, pursuit assist, recent felony. <em>Code 2/3, multiple units.</em></td></tr>
+            <tr><td><span class="hb-badge-g">Priority 3</span></td><td>Routine — cold burglary/theft, non-injury accidents, noise complaints, parking. <em>Code 1, single unit when available.</em></td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="hb-h3">4.8 — Duty Status</h3>
+        <table class="hb-table">
+          <thead><tr><th>Rank</th><th>Off-Duty Requirements</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Cadet</strong></td><td>Must remain on-duty at all times. Do not ask to go off-duty.</td></tr>
+            <tr><td><strong>Officer / Officer II</strong></td><td>Request via radio with valid reason; Sergeant+ approval; max 30 minutes unless extended.</td></tr>
+            <tr><td><strong>Sergeant+</strong></td><td>Request from another Sergeant+ (cannot self-approve); valid reason; higher rank may override.</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Mandatory when going off-duty:</strong> return all department vehicles; store equipment in locker; change to civilian clothing; radio "Unit [#] 10-7"; return within 30 min. <strong>Prohibited off-duty:</strong> responding to calls, using department vehicles, wearing uniform, exercising police authority.</p>
+        <p class="hb-note hb-note-red">Failure to return on time results in disciplinary action.</p>
+      </section>
+
+      <!-- SECTION 5 -->
+      <section id="hb-div" class="hb-section">
+        <h2 class="hb-h2">Section 5 · Department Divisions</h2>
+        <p>The LSPD operates through specialized divisions, each with unique operational standards, equipment authorization, and personnel requirements, working cohesively toward the department's mission.</p>
+
+        <h3 class="hb-h3">5.1 — Field Training Operations (FTO)</h3>
+        <p class="hb-motto-sm">"Excellence Through Training"</p>
+        <p>FTO is the backbone of recruitment and training — transforming civilian applicants into professional officers. Missions: application review &amp; background checks, accept/deny recruitment, cadet training &amp; mentorship, OIE administration, reinstated-officer retraining. Training covers basic law enforcement procedures, department policy, radio standards, vehicle certification, weapons qualification, and scenario exercises.</p>
+        <p><strong>Selection:</strong> min. 2 weeks patrol experience, demonstrated teaching ability, knowledge of procedures, communication skills, supervisory approval.</p>
+
+        <h3 class="hb-h3">5.2 — Patrol Division (PTL)</h3>
+        <p class="hb-motto-sm">"The Thin Blue Line"</p>
+        <p>The largest and most visible component — the department's default division where all new officers begin. Missions: preventive high-visibility patrol, crime deterrence, emergency 911 response, initial crime investigation, traffic accident response, warrant service, crime scene preservation, community outreach.</p>
+        <p><strong>Selection:</strong> completion of OIE exam, basic training graduation. Default assignment for new officers; foundation for specialized divisions.</p>
+
+        <h3 class="hb-h3">5.3 — Special Weapons and Tactics (SWAT)</h3>
+        <p class="hb-motto-sm">"Speed, Surprise, Violence of Action"</p>
+        <p>LSPD's elite tactical response unit for high-risk operations: barricaded suspects, hostage rescue, high-risk warrants, active shooter, gang suppression, narcotics raids, VIP protection, counter-terrorism. Vehicles: Enforcer, FBI Rancher, SWAT van, specialized pursuit units. Equipment: advanced tactical gear, breaching tools, less-lethal options, precision rifles.</p>
+        <p><strong>Selection:</strong> exemplary record, superior fitness, advanced tactical training, psychological evaluation, leadership, quick decision-making. <strong>Activation:</strong> Code 10 pre-staging · Code 11 full deployment.</p>
+
+        <h3 class="hb-h3">5.4 — Traffic Enforcement (TE)</h3>
+        <p class="hb-motto-sm">"Pursuit to Apprehension"</p>
+        <p>Specializes in pursuit management, traffic enforcement, and street-racing intervention. Missions: lead high-speed pursuits, execute P.I.T., deploy spike strips/roadblocks, highway patrol, DUI interdiction, illegal racing suppression, vehicle impoundment. Fleet: Buffalo, Bullet, Turismo, Cheetah, Premier.</p>
+        <p><strong>Selection:</strong> min. 4 weeks patrol experience, excellent driving record, fitness assessment, pursuit tactics certification, Sergeant+ recommendation.</p>
+
+        <h3 class="hb-h3">5.5 — Internal Affairs (IA)</h3>
+        <p class="hb-motto-sm">"Policing the Police"</p>
+        <p>Ensures accountability and integrity by investigating misconduct, policy violations, and ethical standards — operating independently for objectivity. Authority: excessive force complaints, corruption allegations, policy reviews, criminal conduct investigations, disciplinary recommendations, quality assurance audits. Reports directly to the Chief of Police with confidential complaint processing and whistleblower protection.</p>
+        <p><strong>Selection:</strong> min. 2 weeks Patrol, investigative experience, impeccable integrity, advanced interview training, legal knowledge, command staff approval.</p>
+
+        <div class="hb-callout" style="margin-top:1.5rem">
+          <strong>Inactive sub-divisions.</strong> Public Affairs (PA) and Human Resources (HR) are currently suspended pending reorganization. Their functions — public relations, press liaison, personnel file management, promotion documentation, department statistics — are temporarily handled by Command Staff.
+        </div>
+      </section>
+
+      <div class="hb-footer-note">Los Santos Police Department — Official Department Handbook · For roleplay use only, not affiliated with any real law enforcement agency.</div>
+    </div>
+  </div>
+</div>
+
 
 <!-- ================= APPLY PAGE ================= -->
 <div id="pg-apply" class="page">
@@ -455,6 +993,12 @@ function showPage(name){
   if(name==='home') loadHomeStats();
 }
 function showAuth(tab){ showPage('auth'); switchAuthTab(tab); }
+function hbGo(el, id){
+  document.querySelectorAll('.hb-toc-link').forEach(a=>a.classList.remove('active'));
+  el.classList.add('active');
+  const target = document.getElementById(id);
+  if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
+}
 function switchAuthTab(tab){
   $('tab-login').classList.toggle('active',tab==='login');
   $('tab-register').classList.toggle('active',tab==='register');
