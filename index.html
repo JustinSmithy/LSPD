@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LSPD Operations — Central Command</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;color:#e6e8ec;min-height:100vh;
@@ -108,6 +109,13 @@ body>nav{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.97);border-
 .hb-footer-note{font-size:11px;color:var(--ts);text-align:center;padding:2rem 0;border-top:1px solid var(--border-d);margin-top:2rem;line-height:1.6}
 .dmv-sub-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
 .dmv-sub-hd h3{font-size:16px;font-weight:700;color:var(--red-l)}
+.lb-featured{margin-top:1.5rem}
+.lb-points{border-color:var(--border);background:linear-gradient(180deg,rgba(193,53,44,.06),var(--panel-l))}
+.lb-points-info{font-size:11px;color:var(--ts);cursor:pointer;font-weight:400;letter-spacing:0;text-transform:none;margin-left:8px;text-decoration:underline}
+.lb-legend{font-size:12px;color:#c3c6cf;line-height:1.8;background:rgba(0,0,0,.2);border:1px solid var(--border-d);border-radius:6px;padding:10px 12px;margin-bottom:1rem}
+.lb-legend strong{color:var(--red-l)}
+.lb-points .lb-row{padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.lb-points .lb-val{font-size:15px}
 
 /* ===== Dashboard v2 ===== */
 .lb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:1.5rem}
@@ -122,6 +130,14 @@ body>nav{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.97);border-
 .an-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 .an-card{background:var(--panel-l);border:1px solid var(--border-d);border-radius:8px;padding:1.2rem}
 .an-card.an-wide{grid-column:1/-1}
+.chart-box{position:relative;height:240px}
+.chart-box.tall{height:320px}
+.pill-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid transparent}
+.pill-on{background:rgba(63,166,107,.15);color:#6ad391;border-color:rgba(63,166,107,.3)}
+.pill-off{background:rgba(255,255,255,.04);color:var(--ts);border-color:var(--border-d)}
+.rap-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border-d);border-radius:6px;margin-bottom:6px;cursor:pointer;transition:border-color .12s}
+.rap-row:hover{border-color:var(--border)}
 .an-head{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--red-l);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border-d)}
 .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
 .bar-lbl{width:150px;color:#c3c6cf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
@@ -914,6 +930,19 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <div class="sc"><div class="sc-lbl">Approved Officers</div><div class="sc-val blue" id="ov-officers">0</div></div>
     </div>
 
+    <div class="lb-featured">
+      <div class="lb-card lb-points">
+        <div class="lb-head">🏆 Officer Points Leaderboard <span class="lb-points-info" onclick="togglePointsInfo()">ⓘ how points work</span></div>
+        <div id="lb-points-legend" class="lb-legend" style="display:none">
+          Arrest <strong>+10</strong> · Narcotics/Firearms arrest <strong>+15</strong> · Both <strong>+20</strong> ·
+          each Seizure item <strong>+2</strong> · per $1,000 seized value <strong>+1</strong> ·
+          DNA collected <strong>+3</strong> · Fingerprints <strong>+3</strong> ·
+          Impound <strong>+5</strong> · Ticket <strong>+3</strong>
+        </div>
+        <div id="lb-points"><div class="empty">Loading…</div></div>
+      </div>
+    </div>
+
     <div class="lb-grid">
       <div class="lb-card">
         <div class="lb-head">🏅 Most Arrests</div>
@@ -998,11 +1027,19 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
   <!-- ANALYSIS -->
   <div class="sec" id="dash-analysis" style="display:none">
     <div class="sec-hd"><div><div class="tag">Intelligence</div><h2>Crime Analysis</h2><p>Department-wide breakdown of arrests, charges, and evidence.</p></div></div>
+    <div class="sg" style="margin-bottom:1.5rem">
+      <div class="sc"><div class="sc-lbl">Arrests (30d)</div><div class="sc-val red" id="an-30d">0</div></div>
+      <div class="sc"><div class="sc-lbl">Avg Seizure / Arrest</div><div class="sc-val green" id="an-avg">$0</div></div>
+      <div class="sc"><div class="sc-lbl">Biometric Rate</div><div class="sc-val blue" id="an-biorate">0%</div></div>
+      <div class="sc"><div class="sc-lbl">Conviction Rate</div><div class="sc-val amber" id="an-convict">0%</div></div>
+    </div>
     <div class="an-grid">
-      <div class="an-card"><div class="an-head">Arrests by Type</div><div id="an-types"><div class="empty">Loading…</div></div></div>
-      <div class="an-card"><div class="an-head">Biometric Collection</div><div id="an-bio"><div class="empty">Loading…</div></div></div>
-      <div class="an-card an-wide"><div class="an-head">Most Common Charges</div><div id="an-charges"><div class="empty">Loading…</div></div></div>
-      <div class="an-card an-wide"><div class="an-head">Top Seized Items by Value</div><div id="an-items"><div class="empty">Loading…</div></div></div>
+      <div class="an-card"><div class="an-head">Arrests by Type</div><div class="chart-box"><canvas id="chart-types"></canvas></div></div>
+      <div class="an-card"><div class="an-head">Biometric Collection</div><div class="chart-box"><canvas id="chart-bio"></canvas></div></div>
+      <div class="an-card"><div class="an-head">Arrest Status</div><div class="chart-box"><canvas id="chart-status"></canvas></div></div>
+      <div class="an-card"><div class="an-head">Arrests Over Time (14 days)</div><div class="chart-box"><canvas id="chart-trend"></canvas></div></div>
+      <div class="an-card an-wide"><div class="an-head">Most Common Charges</div><div class="chart-box tall"><canvas id="chart-charges"></canvas></div></div>
+      <div class="an-card an-wide"><div class="an-head">Top Seized Items by Value</div><div class="chart-box tall"><canvas id="chart-items"></canvas></div></div>
     </div>
   </div>
 
@@ -1026,7 +1063,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
 </div>
 
 <!-- ================= ARREST MODAL ================= -->
-<div class="modal-overlay" id="arrest-modal-overlay" onclick="if(event.target===this)closeModal('arrest-modal-overlay')">
+<div class="modal-overlay" id="arrest-modal-overlay" onmousedown="modalBackdropDown(event,this)" onmouseup="modalBackdropUp(event,this,'arrest-modal-overlay')">
   <div class="modal-box wide">
     <button class="modal-close" onclick="closeModal('arrest-modal-overlay')">✕</button>
     <div class="modal-hd"><h3 style="font-size:17px;font-weight:700" id="arrest-modal-title">Log Arrest</h3></div>
@@ -1115,7 +1152,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
 </div>
 
 <!-- ================= SUSPECT MODAL ================= -->
-<div class="modal-overlay" id="suspect-modal-overlay" onclick="if(event.target===this)closeModal('suspect-modal-overlay')">
+<div class="modal-overlay" id="suspect-modal-overlay" onmousedown="modalBackdropDown(event,this)" onmouseup="modalBackdropUp(event,this,'suspect-modal-overlay')">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('suspect-modal-overlay')">✕</button>
     <div class="modal-hd"><h3 style="font-size:17px;font-weight:700" id="suspect-modal-title">Add Suspect</h3></div>
@@ -1144,7 +1181,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
 </div>
 
 <!-- ================= IMPOUND MODAL ================= -->
-<div class="modal-overlay" id="impound-modal-overlay" onclick="if(event.target===this)closeModal('impound-modal-overlay')">
+<div class="modal-overlay" id="impound-modal-overlay" onmousedown="modalBackdropDown(event,this)" onmouseup="modalBackdropUp(event,this,'impound-modal-overlay')">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('impound-modal-overlay')">✕</button>
     <div class="modal-hd"><h3 style="font-size:17px;font-weight:700" id="impound-modal-title">Log Impound</h3></div>
@@ -1180,7 +1217,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
 </div>
 
 <!-- ================= TICKET MODAL ================= -->
-<div class="modal-overlay" id="ticket-modal-overlay" onclick="if(event.target===this)closeModal('ticket-modal-overlay')">
+<div class="modal-overlay" id="ticket-modal-overlay" onmousedown="modalBackdropDown(event,this)" onmouseup="modalBackdropUp(event,this,'ticket-modal-overlay')">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('ticket-modal-overlay')">✕</button>
     <div class="modal-hd"><h3 style="font-size:17px;font-weight:700" id="ticket-modal-title">Issue Ticket</h3></div>
@@ -1216,7 +1253,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
 </div>
 
 <!-- ================= VIEW MODAL (read-only detail) ================= -->
-<div class="modal-overlay" id="view-modal-overlay" onclick="if(event.target===this)closeModal('view-modal-overlay')">
+<div class="modal-overlay" id="view-modal-overlay" onmousedown="modalBackdropDown(event,this)" onmouseup="modalBackdropUp(event,this,'view-modal-overlay')">
   <div class="modal-box wide">
     <button class="modal-close" onclick="closeModal('view-modal-overlay')">✕</button>
     <div id="view-modal-content"></div>
@@ -1486,13 +1523,35 @@ async function loadOverview(){
 
   // Leaderboards by officer
   const byOfficer = {};
+  function offRec(key){ return byOfficer[key] = byOfficer[key] || {name:key, arrests:0, items:0, value:0, points:0}; }
   _arrests.forEach(a=>{
-    const key = a.arresting_officer || 'Unknown';
-    const o = byOfficer[key] = byOfficer[key] || {name:key, arrests:0, items:0, value:0};
+    const o = offRec(a.arresting_officer || 'Unknown');
     o.arrests++;
-    a._seizures.forEach(s=>{ o.items += Number(s.quantity)||0; o.value += Number(s.line_value)||0; });
+    // points: base arrest + type bonus + biometrics
+    o.points += 10;
+    if(a.arrest_type==='narcotics'||a.arrest_type==='firearms') o.points += 15;
+    else if(a.arrest_type==='both') o.points += 20;
+    if(a.dna) o.points += 3;
+    if(a.fingerprints) o.points += 3;
+    a._seizures.forEach(s=>{
+      const qty=Number(s.quantity)||0, val=Number(s.line_value)||0;
+      o.items += qty; o.value += val;
+      o.points += qty*2;                     // +2 per item
+      o.points += Math.floor(val/1000);      // +1 per $1000 value
+    });
   });
+  // pull impounds + tickets into points too
+  try{
+    const [{data:imps},{data:tks}] = await Promise.all([
+      sb.from('impounds').select('officer_name'),
+      sb.from('tickets').select('officer_name')
+    ]);
+    (imps||[]).forEach(i=>{ offRec(i.officer_name||'Unknown').points += 5; });
+    (tks||[]).forEach(t=>{ offRec(t.officer_name||'Unknown').points += 3; });
+  }catch(e){}
+
   const officers = Object.values(byOfficer);
+  renderLeaderboard('lb-points', officers, 'points', v=>v+' pts');
   renderLeaderboard('lb-arrests', officers, 'arrests', v=>v);
   renderLeaderboard('lb-seizures', officers, 'items', v=>v);
   renderLeaderboard('lb-value', officers, 'value', v=>money(v));
@@ -1508,6 +1567,7 @@ async function loadOverview(){
     : '<div class="empty">No activity logged yet.</div>';
 }
 
+function togglePointsInfo(){ const el=$('lb-points-legend'); if(el) el.style.display = el.style.display==='none'?'block':'none'; }
 function renderLeaderboard(elId, officers, field, fmt){
   const sorted = officers.filter(o=>o[field]>0).sort((a,b)=>b[field]-a[field]).slice(0,5);
   const el = $(elId);
@@ -1856,6 +1916,7 @@ async function loadSuspects(){
   const {data,error} = await sb.from('suspects').select('*').order('name');
   if(error){ $('suspects-list').innerHTML=`<div class="empty">Error: ${escapeHTML(error.message)}</div>`; return; }
   _suspects = data||[];
+  try{ if(_arrests.length===0) _arrests = await fetchArrestsWithSeizures(); }catch(e){}
   renderSuspects();
 }
 function renderSuspects(){
@@ -1865,16 +1926,59 @@ function renderSuspects(){
   const el=$('suspects-list');
   if(!list.length){ el.innerHTML='<div class="empty">No suspects on file.</div>'; return; }
   el.innerHTML=list.map(s=>{
-    const arrests=_arrests.filter(a=>a.suspect_id===s.id).length;
-    const bio=[s.dna_on_file&&'🧬',s.prints_on_file&&'🖐'].filter(Boolean).join(' ');
-    return `<div class="ar-card" onclick="openSuspectModal(${s.id})">
+    const sArrests=_arrests.filter(a=>a.suspect_id===s.id);
+    const arrests=sArrests.length;
+    const totalVal=sArrests.reduce((t,a)=>t+a._seizures.reduce((x,y)=>x+(Number(y.line_value)||0),0),0);
+    const dnaPill = s.dna_on_file ? `<span class="pill pill-on">🧬 DNA on file</span>` : `<span class="pill pill-off">🧬 No DNA</span>`;
+    const prPill  = s.prints_on_file ? `<span class="pill pill-on">🖐 Prints on file</span>` : `<span class="pill pill-off">🖐 No prints</span>`;
+    return `<div class="ar-card" onclick="viewSuspect(${s.id})">
       ${s.mugshot_url?`<img class="ar-mug" src="${escapeHTML(s.mugshot_url)}">`:`<div class="ar-mug-ph">👤</div>`}
       <div class="ar-body">
-        <div class="ar-top"><div><div class="ar-name">${escapeHTML(s.name)}</div><div class="ar-meta">${arrests} arrest${arrests===1?'':'s'} on record</div></div><span>${bio}</span></div>
-        <div class="ar-charges">${escapeHTML(s.notes||'No notes')}</div>
+        <div class="ar-top"><div><div class="ar-name">${escapeHTML(s.name)}</div><div class="ar-meta">${arrests} arrest${arrests===1?'':'s'}${totalVal>0?` · ${money(totalVal)} seized`:''}</div></div></div>
+        <div class="pill-row">${dnaPill}${prPill}</div>
+        ${s.notes?`<div class="ar-charges" style="margin-top:.4rem">${escapeHTML(s.notes)}</div>`:''}
       </div>
     </div>`;
   }).join('');
+}
+
+function viewSuspect(id){
+  const s=_suspects.find(x=>x.id===id); if(!s) return;
+  const sArrests=_arrests.filter(a=>a.suspect_id===s.id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  const totalVal=sArrests.reduce((t,a)=>t+a._seizures.reduce((x,y)=>x+(Number(y.line_value)||0),0),0);
+  // aggregate charges across rap sheet
+  const chargeSet={};
+  sArrests.forEach(a=>(a.charges||'').split(',').map(c=>c.trim()).filter(Boolean).forEach(c=>chargeSet[c]=(chargeSet[c]||0)+1));
+  const topCharges=Object.entries(chargeSet).sort((a,b)=>b[1]-a[1]);
+  const canEdit = currentOfficer && currentOfficer.status==='approved';
+  const dnaPill = s.dna_on_file ? `<span class="pill pill-on">🧬 DNA on file</span>` : `<span class="pill pill-off">🧬 No DNA on file</span>`;
+  const prPill  = s.prints_on_file ? `<span class="pill pill-on">🖐 Prints on file</span>` : `<span class="pill pill-off">🖐 No prints on file</span>`;
+  $('view-modal-content').innerHTML=`
+    <div class="modal-hd" style="display:flex;gap:16px;align-items:center">
+      ${s.mugshot_url?`<img class="ar-mug" style="width:72px;height:72px" src="${escapeHTML(s.mugshot_url)}">`:`<div class="ar-mug-ph" style="width:72px;height:72px;font-size:32px">👤</div>`}
+      <div><div class="tag">Suspect File #${s.id}</div><h3 style="font-size:21px;font-weight:700">${escapeHTML(s.name)}</h3>
+      <div class="pill-row" style="margin-top:6px">${dnaPill}${prPill}</div></div>
+    </div>
+    <div class="modal-bd">
+      <div class="sg" style="margin-bottom:1.2rem">
+        <div class="sc"><div class="sc-lbl">Arrests</div><div class="sc-val red">${sArrests.length}</div></div>
+        <div class="sc"><div class="sc-lbl">Total Seized</div><div class="sc-val green">${money(totalVal)}</div></div>
+        <div class="sc"><div class="sc-lbl">Distinct Charges</div><div class="sc-val blue">${topCharges.length}</div></div>
+      </div>
+      ${s.notes?`<div style="margin-bottom:1.2rem"><div class="flbl">Notes</div><div style="font-size:14px;line-height:1.6">${escapeHTML(s.notes)}</div></div>`:''}
+      ${topCharges.length?`<div style="margin-bottom:1.2rem"><div class="flbl">Charge History</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">${topCharges.map(([c,n])=>`<span class="charge-tag" style="cursor:default">${escapeHTML(c)}${n>1?` ×${n}`:''}</span>`).join('')}</div></div>`:''}
+      <div class="flbl">Arrest History</div>
+      ${sArrests.length?`<div style="margin-top:6px">${sArrests.map(a=>`
+        <div class="rap-row" onclick='closeModal("view-modal-overlay");viewArrest(${a.id})'>
+          <span class="badge ${arrestTypeCls(a.arrest_type)}">${arrestTypeLabel(a.arrest_type)}</span>
+          <span style="flex:1;font-size:13px">${escapeHTML((a.charges||'—').split(',').slice(0,2).join(', '))}</span>
+          <span style="font-size:12px;color:var(--ts)">${fmtDate(a.occurred_at)}</span>
+        </div>`).join('')}</div>`:'<div style="font-size:13px;color:var(--ts);margin-top:6px">No arrests linked to this file yet.</div>'}
+      ${canEdit?`<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-d);display:flex;gap:8px">
+        <button class="btn" onclick='closeModal("view-modal-overlay");openSuspectModal(${s.id})'>✏️ Edit File</button>
+      </div>`:''}
+    </div>`;
+  $('view-modal-overlay').style.display='block';
 }
 function openSuspectModal(id){
   $('suspect-form-msg').innerHTML='';
@@ -2050,35 +2154,77 @@ async function deleteTicket(){
 }
 
 /* ---------------- ANALYSIS ---------------- */
+let _charts = {};
+function makeChart(id, cfg){
+  const ctx = $(id); if(!ctx) return;
+  if(_charts[id]) _charts[id].destroy();
+  _charts[id] = new Chart(ctx, cfg);
+}
+const CHART_RED='#c1352c', CHART_REDL='#e2544a', GRID='rgba(255,255,255,.06)', TICK='#93989f';
+const CHART_PALETTE=['#c1352c','#4a8fe0','#d1972f','#3fa66b','#8f5fd1','#d15f9e','#5fd1c4','#d1c45f'];
+Chart.defaults.color = TICK;
+Chart.defaults.font.family = "'Segoe UI',system-ui,sans-serif";
+
 async function loadAnalysis(){
   try{ if(_arrests.length===0) _arrests = await fetchArrestsWithSeizures(); }catch(err){}
-  // by type
+
+  // --- stat strip ---
+  const now=Date.now(), d30=now-30*864e5;
+  const last30 = _arrests.filter(a=>new Date(a.created_at).getTime()>=d30).length;
+  const totalVal=_arrests.reduce((t,a)=>t+a._seizures.reduce((s,x)=>s+(Number(x.line_value)||0),0),0);
+  const avg = _arrests.length ? totalVal/_arrests.length : 0;
+  const bioCount=_arrests.filter(a=>a.dna||a.fingerprints).length;
+  const bioRate=_arrests.length ? Math.round(bioCount/_arrests.length*100) : 0;
+  const convicted=_arrests.filter(a=>a.status==='convicted').length;
+  const convictRate=_arrests.length ? Math.round(convicted/_arrests.length*100) : 0;
+  $('an-30d').textContent=last30;
+  $('an-avg').textContent=money(Math.round(avg));
+  $('an-biorate').textContent=bioRate+'%';
+  $('an-convict').textContent=convictRate+'%';
+
+  // --- arrests by type (doughnut) ---
   const types={normal:0,narcotics:0,firearms:0,both:0};
   _arrests.forEach(a=>{ types[a.arrest_type]=(types[a.arrest_type]||0)+1; });
-  renderBars('an-types', Object.entries(types).map(([k,v])=>[arrestTypeLabel(k),v]));
-  // biometrics
+  makeChart('chart-types',{type:'doughnut',
+    data:{labels:['Normal','Narcotics','Firearms','Both'],datasets:[{data:[types.normal,types.narcotics,types.firearms,types.both],backgroundColor:CHART_PALETTE,borderColor:'#14171b',borderWidth:2}]},
+    options:{plugins:{legend:{position:'bottom',labels:{padding:12,font:{size:11}}}},cutout:'62%'}});
+
+  // --- biometrics (doughnut) ---
   const dna=_arrests.filter(a=>a.dna).length, prints=_arrests.filter(a=>a.fingerprints).length, none=_arrests.filter(a=>!a.dna&&!a.fingerprints).length;
-  renderBars('an-bio', [['🧬 DNA collected',dna],['🖐 Prints collected',prints],['No biometrics',none]]);
-  // charges
+  makeChart('chart-bio',{type:'doughnut',
+    data:{labels:['DNA collected','Prints collected','No biometrics'],datasets:[{data:[dna,prints,none],backgroundColor:['#3fa66b','#4a8fe0','#4a4f57'],borderColor:'#14171b',borderWidth:2}]},
+    options:{plugins:{legend:{position:'bottom',labels:{padding:12,font:{size:11}}}},cutout:'62%'}});
+
+  // --- status (doughnut) ---
+  const st={booked:0,released:0,pending_trial:0,convicted:0};
+  _arrests.forEach(a=>{ st[a.status]=(st[a.status]||0)+1; });
+  makeChart('chart-status',{type:'doughnut',
+    data:{labels:['Booked','Released','Pending Trial','Convicted'],datasets:[{data:[st.booked,st.released,st.pending_trial,st.convicted],backgroundColor:['#c1352c','#4a4f57','#d1972f','#3fa66b'],borderColor:'#14171b',borderWidth:2}]},
+    options:{plugins:{legend:{position:'bottom',labels:{padding:12,font:{size:11}}}},cutout:'62%'}});
+
+  // --- trend (line, last 14 days) ---
+  const days=[], counts=[];
+  for(let i=13;i>=0;i--){ const d=new Date(now-i*864e5); const key=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    days.push(key); counts.push(_arrests.filter(a=>{const ad=new Date(a.created_at); return ad.toDateString()===d.toDateString();}).length); }
+  makeChart('chart-trend',{type:'line',
+    data:{labels:days,datasets:[{data:counts,borderColor:CHART_REDL,backgroundColor:'rgba(226,84,74,.12)',fill:true,tension:.3,pointRadius:2,pointBackgroundColor:CHART_REDL}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{grid:{color:GRID},ticks:{font:{size:10},maxRotation:0}},y:{grid:{color:GRID},beginAtZero:true,ticks:{precision:0,stepSize:1}}}}});
+
+  // --- top charges (horizontal bar) ---
   const chargeCount={};
   _arrests.forEach(a=>(a.charges||'').split(',').map(c=>c.trim()).filter(Boolean).forEach(c=>chargeCount[c]=(chargeCount[c]||0)+1));
   const topCharges=Object.entries(chargeCount).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  renderBars('an-charges', topCharges.length?topCharges:[['No charges yet',0]]);
-  // items by value
+  makeChart('chart-charges',{type:'bar',
+    data:{labels:topCharges.map(c=>c[0]),datasets:[{data:topCharges.map(c=>c[1]),backgroundColor:CHART_RED,borderRadius:4}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:GRID},beginAtZero:true,ticks:{precision:0,stepSize:1}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+
+  // --- top seized items by value (horizontal bar) ---
   const itemVal={};
   _arrests.forEach(a=>a._seizures.forEach(s=>{ itemVal[s.item]=(itemVal[s.item]||0)+(Number(s.line_value)||0); }));
   const topItems=Object.entries(itemVal).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  renderBars('an-items', topItems.length?topItems:[['No seizures yet',0]], true);
-}
-function renderBars(elId, pairs, isMoney){
-  const el=$(elId);
-  const max=Math.max(...pairs.map(p=>p[1]),1);
-  el.innerHTML=pairs.map(([label,val])=>`
-    <div class="bar-row">
-      <span class="bar-lbl" title="${escapeHTML(label)}">${escapeHTML(label)}</span>
-      <span class="bar-track"><span class="bar-fill" style="width:${(val/max*100)}%"></span></span>
-      <span class="bar-num">${isMoney?money(val):val}</span>
-    </div>`).join('');
+  makeChart('chart-items',{type:'bar',
+    data:{labels:topItems.map(c=>c[0]),datasets:[{data:topItems.map(c=>c[1]),backgroundColor:'#3fa66b',borderRadius:4}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money(c.raw)}}},scales:{x:{grid:{color:GRID},beginAtZero:true,ticks:{callback:v=>'$'+v}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
 }
 
 
@@ -2141,9 +2287,15 @@ document.addEventListener('keydown', e=>{
     document.querySelectorAll('.modal-overlay').forEach(m=>m.style.display='none');
   }
 });
+// Backdrop close only when the press BOTH starts and ends on the overlay itself.
+// Prevents accidental closes when a click starts inside and a re-render moves the target.
+let _mdBackdrop = null;
+function modalBackdropDown(e, overlay){ _mdBackdrop = (e.target===overlay) ? overlay : null; }
+function modalBackdropUp(e, overlay, id){ if(_mdBackdrop===overlay && e.target===overlay){ closeModal(id); } _mdBackdrop=null; }
+
 document.addEventListener('click', e=>{
-  if(!e.target.closest('#ar-suspect') && !e.target.closest('#ar-suspect-suggest')){ const b=$('ar-suspect-suggest'); if(b) b.classList.remove('show'); }
-  if(!e.target.closest('#ar-charge-input') && !e.target.closest('#ar-charge-suggest')){ const b=$('ar-charge-suggest'); if(b) b.classList.remove('show'); }
+  const sb1=$('ar-suspect-suggest'); if(sb1 && sb1.classList.contains('show') && !e.target.closest('#ar-suspect') && !e.target.closest('#ar-suspect-suggest')) sb1.classList.remove('show');
+  const sb2=$('ar-charge-suggest'); if(sb2 && sb2.classList.contains('show') && !e.target.closest('#ar-charge-input') && !e.target.closest('#ar-charge-suggest')) sb2.classList.remove('show');
 });
 // live mugshot preview on file pick
 document.addEventListener('change', e=>{
