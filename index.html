@@ -138,6 +138,10 @@ body>nav{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.97);border-
 .pill-off{background:rgba(255,255,255,.04);color:var(--ts);border-color:var(--border-d)}
 .rap-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border-d);border-radius:6px;margin-bottom:6px;cursor:pointer;transition:border-color .12s}
 .rap-row:hover{border-color:var(--border)}
+.hs-toggle{font-size:12px;padding:5px 12px}
+.hs-toggle.active{background:var(--red);border-color:var(--red);color:#fff}
+.heat-bar{display:inline-block;width:80px;height:10px;background:rgba(255,255,255,.05);border-radius:5px;overflow:hidden;vertical-align:middle}
+.heat-fill{display:block;height:100%;background:linear-gradient(90deg,var(--red-d),var(--red-l));border-radius:5px}
 .an-head{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--red-l);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border-d)}
 .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
 .bar-lbl{width:150px;color:#c3c6cf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
@@ -910,6 +914,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <button class="btn" onclick="showDash('dmv')">DMV / Enforcement</button>
       <button class="btn" onclick="showDash('suspects')">Suspects</button>
       <button class="btn" onclick="showDash('analysis')">Analysis</button>
+      <button class="btn" onclick="showDash('hotspots')">Hotspots</button>
       <button class="btn" onclick="showDash('applications')" id="nav-apps-btn" style="display:none">Applications</button>
       <button class="btn ghost" onclick="showPage('home')">Public Site ↗</button>
       <button class="btn danger" onclick="doLogout()">Log Out</button>
@@ -1043,6 +1048,26 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     </div>
   </div>
 
+  <!-- HOTSPOTS -->
+  <div class="sec" id="dash-hotspots" style="display:none">
+    <div class="sec-hd">
+      <div><div class="tag">Intelligence</div><h2>Crime Hotspots</h2><p>Which districts are seeing the most activity.</p></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span style="font-size:12px;color:var(--ts)">Rank by:</span>
+        <button class="btn hs-toggle active" id="hs-mode-count" onclick="setHotspotMode('count')">Arrest Count</button>
+        <button class="btn hs-toggle" id="hs-mode-severity" onclick="setHotspotMode('severity')">Severity</button>
+      </div>
+    </div>
+    <div id="hs-note" class="hb-note" style="margin-bottom:1rem"></div>
+    <div class="an-grid">
+      <div class="an-card an-wide"><div class="an-head" id="hs-chart-head">District Ranking — by Arrest Count</div><div class="chart-box tall"><canvas id="chart-hotspots"></canvas></div></div>
+      <div class="an-card an-wide"><div class="an-head">District Breakdown</div><div id="hs-table"><div class="empty">Loading…</div></div></div>
+    </div>
+    <div class="hb-callout" style="margin-top:1.5rem">
+      <strong>🗺 Map view coming later.</strong> This ranks districts from the location data officers enter. A visual heat-map with pins needs latitude/longitude per arrest — when you're ready to feed coordinates in (e.g. from the game script), I can add a real map on top of this.
+    </div>
+  </div>
+
   <!-- APPLICATIONS (admin) -->
   <div class="sec" id="dash-applications" style="display:none">
     <div class="sec-hd"><div><div class="tag">Admin</div><h2>Divisional Applications</h2><p>Review and action incoming applications.</p></div></div>
@@ -1125,8 +1150,11 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
 
       <div class="frow">
         <div class="fgrp"><label class="flbl">Arresting Officer</label><input class="fi" id="ar-officer"></div>
-        <div class="fgrp"><label class="flbl">Location</label><input class="fi" id="ar-location"></div>
+        <div class="fgrp"><label class="flbl">District / Zone</label>
+          <select class="fi" id="ar-district"></select>
+        </div>
       </div>
+      <div class="fgrp"><label class="flbl">Location Detail (optional)</label><input class="fi" id="ar-location" placeholder="e.g. behind the 24/7, corner of Grove St"></div>
       <div class="fgrp"><label class="flbl">Assisting Officers (optional)</label><input class="fi" id="ar-assist" placeholder="Comma-separated"></div>
       <div class="fgrp"><label class="flbl">Narrative</label><textarea class="fi" id="ar-narrative" placeholder="What happened…"></textarea></div>
 
@@ -1472,6 +1500,7 @@ const DRUGS = Object.keys(DRUG_PRICES);
 const FIREARMS = Object.keys(FIREARM_PRICES);
 const CHARGES = ['Aiding a Prison Break','Aiding and Abetting','Assault','Attempted Murder','Battery','Brandishing a Weapon in Public','Bribery','Conspiracy','Criminal Negligence','Criminal Trespassing','Cultivation/Manufacture/Delivery of a Controlled Substance','Destruction of Public Property','Destruction/Falsification of Evidence','Discharge of a Firearm in Public','Disturbance of Peace','Driving Over the Speed Limit','Evading a Law Enforcement Officer','Excessive Use of Force','Extortion','Failure to Identify','Failure to Pay a Ticket','False Imprisonment','Fraud','Grand Theft Auto','Impersonating a Government Employee','Indecency','Kidnapping','Murder','Mutual Combat','Obstructing a Government Employee','Operating a Vehicle Without a License','Parking Violation','Possession of a Controlled Substance','Possession of a Controlled Substance With Intent to Sell','Possession of an Illegal Firearm','Prison Break','Reckless Driving','Resisting a Law Enforcement Officer','Riot','Robbery','Terrorism','Transporting Illegal Goods','Trespassing','Unlawful Assembly','Unlawful Distribution of a Weapon','Vandalism','Vehicular Assault'];
 const STORAGE_BUCKET = 'mugshots';
+const DISTRICTS = ['Idlewood','Ganton','East Los Santos','Jefferson','Glen Park','El Corona','Willowfield','Los Flores','East Beach','Playa del Seville','Commerce','Downtown LS','Pershing Square','Little Mexico','Vinewood','Rodeo','Richman','Mulholland','Marina','Verona Beach','Santa Maria Beach','Verdant Bluffs','Ocean Docks','LS International','Montgomery','Red County','Blueberry','Dillimore','Palomino Creek','Other / Unlisted'];
 
 let _arrests = [];       // cached arrest list (with nested seizures)
 let _suspects = [];      // cached suspect list
@@ -1480,7 +1509,7 @@ let _chargeActiveIdx = -1;
 
 /* ---------------- DASHBOARD NAV ---------------- */
 function showDash(section){
-  ['overview','arrests','dmv','suspects','analysis','applications'].forEach(s=>{
+  ['overview','arrests','dmv','suspects','analysis','hotspots','applications'].forEach(s=>{
     const el = $('dash-'+s); if(el) el.style.display = s===section ? 'block':'none';
   });
   if(section==='overview') loadOverview();
@@ -1488,6 +1517,7 @@ function showDash(section){
   if(section==='dmv'){ loadImpounds(); loadTickets(); }
   if(section==='suspects') loadSuspects();
   if(section==='analysis') loadAnalysis();
+  if(section==='hotspots') loadHotspots();
   if(section==='applications') { loadApplications(); loadRoster(); }
 }
 
@@ -1610,7 +1640,7 @@ function renderArrests(){
         </div>
         <div class="ar-charges">${escapeHTML(a.charges||'No charges listed')}</div>
         <div class="ar-foot">
-          <span>👮 ${escapeHTML(a.arresting_officer||'—')}</span>
+          <span>👮 ${escapeHTML(a.arresting_officer||'—')}${a.district?` · 📍 ${escapeHTML(a.district)}`:''}</span>
           <span class="ar-bio">${bio}${val>0?` · <span style="color:var(--green)">${money(val)}</span>`:''}</span>
         </div>
       </div>
@@ -1639,6 +1669,8 @@ function openArrestModal(existing){
   $('ar-mugshot-file').value='';
   $('ar-mugshot-preview').style.display='none';
   $('ar-bio-note').textContent='';
+  // populate district dropdown
+  $('ar-district').innerHTML = '<option value="">— Select district —</option>' + DISTRICTS.map(d=>`<option value="${escapeHTML(d)}">${escapeHTML(d)}</option>`).join('');
   if(existing){
     $('arrest-modal-title').textContent = 'Edit Arrest #'+existing.id;
     $('ar-id').value = existing.id;
@@ -1647,6 +1679,7 @@ function openArrestModal(existing){
     $('ar-suspect').value = existing.suspect_name||'';
     $('ar-suspect-id').value = existing.suspect_id||'';
     $('ar-officer').value = existing.arresting_officer||'';
+    $('ar-district').value = existing.district||'';
     $('ar-location').value = existing.location||'';
     $('ar-assist').value = existing.assisting_officers||'';
     $('ar-narrative').value = existing.narrative||'';
@@ -1660,7 +1693,7 @@ function openArrestModal(existing){
   } else {
     $('arrest-modal-title').textContent = 'Log Arrest';
     ['ar-id','ar-suspect','ar-officer','ar-location','ar-assist','ar-narrative'].forEach(id=>$(id).value='');
-    $('ar-type').value='normal'; $('ar-status').value='booked';
+    $('ar-type').value='normal'; $('ar-status').value='booked'; $('ar-district').value='';
     $('ar-dna').checked=false; $('ar-prints').checked=false;
     $('ar-officer').value = currentOfficer ? `${currentOfficer.callsign} (${currentOfficer.full_name})` : '';
     $('ar-delete-btn').style.display='none';
@@ -1831,6 +1864,7 @@ async function saveArrest(){
       officer_badge: currentOfficer?.badge_number||null,
       assisting_officers: $('ar-assist').value.trim(),
       location: $('ar-location').value.trim(),
+      district: $('ar-district').value || null,
       narrative: $('ar-narrative').value.trim(),
       dna, fingerprints: prints,
       mugshot_url: mugUrl,
@@ -1898,7 +1932,7 @@ async function viewArrest(id){
       <div style="margin-bottom:1.1rem"><div class="flbl">Charges</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">${chargesList.map(c=>`<span class="charge-tag" style="cursor:default">${escapeHTML(c)}</span>`).join('')||'<span style="font-size:13px;color:var(--ts)">None</span>'}</div></div>
       <div class="frow" style="margin-bottom:1.1rem">
         <div><div class="flbl">Arresting Officer</div><div style="font-size:14px">${escapeHTML(a.arresting_officer||'—')}</div></div>
-        <div><div class="flbl">Location</div><div style="font-size:14px">${escapeHTML(a.location||'—')}</div></div>
+        <div><div class="flbl">Location</div><div style="font-size:14px">${a.district?`📍 ${escapeHTML(a.district)}`:''}${a.location?`${a.district?' — ':''}${escapeHTML(a.location)}`:(a.district?'':'—')}</div></div>
       </div>
       ${a.assisting_officers?`<div style="margin-bottom:1.1rem"><div class="flbl">Assisting</div><div style="font-size:14px">${escapeHTML(a.assisting_officers)}</div></div>`:''}
       <div style="margin-bottom:1.1rem"><div class="flbl">Biometric Evidence</div><div style="font-size:14px">${bio}</div></div>
@@ -2227,6 +2261,74 @@ async function loadAnalysis(){
     options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money(c.raw)}}},scales:{x:{grid:{color:GRID},beginAtZero:true,ticks:{callback:v=>'$'+v}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
 }
 
+
+/* ---------------- HOTSPOTS ---------------- */
+let _hotspotMode = 'count';
+function setHotspotMode(mode){
+  _hotspotMode = mode;
+  $('hs-mode-count').classList.toggle('active', mode==='count');
+  $('hs-mode-severity').classList.toggle('active', mode==='severity');
+  renderHotspots();
+}
+async function loadHotspots(){
+  try{ if(_arrests.length===0) _arrests = await fetchArrestsWithSeizures(); }catch(e){}
+  renderHotspots();
+}
+// severity weight per arrest: normal 1, narcotics/firearms 3, both 5, + seizure value bonus
+function arrestSeverity(a){
+  let w = {normal:1,narcotics:3,firearms:3,both:5}[a.arrest_type]||1;
+  const val = a._seizures.reduce((t,s)=>t+(Number(s.line_value)||0),0);
+  w += Math.floor(val/2000); // +1 per $2000 seized
+  return w;
+}
+function renderHotspots(){
+  const districts={};
+  _arrests.forEach(a=>{
+    const d = a.district || 'Unassigned';
+    const rec = districts[d] = districts[d] || {name:d, count:0, severity:0, narc:0, firearm:0, value:0};
+    rec.count++;
+    rec.severity += arrestSeverity(a);
+    if(a.arrest_type==='narcotics'||a.arrest_type==='both') rec.narc++;
+    if(a.arrest_type==='firearms'||a.arrest_type==='both') rec.firearm++;
+    rec.value += a._seizures.reduce((t,s)=>t+(Number(s.line_value)||0),0);
+  });
+  const rows = Object.values(districts);
+  const field = _hotspotMode==='severity' ? 'severity' : 'count';
+  rows.sort((a,b)=>b[field]-a[field]);
+
+  $('hs-chart-head').textContent = 'District Ranking — by ' + (_hotspotMode==='severity'?'Severity Score':'Arrest Count');
+  $('hs-note').textContent = _hotspotMode==='severity'
+    ? 'Severity weights: normal arrest ×1, narcotics/firearms ×3, both ×5, plus +1 per $2,000 seized.'
+    : 'Ranked purely by number of arrests logged in each district.';
+
+  if(!rows.length){
+    $('hs-table').innerHTML='<div class="empty">No location data yet. Set a district when logging arrests.</div>';
+    if(_charts['chart-hotspots']) _charts['chart-hotspots'].destroy();
+    return;
+  }
+
+  // chart — top 12
+  const top = rows.slice(0,12);
+  const heat = top.map((r,i)=>{ const t=i/Math.max(top.length-1,1); return `rgba(193,53,44,${(1-t*0.65).toFixed(2)})`; });
+  makeChart('chart-hotspots',{type:'bar',
+    data:{labels:top.map(r=>r.name),datasets:[{data:top.map(r=>r[field]),backgroundColor:heat,borderRadius:4}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:c=>{const r=top[c.dataIndex];return `Narcotics: ${r.narc} · Firearms: ${r.firearm} · Seized: ${money(r.value)}`;}}}},
+      scales:{x:{grid:{color:GRID},beginAtZero:true,ticks:{precision:0}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+
+  // table
+  const max = rows[0][field]||1;
+  $('hs-table').innerHTML = `<table><thead><tr><th>Rank</th><th>District</th><th>Arrests</th><th>Narcotics</th><th>Firearms</th><th>Seized Value</th><th>Severity</th><th>Heat</th></tr></thead><tbody>${
+    rows.map((r,i)=>`<tr>
+      <td><span class="lb-rank ${i===0?'gold':''}">${i+1}</span></td>
+      <td style="font-weight:600">${escapeHTML(r.name)}</td>
+      <td>${r.count}</td>
+      <td style="color:var(--ts)">${r.narc}</td>
+      <td style="color:var(--ts)">${r.firearm}</td>
+      <td style="color:var(--green)">${money(r.value)}</td>
+      <td>${r.severity}</td>
+      <td><span class="heat-bar"><span class="heat-fill" style="width:${(r[field]/max*100)}%"></span></span></td>
+    </tr>`).join('')}</tbody></table>`;
+}
 
 /* ---------------- ADMIN: APPLICATIONS ---------------- */
 async function loadApplications(){
