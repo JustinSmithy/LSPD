@@ -187,6 +187,11 @@ body>nav{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.97);border-
 .charge-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
 .charge-tag{background:rgba(193,53,44,.12);color:var(--red-l);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:12px;display:inline-flex;align-items:center;gap:6px}
 .charge-tag button{background:none;border:none;color:var(--red-l);cursor:pointer;font-size:14px;line-height:1;padding:0}
+.charge-count{font-size:11px;color:var(--ts);align-self:center;margin-left:4px}
+.charge-count.full{color:#f08080;font-weight:700}
+.suggest-item.conflict{color:#7a7f87;cursor:not-allowed;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.conflict-tag{font-size:10px;color:#f08080;white-space:nowrap}
+.status-card{background:var(--panel-l);border:1px solid var(--border-d);border-radius:8px;padding:1.1rem;margin-bottom:.8rem}
 
 /* suggest dropdown */
 .suggest-box{position:absolute;top:100%;left:0;right:0;background:var(--panel);border:1px solid var(--border);border-radius:6px;margin-top:2px;max-height:200px;overflow-y:auto;z-index:50;display:none}
@@ -888,27 +893,44 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     <div class="nl"><button class="btn" onclick="showPage('home')">← Back</button></div>
   </nav>
   <div class="sec apply-card">
-    <div class="tag">Application</div>
-    <h2 style="font-size:20px;font-weight:700;margin-bottom:1.5rem">Apply to a Division</h2>
-    <div id="apply-msg"></div>
-    <div class="fgrp">
-      <label class="flbl">Division</label>
-      <select class="fi" id="ap-division" onchange="checkViceRedirect()">
-        <option value="">Select a division…</option>
-        <option value="Traffic">Traffic Division</option>
-        <option value="FTO">Field Training Officer (FTO)</option>
-        <option value="SWAT">SWAT</option>
-        <option value="Vice">Vice Unit (external)</option>
-      </select>
+    <div class="auth-tabs" style="margin-bottom:1.5rem">
+      <button class="auth-tab active" id="apply-tab-new" onclick="switchApplyTab('new')">Apply</button>
+      <button class="auth-tab" id="apply-tab-status" onclick="switchApplyTab('status')">Check Status</button>
     </div>
-    <div id="ap-form">
-      <div class="frow">
-        <div class="fgrp"><label class="flbl">Full Name / Callsign</label><input class="fi" id="ap-name" placeholder="John Doe"></div>
-        <div class="fgrp"><label class="flbl">Discord</label><input class="fi" id="ap-discord" placeholder="username#0000"></div>
+
+    <div id="apply-new-panel">
+      <div class="tag">Application</div>
+      <h2 style="font-size:20px;font-weight:700;margin-bottom:1.5rem">Apply to a Division</h2>
+      <div id="apply-msg"></div>
+      <div class="fgrp">
+        <label class="flbl">Division</label>
+        <select class="fi" id="ap-division" onchange="checkViceRedirect()">
+          <option value="">Select a division…</option>
+          <option value="Traffic">Traffic Division</option>
+          <option value="FTO">Field Training Officer (FTO)</option>
+          <option value="SWAT">SWAT</option>
+          <option value="Vice">Vice Unit (external)</option>
+        </select>
       </div>
-      <div class="fgrp"><label class="flbl">Relevant Experience</label><textarea class="fi" id="ap-exp" placeholder="Prior units, time in department, certifications…"></textarea></div>
-      <div class="fgrp"><label class="flbl">Why this division?</label><textarea class="fi" id="ap-reason" placeholder="Tell us why you want to join…"></textarea></div>
-      <button class="sbtn" onclick="submitApplication()">Submit Application</button>
+      <div id="ap-form">
+        <div class="frow">
+          <div class="fgrp"><label class="flbl">Full Name / Callsign</label><input class="fi" id="ap-name" placeholder="John Doe"></div>
+          <div class="fgrp"><label class="flbl">Discord</label><input class="fi" id="ap-discord" placeholder="username#0000"></div>
+        </div>
+        <div class="fgrp"><label class="flbl">Relevant Experience</label><textarea class="fi" id="ap-exp" placeholder="Prior units, time in department, certifications…"></textarea></div>
+        <div class="fgrp"><label class="flbl">Why this division?</label><textarea class="fi" id="ap-reason" placeholder="Tell us why you want to join…"></textarea></div>
+        <button class="sbtn" onclick="submitApplication()">Submit Application</button>
+      </div>
+    </div>
+
+    <div id="apply-status-panel" style="display:none">
+      <div class="tag">Application Status</div>
+      <h2 style="font-size:20px;font-weight:700;margin-bottom:1rem">Check Your Status</h2>
+      <p style="font-size:13px;color:var(--ts);margin-bottom:1.2rem">Enter the Discord handle or name you applied with to see your current status.</p>
+      <div id="status-msg"></div>
+      <div class="fgrp"><label class="flbl">Discord or Name</label><input class="fi" id="status-query" placeholder="username#0000" onkeydown="if(event.key==='Enter')checkAppStatus()"></div>
+      <button class="sbtn" onclick="checkAppStatus()">Check Status</button>
+      <div id="status-results" style="margin-top:1.5rem"></div>
     </div>
   </div>
 </div>
@@ -960,6 +982,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <button class="btn" onclick="showDash('officers')">Officers</button>
       <button class="btn" onclick="showDash('analysis')">Analysis</button>
       <button class="btn" onclick="showDash('applications')" id="nav-apps-btn" style="display:none">Applications</button>
+      <button class="btn" onclick="showDash('command')" id="nav-command-btn" style="display:none">Command Log</button>
       <button class="btn ghost" onclick="showPage('home')">Public Site ↗</button>
       <button class="btn danger" onclick="doLogout()">Log Out</button>
     </div>
@@ -1134,6 +1157,29 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     <div class="sec-hd"><div><div class="tag">Personnel</div><h2>Officer Roster</h2><p>Click an officer to view their profile, stats, and arrest history.</p></div></div>
     <input class="fi" id="officers-search" placeholder="🔍 Search officers…" style="margin-bottom:1.2rem" oninput="renderOfficers()">
     <div class="grid-cards" id="officers-list"><div class="empty">Loading…</div></div>
+  </div>
+
+  <!-- COMMAND LOG (Sergeant+) -->
+  <div class="sec" id="dash-command" style="display:none">
+    <div class="sec-hd"><div><div class="tag">Command Staff · Sergeant+</div><h2>Command Log</h2><p>Off-duty, reassignment, and High Speed Unit certification records.</p></div></div>
+
+    <div class="dmv-sub-hd"><h3>🕒 10-7 Off Duty Log</h3><button class="btn primary" onclick="openLogModal('offduty')">+ Log Off Duty</button></div>
+    <div class="tbl-wrap" style="margin-bottom:2.5rem">
+      <table><thead><tr><th>Officer</th><th>Reason</th><th>Duration</th><th>Return Time</th><th>Logged By</th><th>Date</th><th></th></tr></thead>
+      <tbody id="log-offduty-body"><tr><td colspan="7" class="empty">Loading…</td></tr></tbody></table>
+    </div>
+
+    <div class="dmv-sub-hd"><h3>🔄 Reassignment Log</h3><button class="btn primary" onclick="openLogModal('reassign')">+ Log Reassignment</button></div>
+    <div class="tbl-wrap" style="margin-bottom:2.5rem">
+      <table><thead><tr><th>Officer</th><th>Comments</th><th>Evidence</th><th>Logged By</th><th>Date</th><th></th></tr></thead>
+      <tbody id="log-reassign-body"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody></table>
+    </div>
+
+    <div class="dmv-sub-hd"><h3>🏎 High Speed Unit Certification</h3><button class="btn primary" onclick="openLogModal('hsu')">+ Log HSU Cert</button></div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Officer</th><th>Certification</th><th>Notes</th><th>Logged By</th><th>Date</th><th></th></tr></thead>
+      <tbody id="log-hsu-body"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody></table>
+    </div>
   </div>
 
   <!-- APPLICATIONS (admin) -->
@@ -1348,6 +1394,48 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
   </div>
 </div>
 
+<!-- ================= COMMAND LOG MODAL ================= -->
+<div class="modal-overlay" id="log-modal-overlay" onmousedown="modalBackdropDown(event,this)" onmouseup="modalBackdropUp(event,this,'log-modal-overlay')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('log-modal-overlay')">✕</button>
+    <div class="modal-hd"><h3 style="font-size:17px;font-weight:700" id="log-modal-title">Command Log</h3></div>
+    <div class="modal-bd">
+      <div id="log-form-msg"></div>
+      <input type="hidden" id="log-id">
+      <input type="hidden" id="log-kind">
+      <div class="fgrp"><label class="flbl">Officer Name</label><input class="fi" id="log-officer"></div>
+      <!-- off duty fields -->
+      <div id="log-fields-offduty" style="display:none">
+        <div class="fgrp"><label class="flbl">Reason</label><input class="fi" id="log-reason" placeholder="e.g. Break, end of shift"></div>
+        <div class="frow">
+          <div class="fgrp"><label class="flbl">Duration</label><input class="fi" id="log-duration" placeholder="e.g. 30 min"></div>
+          <div class="fgrp"><label class="flbl">Return Time</label><input class="fi" id="log-return" placeholder="e.g. 21:00"></div>
+        </div>
+      </div>
+      <!-- reassignment fields -->
+      <div id="log-fields-reassign" style="display:none">
+        <div class="fgrp"><label class="flbl">Comments</label><textarea class="fi" id="log-comments" placeholder="Reassignment details…"></textarea></div>
+        <div class="fgrp"><label class="flbl">Evidence (link / notes / time)</label><input class="fi" id="log-evidence"></div>
+      </div>
+      <!-- hsu fields -->
+      <div id="log-fields-hsu" style="display:none">
+        <div class="fgrp"><label class="flbl">Certification Status</label>
+          <select class="fi" id="log-cert">
+            <option value="authorized">Authorized</option>
+            <option value="pending">Pending</option>
+            <option value="revoked">Revoked</option>
+          </select>
+        </div>
+        <div class="fgrp"><label class="flbl">Notes</label><textarea class="fi" id="log-notes" placeholder="Certification notes…"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="sbtn" style="margin:0" onclick="saveLog()">Save</button>
+      <button class="btn danger" id="log-delete-btn" style="display:none" onclick="deleteLog()">Delete</button>
+    </div>
+  </div>
+</div>
+
 <!-- ================= VIEW MODAL (read-only detail) ================= -->
 <div class="modal-overlay" id="view-modal-overlay" onmousedown="modalBackdropDown(event,this)" onmouseup="modalBackdropUp(event,this,'view-modal-overlay')">
   <div class="modal-box wide">
@@ -1494,6 +1582,39 @@ function checkViceRedirect(){
 }
 function authMsgLike(el,text,ok){ $(el).innerHTML = `<div class="msg ${ok?'msg-ok':'msg-err'}">${escapeHTML(text)}</div>`; }
 
+function switchApplyTab(tab){
+  $('apply-tab-new').classList.toggle('active', tab==='new');
+  $('apply-tab-status').classList.toggle('active', tab==='status');
+  $('apply-new-panel').style.display = tab==='new' ? 'block':'none';
+  $('apply-status-panel').style.display = tab==='status' ? 'block':'none';
+}
+async function checkAppStatus(){
+  const q=$('status-query').value.trim();
+  const msg=$('status-msg'), out=$('status-results');
+  out.innerHTML=''; msg.innerHTML='';
+  if(!q){ msg.innerHTML='<div class="msg msg-err">Enter your Discord or name.</div>'; return; }
+  out.innerHTML='<div class="empty">Searching…</div>';
+  const {data,error} = await sb.from('applications').select('*')
+    .or(`discord.ilike.%${q}%,applicant_name.ilike.%${q}%`).order('created_at',{ascending:false});
+  if(error){ out.innerHTML=`<div class="empty">Error: ${escapeHTML(error.message)}</div>`; return; }
+  if(!data||!data.length){ out.innerHTML='<div class="empty">No applications found for that Discord or name.</div>'; return; }
+  const sInfo = s => ({
+    pending:{cls:'bg-amber',txt:'Under review — please be patient while the division reviews your application.'},
+    accepted:{cls:'bg-green',txt:'🎉 Accepted! Reach out to division leadership to get started.'},
+    denied:{cls:'bg-red',txt:'Not accepted this time. You may re-apply later.'}
+  }[s]||{cls:'bg-gray',txt:''});
+  out.innerHTML = data.map(a=>{
+    const i=sInfo(a.status);
+    return `<div class="status-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px">
+        <div><div style="font-weight:700">${escapeHTML(a.division)} Division</div><div style="font-size:12px;color:var(--ts)">Applied ${fmtDate(a.created_at)}</div></div>
+        <span class="badge ${i.cls}">${escapeHTML(a.status)}</span>
+      </div>
+      <div style="font-size:13px;color:#c3c6cf;line-height:1.6">${i.txt}</div>
+      ${a.reviewed_by?`<div style="font-size:11px;color:var(--ts);margin-top:6px">Reviewed by ${escapeHTML(a.reviewed_by)}</div>`:''}
+    </div>`;
+  }).join('');
+}
 async function submitApplication(){
   const division = $('ap-division').value;
   const name = $('ap-name').value.trim();
@@ -1581,6 +1702,7 @@ async function loadSession(){
   const approved = officer.status==='approved';
   ['new-arrest-btn','new-impound-btn','new-ticket-btn','new-suspect-btn'].forEach(id=>{ const b=$(id); if(b) b.style.display = approved ? 'inline-block':'none'; });
   $('nav-apps-btn').style.display = officer.role==='admin' ? 'inline-block':'none';
+  $('nav-command-btn').style.display = isCommandStaff(officer) ? 'inline-block':'none';
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   $('pg-dash').classList.add('active');
   showDash('overview');
@@ -1595,8 +1717,55 @@ const FIREARMS = Object.keys(FIREARM_PRICES);
 const CHARGES = ['Aiding a Prison Break','Aiding and Abetting','Assault','Attempted Murder','Battery','Brandishing a Weapon in Public','Bribery','Conspiracy','Criminal Negligence','Criminal Trespassing','Cultivation/Manufacture/Delivery of a Controlled Substance','Destruction of Public Property','Destruction/Falsification of Evidence','Discharge of a Firearm in Public','Disturbance of Peace','Driving Over the Speed Limit','Evading a Law Enforcement Officer','Excessive Use of Force','Extortion','Failure to Identify','Failure to Pay a Ticket','False Imprisonment','Fraud','Grand Theft Auto','Impersonating a Government Employee','Indecency','Kidnapping','Murder','Mutual Combat','Obstructing a Government Employee','Operating a Vehicle Without a License','Parking Violation','Possession of a Controlled Substance','Possession of a Controlled Substance With Intent to Sell','Possession of an Illegal Firearm','Prison Break','Reckless Driving','Resisting a Law Enforcement Officer','Riot','Robbery','Terrorism','Transporting Illegal Goods','Trespassing','Unlawful Assembly','Unlawful Distribution of a Weapon','Vandalism','Vehicular Assault'];
 const STORAGE_BUCKET = 'mugshots';
 const DISTRICTS = ['Idlewood','Ganton','East Los Santos','Jefferson','Glen Park','El Corona','Willowfield','Los Flores','East Beach','Playa del Seville','Commerce','Downtown LS','Pershing Square','Little Mexico','Vinewood','Rodeo','Richman','Mulholland','Marina','Verona Beach','Santa Maria Beach','Verdant Bluffs','Ocean Docks','LS International','Montgomery','Red County','Blueberry','Dillimore','Palomino Creek','Other / Unlisted'];
+const MAX_CHARGES = 6;
+const CHARGE_CONFLICTS = {
+  "Driving Over the Speed Limit":["Reckless Driving"],
+  "Reckless Driving":["Driving Over the Speed Limit","Vehicular Assault"],
+  "Disturbance of Peace":["Assault","Unlawful Assembly","Riot","Terrorism","Mutual Combat"],
+  "Trespassing":["Criminal Trespassing","Unlawful Assembly"],
+  "Criminal Trespassing":["Trespassing","Unlawful Assembly"],
+  "Evading a Law Enforcement Officer":["Resisting a Law Enforcement Officer","Obstructing a Government Employee","Riot"],
+  "Vehicular Assault":["Reckless Driving","Murder","Attempted Murder"],
+  "Grand Theft Auto":["Conspiracy","Vandalism"],
+  "Possession of a Controlled Substance":["Possession of a Controlled Substance With Intent to Sell"],
+  "Possession of a Controlled Substance With Intent to Sell":["Conspiracy","Possession of a Controlled Substance"],
+  "Cultivation/Manufacture/Delivery of a Controlled Substance":["Conspiracy"],
+  "Brandishing a Weapon in Public":["Discharge of a Firearm in Public","Attempted Murder","Murder"],
+  "Discharge of a Firearm in Public":["Brandishing a Weapon in Public"],
+  "Possession of an Illegal Firearm":["Unlawful Distribution of a Weapon"],
+  "Unlawful Distribution of a Weapon":["Conspiracy","Possession of an Illegal Firearm"],
+  "Transporting Illegal Goods":["Conspiracy"],
+  "Obstructing a Government Employee":["Failure to Identify","Aiding and Abetting","Evading a Law Enforcement Officer","Resisting a Law Enforcement Officer"],
+  "Failure to Identify":["Obstructing a Government Employee"],
+  "Resisting a Law Enforcement Officer":["Obstructing a Government Employee","Evading a Law Enforcement Officer","Unlawful Assembly","Riot"],
+  "Vandalism":["Grand Theft Auto","Destruction of Public Property"],
+  "Conspiracy":["Murder","Attempted Murder","Kidnapping","Robbery","Extortion","Terrorism","Prison Break","Aiding a Prison Break","Bribery","Fraud","Grand Theft Auto","Possession of a Controlled Substance With Intent to Sell","Cultivation/Manufacture/Delivery of a Controlled Substance","Unlawful Distribution of a Weapon","Transporting Illegal Goods","Riot"],
+  "Aiding and Abetting":["Prison Break","Aiding a Prison Break","Obstructing a Government Employee"],
+  "Attempted Murder":["Assault","Brandishing a Weapon in Public","Conspiracy","Murder","Terrorism","Vehicular Assault"],
+  "Murder":["Assault","Attempted Murder","Brandishing a Weapon in Public","Conspiracy","Terrorism","Vehicular Assault"],
+  "Unlawful Assembly":["Trespassing","Criminal Trespassing","Riot","Disturbance of Peace","Resisting a Law Enforcement Officer"],
+  "Kidnapping":["Aiding a Prison Break","Conspiracy","Extortion","Prison Break"],
+  "Robbery":["Conspiracy","Extortion","Fraud"],
+  "Bribery":["Conspiracy"],
+  "Assault":["Battery","Mutual Combat","Disturbance of Peace","Terrorism","Murder","Attempted Murder"],
+  "Terrorism":["Assault","Attempted Murder","Battery","Conspiracy","Disturbance of Peace","Murder"],
+  "Destruction of Public Property":["Vandalism","Prison Break","Aiding a Prison Break"],
+  "Battery":["Assault","Mutual Combat","Terrorism","Prison Break","Aiding a Prison Break"],
+  "Mutual Combat":["Assault","Battery","Disturbance of Peace"],
+  "Fraud":["Conspiracy","Extortion","Robbery"],
+  "Extortion":["Aiding a Prison Break","Conspiracy","Fraud","Kidnapping","Prison Break","Robbery"],
+  "Riot":["Conspiracy","Disturbance of Peace","Evading a Law Enforcement Officer","Resisting a Law Enforcement Officer","Unlawful Assembly"],
+  "Prison Break":["Aiding a Prison Break","Aiding and Abetting","Assault","Attempted Murder","Battery","Conspiracy","Destruction of Public Property","Extortion","Kidnapping","Murder","Riot","Unlawful Assembly"],
+  "Aiding a Prison Break":["Aiding and Abetting","Assault","Attempted Murder","Battery","Conspiracy","Destruction of Public Property","Extortion","Kidnapping","Murder","Prison Break","Riot","Unlawful Assembly"]
+};
+function conflictsWith(c){
+  const set=new Set(CHARGE_CONFLICTS[c]||[]);
+  return _chargeTags.filter(t => set.has(t) || (CHARGE_CONFLICTS[t]||[]).includes(c));
+}
 const RANKS = ['Cadet','Officer','Officer II','Sergeant','Lieutenant','Captain I','Captain II','Deputy Chief','Assistant Chief','Chief of Police'];
-const DIVISIONS = ['Patrol','Field Training (FTO)','Traffic Enforcement (TE)','SWAT','Internal Affairs (IA)'];
+const COMMAND_RANKS = ['Sergeant','Lieutenant','Captain I','Captain II','Deputy Chief','Assistant Chief','Chief of Police'];
+function isCommandStaff(off){ off=off||currentOfficer; return !!off && (off.role==='admin' || COMMAND_RANKS.includes(off.rank)); }
+const DIVISIONS = ['Patrol','Field Training (FTO)','Traffic Enforcement (TE)','SWAT','Internal Affairs (IA)','Vice Unit'];
 
 let _arrests = [];       // cached arrest list (with nested seizures)
 let _suspects = [];      // cached suspect list
@@ -1605,7 +1774,7 @@ let _chargeActiveIdx = -1;
 
 /* ---------------- DASHBOARD NAV ---------------- */
 function showDash(section){
-  ['overview','arrests','dmv','suspects','officers','analysis','applications'].forEach(s=>{
+  ['overview','arrests','dmv','suspects','officers','analysis','command','applications'].forEach(s=>{
     const el = $('dash-'+s); if(el) el.style.display = s===section ? 'block':'none';
   });
   if(section==='overview') loadOverview();
@@ -1614,6 +1783,7 @@ function showDash(section){
   if(section==='suspects') loadSuspects();
   if(section==='officers') loadOfficers();
   if(section==='analysis'){ loadAnalysis(); loadHotspots(); }
+  if(section==='command') loadCommandLogs();
   if(section==='applications') { loadApplications(); loadRoster(); }
 }
 
@@ -1759,6 +1929,18 @@ async function viewOfficerProfile(officerId){
         </div>`).join('')}${theirArrests.length>25?`<div style="font-size:12px;color:var(--ts);text-align:center;padding:8px">+ ${theirArrests.length-25} more</div>`:''}</div>`
         :'<div style="font-size:13px;color:var(--ts);margin-top:6px">No arrests logged under this officer yet.</div>'}
 
+      ${(currentOfficer && currentOfficer.id===off.id)?`
+      <div class="admin-panel" style="border-color:var(--border-d);background:rgba(255,255,255,.02)">
+        <div class="flbl">✎ Edit My Details</div>
+        <div class="frow" style="margin-top:8px">
+          <div class="fgrp" style="margin:0"><label class="flbl">Full Name</label><input class="fi" id="self-name" value="${escapeHTML(off.full_name||'')}"></div>
+          <div class="fgrp" style="margin:0"><label class="flbl">Callsign</label><input class="fi" id="self-callsign" value="${escapeHTML(off.callsign||'')}"></div>
+        </div>
+        <div class="fgrp" style="margin:10px 0 0"><label class="flbl">Badge Number</label><input class="fi" id="self-badge" value="${escapeHTML(off.badge_number||'')}"></div>
+        <div id="self-msg" style="margin-top:8px"></div>
+        <button class="sbtn" style="margin-top:10px" onclick="saveSelfDetails('${off.id}')">Save My Details</button>
+      </div>`:''}
+
       ${(currentOfficer&&currentOfficer.role==='admin')?`
       <div class="admin-panel">
         <div class="flbl" style="color:var(--red-l)">⚙ Admin Controls</div>
@@ -1794,6 +1976,21 @@ async function viewOfficerProfile(officerId){
   $('view-modal-overlay').style.display='block';
 }
 
+async function saveSelfDetails(id){
+  const msg=$('self-msg');
+  const name=$('self-name').value.trim(), cs=$('self-callsign').value.trim();
+  if(!name||!cs){ msg.innerHTML='<div class="msg msg-err">Name and callsign are required.</div>'; return; }
+  msg.innerHTML='<div class="msg">Saving…</div>';
+  const patch={full_name:name, callsign:cs, badge_number:$('self-badge').value.trim()};
+  const {error}=await sb.from('officers').update(patch).eq('id',id);
+  if(error){ msg.innerHTML=`<div class="msg msg-err">${escapeHTML(error.message)}</div>`; return; }
+  msg.innerHTML='<div class="msg msg-ok">Saved.</div>';
+  if(currentUser && id===currentUser.id){
+    const {data}=await sb.from('officers').select('*').eq('id',id).single();
+    if(data){ currentOfficer=data; $('dash-officer-name').textContent=`${data.callsign} · ${data.rank||'Officer'}`; }
+  }
+  _allOfficers=[];
+}
 async function saveOfficerAdmin(id){
   const msg=$('ap-admin-msg');
   const patch={
@@ -1990,26 +2187,49 @@ function pickSuspect(id){
 
 /* ----- charge tag input ----- */
 function renderChargeTags(){
-  $('ar-charge-tags').innerHTML = _chargeTags.map((c,i)=>`<span class="charge-tag">${escapeHTML(c)}<button onclick="removeCharge(${i})">✕</button></span>`).join('');
+  const count=_chargeTags.length;
+  $('ar-charge-tags').innerHTML = _chargeTags.map((c,i)=>`<span class="charge-tag">${escapeHTML(c)}<button onclick="removeCharge(${i})">✕</button></span>`).join('')
+    + `<span class="charge-count ${count>=MAX_CHARGES?'full':''}">${count}/${MAX_CHARGES}</span>`;
 }
-function removeCharge(i){ _chargeTags.splice(i,1); renderChargeTags(); }
-function addCharge(c){ c=c.trim(); if(c && !_chargeTags.includes(c)){ _chargeTags.push(c); renderChargeTags(); } $('ar-charge-input').value=''; $('ar-charge-suggest').classList.remove('show'); _chargeActiveIdx=-1; }
+function removeCharge(i){ _chargeTags.splice(i,1); renderChargeTags(); const inp=$('ar-charge-input'); if(inp&&inp.value) onChargeInput(); }
+function addCharge(c){
+  c=c.trim(); if(!c) return;
+  if(_chargeTags.includes(c)){ resetChargeInput(); return; }
+  if(_chargeTags.length>=MAX_CHARGES){ flashChargeMsg(`Maximum ${MAX_CHARGES} charges.`); return; }
+  const conf=conflictsWith(c);
+  if(conf.length){ flashChargeMsg(`"${c}" conflicts with ${conf[0]}. Remove it first.`); return; }
+  _chargeTags.push(c); renderChargeTags(); resetChargeInput();
+}
+function resetChargeInput(){ $('ar-charge-input').value=''; $('ar-charge-suggest').classList.remove('show'); _chargeActiveIdx=-1; }
+function flashChargeMsg(msg){
+  const box=$('ar-charge-suggest');
+  box.innerHTML=`<div class="suggest-item" style="color:#f08080;cursor:default">⚠ ${escapeHTML(msg)}</div>`;
+  box.classList.add('show');
+  setTimeout(()=>{ if(box.firstChild&&box.firstChild.textContent.startsWith('⚠')) box.classList.remove('show'); },2200);
+}
 function onChargeInput(){
   const val = $('ar-charge-input').value.toLowerCase().trim();
   const box = $('ar-charge-suggest');
+  if(_chargeTags.length>=MAX_CHARGES){ flashChargeMsg(`Maximum ${MAX_CHARGES} charges reached.`); return; }
   if(!val){ box.classList.remove('show'); return; }
-  const matches = CHARGES.filter(c=>c.toLowerCase().includes(val) && !_chargeTags.includes(c)).slice(0,8);
+  const matches = CHARGES.filter(c=>c.toLowerCase().includes(val) && !_chargeTags.includes(c)).slice(0,10);
   if(!matches.length){ box.classList.remove('show'); return; }
   _chargeActiveIdx=-1;
-  box.innerHTML = matches.map((c,i)=>`<div class="suggest-item" data-charge="${escapeHTML(c)}" onclick="addCharge('${c.replace(/'/g,"\\'")}')">${escapeHTML(c)}</div>`).join('');
+  box.innerHTML = matches.map(c=>{
+    const conf=conflictsWith(c);
+    if(conf.length){
+      return `<div class="suggest-item conflict" title="Conflicts with ${escapeHTML(conf[0])}">${escapeHTML(c)} <span class="conflict-tag">⛔ conflicts with ${escapeHTML(conf[0])}</span></div>`;
+    }
+    return `<div class="suggest-item" data-charge="${escapeHTML(c)}" onclick="addCharge('${c.replace(/'/g,"\\'")}')">${escapeHTML(c)}</div>`;
+  }).join('');
   box.classList.add('show');
 }
 function onChargeKeydown(e){
   const box = $('ar-charge-suggest');
-  const items = [...box.querySelectorAll('.suggest-item')];
+  const items = [...box.querySelectorAll('.suggest-item:not(.conflict)')];
   if(e.key==='ArrowDown'){ e.preventDefault(); _chargeActiveIdx=Math.min(_chargeActiveIdx+1,items.length-1); }
   else if(e.key==='ArrowUp'){ e.preventDefault(); _chargeActiveIdx=Math.max(_chargeActiveIdx-1,0); }
-  else if(e.key==='Enter'){ e.preventDefault(); if(_chargeActiveIdx>=0&&items[_chargeActiveIdx]){ addCharge(items[_chargeActiveIdx].dataset.charge); } else if($('ar-charge-input').value.trim()){ addCharge($('ar-charge-input').value); } return; }
+  else if(e.key==='Enter'){ e.preventDefault(); if(_chargeActiveIdx>=0&&items[_chargeActiveIdx]){ addCharge(items[_chargeActiveIdx].dataset.charge); } else if($('ar-charge-input').value.trim()){ const exact=CHARGES.find(c=>c.toLowerCase()===$('ar-charge-input').value.toLowerCase().trim()); if(exact) addCharge(exact); } return; }
   else return;
   items.forEach((it,i)=>it.classList.toggle('active',i===_chargeActiveIdx));
 }
@@ -2595,6 +2815,95 @@ function renderHotspots(){
         </div>
       </div>`).join('') : '<div class="empty">No location data yet.</div>';
   }
+}
+
+/* ---------------- COMMAND LOGS (Sergeant+) ---------------- */
+const LOG_CFG = {
+  offduty:  {table:'log_offduty',    body:'log-offduty-body',  title:'10-7 Off Duty',        cols:6},
+  reassign: {table:'log_reassignment',body:'log-reassign-body', title:'Reassignment',         cols:5},
+  hsu:      {table:'log_hsu',         body:'log-hsu-body',      title:'HSU Certification',     cols:5}
+};
+let _logs = {offduty:[],reassign:[],hsu:[]};
+
+async function loadCommandLogs(){ ['offduty','reassign','hsu'].forEach(loadLog); }
+async function loadLog(kind){
+  const cfg=LOG_CFG[kind];
+  const {data,error}=await sb.from(cfg.table).select('*').order('created_at',{ascending:false});
+  const tb=$(cfg.body);
+  if(error){ tb.innerHTML=`<tr><td colspan="${cfg.cols+1}" class="empty">${escapeHTML(error.message)}</td></tr>`; return; }
+  _logs[kind]=data||[];
+  if(!data.length){ tb.innerHTML=`<tr><td colspan="${cfg.cols+1}" class="empty">No entries yet.</td></tr>`; return; }
+  const canEdit = isCommandStaff();
+  const editCell = id => canEdit ? `<td style="color:var(--red-l);cursor:pointer" onclick="openLogModal('${kind}',${id})">Edit</td>` : '<td></td>';
+  if(kind==='offduty'){
+    tb.innerHTML=data.map(r=>`<tr>
+      <td style="font-weight:600">${escapeHTML(r.officer_name)}${r.source==='auto'?' <span class="badge bg-blue" style="font-size:9px">AUTO</span>':''}</td>
+      <td style="color:var(--ts)">${escapeHTML(r.reason||'—')}</td>
+      <td>${escapeHTML(r.duration||'—')}</td>
+      <td>${escapeHTML(r.return_time||'—')}</td>
+      <td style="color:var(--ts)">${escapeHTML(r.logged_by||'—')}</td>
+      <td style="color:var(--ts);font-size:12px">${fmtDate(r.created_at)}</td>${editCell(r.id)}</tr>`).join('');
+  } else if(kind==='reassign'){
+    tb.innerHTML=data.map(r=>`<tr>
+      <td style="font-weight:600">${escapeHTML(r.officer_name)}</td>
+      <td style="color:var(--ts)">${escapeHTML(r.comments||'—')}</td>
+      <td style="color:var(--ts)">${escapeHTML(r.evidence||'—')}</td>
+      <td style="color:var(--ts)">${escapeHTML(r.logged_by||'—')}</td>
+      <td style="color:var(--ts);font-size:12px">${fmtDate(r.created_at)}</td>${editCell(r.id)}</tr>`).join('');
+  } else {
+    const cs = s=>({authorized:'bg-green',pending:'bg-amber',revoked:'bg-red'}[s]||'bg-gray');
+    tb.innerHTML=data.map(r=>`<tr>
+      <td style="font-weight:600">${escapeHTML(r.officer_name)}</td>
+      <td><span class="badge ${cs(r.cert_status)}">${escapeHTML(r.cert_status)}</span></td>
+      <td style="color:var(--ts)">${escapeHTML(r.notes||'—')}</td>
+      <td style="color:var(--ts)">${escapeHTML(r.logged_by||'—')}</td>
+      <td style="color:var(--ts);font-size:12px">${fmtDate(r.created_at)}</td>${editCell(r.id)}</tr>`).join('');
+  }
+}
+
+function openLogModal(kind, id){
+  if(!isCommandStaff()){ return; }
+  $('log-form-msg').innerHTML='';
+  $('log-kind').value=kind;
+  ['offduty','reassign','hsu'].forEach(k=>$('log-fields-'+k).style.display = k===kind?'block':'none');
+  $('log-modal-title').textContent = LOG_CFG[kind].title + ' Log';
+  const rec = id ? _logs[kind].find(x=>x.id===id) : null;
+  // reset
+  ['log-officer','log-reason','log-duration','log-return','log-comments','log-evidence','log-notes'].forEach(i=>{ if($(i))$(i).value=''; });
+  $('log-cert').value='authorized';
+  $('log-id').value = rec?rec.id:'';
+  if(rec){
+    $('log-officer').value=rec.officer_name||'';
+    if(kind==='offduty'){ $('log-reason').value=rec.reason||''; $('log-duration').value=rec.duration||''; $('log-return').value=rec.return_time||''; }
+    if(kind==='reassign'){ $('log-comments').value=rec.comments||''; $('log-evidence').value=rec.evidence||''; }
+    if(kind==='hsu'){ $('log-cert').value=rec.cert_status||'authorized'; $('log-notes').value=rec.notes||''; }
+    $('log-delete-btn').style.display='inline-block';
+  } else {
+    $('log-delete-btn').style.display='none';
+  }
+  $('log-modal-overlay').style.display='block';
+}
+
+async function saveLog(){
+  const kind=$('log-kind').value, cfg=LOG_CFG[kind], msg=$('log-form-msg');
+  const officer=$('log-officer').value.trim();
+  if(!officer){ msg.innerHTML='<div class="msg msg-err">Officer name is required.</div>'; return; }
+  const loggedBy = currentOfficer?`${currentOfficer.callsign} (${currentOfficer.rank})`:'command';
+  let payload={officer_name:officer, logged_by:loggedBy};
+  if(kind==='offduty') payload={...payload, reason:$('log-reason').value.trim(), duration:$('log-duration').value.trim(), return_time:$('log-return').value.trim()};
+  if(kind==='reassign') payload={...payload, comments:$('log-comments').value.trim(), evidence:$('log-evidence').value.trim()};
+  if(kind==='hsu') payload={...payload, cert_status:$('log-cert').value, notes:$('log-notes').value.trim()};
+  const id=$('log-id').value; let error;
+  if(id){ ({error}=await sb.from(cfg.table).update(payload).eq('id',id)); }
+  else { payload.officer_id=currentUser.id; payload.source='manual'; ({error}=await sb.from(cfg.table).insert(payload)); }
+  if(error){ msg.innerHTML=`<div class="msg msg-err">${escapeHTML(error.message)}</div>`; return; }
+  closeModal('log-modal-overlay'); loadLog(kind);
+}
+async function deleteLog(){
+  const kind=$('log-kind').value, id=$('log-id').value;
+  if(!id||!confirm('Delete this log entry?')) return;
+  await sb.from(LOG_CFG[kind].table).delete().eq('id',id);
+  closeModal('log-modal-overlay'); loadLog(kind);
 }
 
 /* ---------------- ADMIN: APPLICATIONS ---------------- */
