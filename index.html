@@ -982,7 +982,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <button class="btn" onclick="showDash('officers')">Officers</button>
       <button class="btn" onclick="showDash('analysis')">Analysis</button>
       <button class="btn" onclick="showDash('applications')" id="nav-apps-btn" style="display:none">Applications</button>
-      <button class="btn" onclick="showDash('command')" id="nav-command-btn" style="display:none">Command Log</button>
+      <button class="btn" onclick="showDash('command')" id="nav-command-btn" style="display:none">Supervisory Logs</button>
       <button class="btn ghost" onclick="showPage('home')">Public Site ↗</button>
       <button class="btn danger" onclick="doLogout()">Log Out</button>
     </div>
@@ -1161,7 +1161,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
 
   <!-- COMMAND LOG (Sergeant+) -->
   <div class="sec" id="dash-command" style="display:none">
-    <div class="sec-hd"><div><div class="tag">Command Staff · Sergeant+</div><h2>Command Log</h2><p>Off-duty, reassignment, and High Speed Unit certification records.</p></div></div>
+    <div class="sec-hd"><div><div class="tag">Command Staff · Sergeant+</div><h2>Supervisory Logs</h2><p>Off-duty, reassignment, and High Speed Unit certification records.</p></div></div>
 
     <div class="dmv-sub-hd"><h3>🕒 10-7 Off Duty Log</h3><button class="btn primary" onclick="openLogModal('offduty')">+ Log Off Duty</button></div>
     <div class="tbl-wrap" style="margin-bottom:2.5rem">
@@ -1714,16 +1714,20 @@ const DRUG_PRICES = {'Cocaine':70,'Marijuana':40};
 const FIREARM_PRICES = {'SD Pistol':200,'MP5':800,'Tec-9':1100,'Mac-10':1100,'Deagle':3000,'M4':6500,'Combat Shotgun':8000,'Sniper':10000};
 const DRUGS = Object.keys(DRUG_PRICES);
 const FIREARMS = Object.keys(FIREARM_PRICES);
-const CHARGES = ['Aiding a Prison Break','Aiding and Abetting','Assault','Attempted Murder','Battery','Brandishing a Weapon in Public','Bribery','Conspiracy','Criminal Negligence','Criminal Trespassing','Cultivation/Manufacture/Delivery of a Controlled Substance','Destruction of Public Property','Destruction/Falsification of Evidence','Discharge of a Firearm in Public','Disturbance of Peace','Driving Over the Speed Limit','Evading a Law Enforcement Officer','Excessive Use of Force','Extortion','Failure to Identify','Failure to Pay a Ticket','False Imprisonment','Fraud','Grand Theft Auto','Impersonating a Government Employee','Indecency','Kidnapping','Murder','Mutual Combat','Obstructing a Government Employee','Operating a Vehicle Without a License','Parking Violation','Possession of a Controlled Substance','Possession of a Controlled Substance With Intent to Sell','Possession of an Illegal Firearm','Prison Break','Reckless Driving','Resisting a Law Enforcement Officer','Riot','Robbery','Terrorism','Transporting Illegal Goods','Trespassing','Unlawful Assembly','Unlawful Distribution of a Weapon','Vandalism','Vehicular Assault'];
+const CHARGES = ['Aiding a Prison Break','Aiding and Abetting','Assault','Attempted Murder','Battery','Brandishing a Weapon in Public','Bribery','Conspiracy','Criminal Negligence','Criminal Trespassing','Cultivation/Manufacture/Delivery of a Controlled Substance','Destruction of Public Property','Destruction/Falsification of Evidence','Discharge of a Firearm in Public','Disturbance of Peace','Driving Over the Speed Limit','Evading a Law Enforcement Officer','Excessive Use of Force (Force Matrix Violation)','Extortion','FCC Policy Violation','Failing to Act in Aid of a Government Employee','Failure to Follow Sentencing Guidelines','Failure to Identify','Failure to Pay a Ticket','False Imprisonment','Flight Protocol Violation','Fraud','Grand Theft Auto','Impersonating a Government Employee','Indecency','Kidnapping','Malfeasance in Public Office','Misuse of (911) Emergency Hotline','Misuse of Government Issued Equipment','Murder','Mutual Combat','Obstructing a Government Employee','Operating a Vehicle Without a License','Pandering/Pimping','Parking Violation','Possession of a Controlled Substance','Possession of a Controlled Substance With Intent to Sell','Possession of an Illegal Firearm','Prison Break','Prostitution','Reckless Driving','Resisting a Law Enforcement Officer','Riot','Robbery','Sexual Assault','Sexual Battery','Terrorism','Torture','Transporting Illegal Goods','Trespassing','Unlawful Assembly','Unlawful Distribution of a Weapon','Vandalism','Vehicular Assault','Vigilantism'];
 const STORAGE_BUCKET = 'mugshots';
 const DISTRICTS = ['Idlewood','Ganton','East Los Santos','Jefferson','Glen Park','El Corona','Willowfield','Los Flores','East Beach','Playa del Seville','Commerce','Downtown LS','Pershing Square','Little Mexico','Vinewood','Rodeo','Richman','Mulholland','Marina','Verona Beach','Santa Maria Beach','Verdant Bluffs','Ocean Docks','LS International','Montgomery','Red County','Blueberry','Dillimore','Palomino Creek','Other / Unlisted'];
 const MAX_CHARGES = 6;
 const CHARGE_CONFLICTS = {
   "Driving Over the Speed Limit":["Reckless Driving"],
-  "Reckless Driving":["Driving Over the Speed Limit","Vehicular Assault"],
+  "Reckless Driving":["Driving Over the Speed Limit","Vehicular Assault","Flight Protocol Violation"],
+  "Parking Violation":[],
+  "Operating a Vehicle Without a License":[],
+  "Indecency":["Sexual Assault","Sexual Battery"],
   "Disturbance of Peace":["Assault","Unlawful Assembly","Riot","Terrorism","Mutual Combat"],
   "Trespassing":["Criminal Trespassing","Unlawful Assembly"],
   "Criminal Trespassing":["Trespassing","Unlawful Assembly"],
+  "Misuse of (911) Emergency Hotline":[],
   "Evading a Law Enforcement Officer":["Resisting a Law Enforcement Officer","Obstructing a Government Employee","Riot"],
   "Vehicular Assault":["Reckless Driving","Murder","Attempted Murder"],
   "Grand Theft Auto":["Conspiracy","Vandalism"],
@@ -1737,26 +1741,44 @@ const CHARGE_CONFLICTS = {
   "Transporting Illegal Goods":["Conspiracy"],
   "Obstructing a Government Employee":["Failure to Identify","Aiding and Abetting","Evading a Law Enforcement Officer","Resisting a Law Enforcement Officer"],
   "Failure to Identify":["Obstructing a Government Employee"],
+  "Failure to Pay a Ticket":[],
   "Resisting a Law Enforcement Officer":["Obstructing a Government Employee","Evading a Law Enforcement Officer","Unlawful Assembly","Riot"],
   "Vandalism":["Grand Theft Auto","Destruction of Public Property"],
-  "Conspiracy":["Murder","Attempted Murder","Kidnapping","Robbery","Extortion","Terrorism","Prison Break","Aiding a Prison Break","Bribery","Fraud","Grand Theft Auto","Possession of a Controlled Substance With Intent to Sell","Cultivation/Manufacture/Delivery of a Controlled Substance","Unlawful Distribution of a Weapon","Transporting Illegal Goods","Riot"],
+  "Conspiracy":["Murder","Attempted Murder","Kidnapping","Robbery","Extortion","Terrorism","Prison Break","Aiding a Prison Break","Bribery","Fraud","Grand Theft Auto","Possession of a Controlled Substance With Intent to Sell","Cultivation/Manufacture/Delivery of a Controlled Substance","Unlawful Distribution of a Weapon","Transporting Illegal Goods","Sexual Assault","Riot"],
   "Aiding and Abetting":["Prison Break","Aiding a Prison Break","Obstructing a Government Employee"],
-  "Attempted Murder":["Assault","Brandishing a Weapon in Public","Conspiracy","Murder","Terrorism","Vehicular Assault"],
-  "Murder":["Assault","Attempted Murder","Brandishing a Weapon in Public","Conspiracy","Terrorism","Vehicular Assault"],
+  "Prostitution":["Pandering/Pimping"],
+  "Pandering/Pimping":["Prostitution","FCC Policy Violation"],
+  "Attempted Murder":["Assault","Brandishing a Weapon in Public","Conspiracy","Murder","Terrorism","Torture","Vehicular Assault"],
+  "Murder":["Assault","Attempted Murder","Brandishing a Weapon in Public","Conspiracy","Terrorism","Torture","Vehicular Assault"],
   "Unlawful Assembly":["Trespassing","Criminal Trespassing","Riot","Disturbance of Peace","Resisting a Law Enforcement Officer"],
   "Kidnapping":["Aiding a Prison Break","Conspiracy","Extortion","Prison Break"],
   "Robbery":["Conspiracy","Extortion","Fraud"],
   "Bribery":["Conspiracy"],
-  "Assault":["Battery","Mutual Combat","Disturbance of Peace","Terrorism","Murder","Attempted Murder"],
-  "Terrorism":["Assault","Attempted Murder","Battery","Conspiracy","Disturbance of Peace","Murder"],
+  "Assault":["Battery","Mutual Combat","Torture","Disturbance of Peace","Terrorism","Murder","Attempted Murder"],
+  "Terrorism":["Assault","Attempted Murder","Battery","Conspiracy","Disturbance of Peace","Murder","Torture"],
   "Destruction of Public Property":["Vandalism","Prison Break","Aiding a Prison Break"],
-  "Battery":["Assault","Mutual Combat","Terrorism","Prison Break","Aiding a Prison Break"],
+  "FCC Policy Violation":["Pandering/Pimping"],
+  "Impersonating a Government Employee":[],
+  "Battery":["Assault","Mutual Combat","Torture","Terrorism","Prison Break","Aiding a Prison Break"],
   "Mutual Combat":["Assault","Battery","Disturbance of Peace"],
+  "Torture":["Assault","Battery","Attempted Murder","Murder","Terrorism"],
   "Fraud":["Conspiracy","Extortion","Robbery"],
   "Extortion":["Aiding a Prison Break","Conspiracy","Fraud","Kidnapping","Prison Break","Robbery"],
   "Riot":["Conspiracy","Disturbance of Peace","Evading a Law Enforcement Officer","Resisting a Law Enforcement Officer","Unlawful Assembly"],
+  "Vigilantism":[],
   "Prison Break":["Aiding a Prison Break","Aiding and Abetting","Assault","Attempted Murder","Battery","Conspiracy","Destruction of Public Property","Extortion","Kidnapping","Murder","Riot","Unlawful Assembly"],
-  "Aiding a Prison Break":["Aiding and Abetting","Assault","Attempted Murder","Battery","Conspiracy","Destruction of Public Property","Extortion","Kidnapping","Murder","Prison Break","Riot","Unlawful Assembly"]
+  "Aiding a Prison Break":["Aiding and Abetting","Assault","Attempted Murder","Battery","Conspiracy","Destruction of Public Property","Extortion","Kidnapping","Murder","Prison Break","Riot","Unlawful Assembly"],
+  "Sexual Assault":["Conspiracy","Indecency","Sexual Battery"],
+  "Sexual Battery":["Sexual Assault","Indecency"],
+  "Flight Protocol Violation":["Reckless Driving"],
+  "Excessive Use of Force (Force Matrix Violation)":[],
+  "Criminal Negligence":["Failing to Act in Aid of a Government Employee"],
+  "False Imprisonment":[],
+  "Malfeasance in Public Office":[],
+  "Failure to Follow Sentencing Guidelines":[],
+  "Destruction/Falsification of Evidence":[],
+  "Failing to Act in Aid of a Government Employee":["Criminal Negligence"],
+  "Misuse of Government Issued Equipment":[]
 };
 function conflictsWith(c){
   const set=new Set(CHARGE_CONFLICTS[c]||[]);
