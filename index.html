@@ -1061,6 +1061,14 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <div><div class="tag">DMV · Parking Enforcement</div><h2>Impounds &amp; Tickets</h2><p>Vehicle impounds and issued citations, department-wide.</p></div>
     </div>
 
+    <div class="sg" style="margin-bottom:1.5rem">
+      <div class="sc"><div class="sc-lbl">Total Impounds</div><div class="sc-val red" id="dmv-impounds">0</div></div>
+      <div class="sc"><div class="sc-lbl">Impound Fees</div><div class="sc-val green" id="dmv-fees">$0</div></div>
+      <div class="sc"><div class="sc-lbl">Total Tickets</div><div class="sc-val amber" id="dmv-tickets">0</div></div>
+      <div class="sc"><div class="sc-lbl">Fines Issued</div><div class="sc-val green" id="dmv-fines">$0</div></div>
+      <div class="sc"><div class="sc-lbl">This Month</div><div class="sc-val blue" id="dmv-month">0</div></div>
+    </div>
+
     <div class="dmv-sub-hd">
       <h3>🚗 Impounds</h3>
       <button class="btn primary" id="new-impound-btn" onclick="openImpoundModal()">+ Log Impound</button>
@@ -1068,7 +1076,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     <input class="fi" id="impounds-search" placeholder="🔍 Search vehicle, plate, owner, officer…" style="margin-bottom:1rem" oninput="renderImpounds()">
     <div class="tbl-wrap" style="margin-bottom:2.5rem">
       <table>
-        <thead><tr><th>Vehicle</th><th>Plate</th><th>Owner</th><th>Reason</th><th>Fee</th><th>Officer</th><th>Status</th><th>Date</th><th></th></tr></thead>
+        <thead><tr><th>Vehicle</th><th>Plate</th><th>Owner</th><th>Reason</th><th>Fee</th><th>Officer</th><th>Date</th><th></th></tr></thead>
         <tbody id="impounds-table-body"><tr><td colspan="9" class="empty">Loading…</td></tr></tbody>
       </table>
     </div>
@@ -1080,7 +1088,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     <input class="fi" id="tickets-search" placeholder="🔍 Search recipient, plate, violation, officer…" style="margin-bottom:1rem" oninput="renderTickets()">
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>Recipient</th><th>Plate</th><th>Violation</th><th>Fine</th><th>Officer</th><th>Status</th><th>Date</th><th></th></tr></thead>
+        <thead><tr><th>Recipient</th><th>Plate</th><th>Violation</th><th>Fine</th><th>Officer</th><th>Date</th><th></th></tr></thead>
         <tbody id="tickets-table-body"><tr><td colspan="8" class="empty">Loading…</td></tr></tbody>
       </table>
     </div>
@@ -1339,16 +1347,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
         <div class="fgrp"><label class="flbl">Impound Fee ($)</label><input class="fi" type="number" id="im-fee"></div>
       </div>
       <div class="fgrp"><label class="flbl">Reason</label><input class="fi" id="im-reason" placeholder="e.g. Illegal parking, contraband vehicle"></div>
-      <div class="frow">
-        <div class="fgrp"><label class="flbl">Location</label><input class="fi" id="im-location"></div>
-        <div class="fgrp"><label class="flbl">Status</label>
-          <select class="fi" id="im-status">
-            <option value="impounded">Impounded</option>
-            <option value="released">Released</option>
-            <option value="auctioned">Auctioned</option>
-          </select>
-        </div>
-      </div>
+      <div class="fgrp"><label class="flbl">Location</label><input class="fi" id="im-location"></div>
       <div class="fgrp"><label class="flbl">Officer</label><input class="fi" id="im-officer"></div>
     </div>
     <div class="modal-ft">
@@ -1371,17 +1370,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
         <div class="fgrp"><label class="flbl">Plate (if vehicle)</label><input class="fi" id="tk-plate"></div>
       </div>
       <div class="fgrp"><label class="flbl">Violation</label><input class="fi" id="tk-violation" placeholder="e.g. Speeding, Reckless Driving"></div>
-      <div class="frow">
-        <div class="fgrp"><label class="flbl">Fine ($)</label><input class="fi" type="number" id="tk-fine"></div>
-        <div class="fgrp"><label class="flbl">Status</label>
-          <select class="fi" id="tk-status">
-            <option value="unpaid">Unpaid</option>
-            <option value="paid">Paid</option>
-            <option value="contested">Contested</option>
-            <option value="void">Void</option>
-          </select>
-        </div>
-      </div>
+      <div class="fgrp"><label class="flbl">Fine ($)</label><input class="fi" type="number" id="tk-fine"></div>
       <div class="frow">
         <div class="fgrp"><label class="flbl">Location</label><input class="fi" id="tk-location"></div>
         <div class="fgrp"><label class="flbl">Officer</label><input class="fi" id="tk-officer"></div>
@@ -2558,14 +2547,29 @@ async function loadImpounds(){
   if(error){ tb.innerHTML=`<tr><td colspan="9" class="empty">Error: ${escapeHTML(error.message)}</td></tr>`; return; }
   _impounds = data||[];
   renderImpounds();
+  renderDmvStats();
+}
+
+function renderDmvStats(){
+  const imps=_impounds||[], tks=_tickets||[];
+  const fees=imps.reduce((t,i)=>t+(Number(i.fee)||0),0);
+  const fines=tks.reduce((t,x)=>t+(Number(x.fine)||0),0);
+  const now=new Date(), mStart=new Date(now.getFullYear(),now.getMonth(),1).getTime();
+  const monthCount=imps.filter(i=>new Date(i.created_at).getTime()>=mStart).length
+                 + tks.filter(x=>new Date(x.created_at).getTime()>=mStart).length;
+  const set=(id,v)=>{const el=$(id); if(el) el.textContent=v;};
+  set('dmv-impounds', imps.length);
+  set('dmv-fees', money(fees));
+  set('dmv-tickets', tks.length);
+  set('dmv-fines', money(fines));
+  set('dmv-month', monthCount);
 }
 function renderImpounds(){
   const q=($('impounds-search').value||'').toLowerCase().trim();
   let list=_impounds;
   if(q) list=list.filter(i=>[i.vehicle,i.plate,i.owner_name,i.officer_name,i.reason].join(' ').toLowerCase().includes(q));
   const tb=$('impounds-table-body');
-  if(!list.length){ tb.innerHTML='<tr><td colspan="9" class="empty">No impounds logged.</td></tr>'; return; }
-  const sc = s=>({impounded:'bg-red',released:'bg-gray',auctioned:'bg-green'}[s]||'bg-gray');
+  if(!list.length){ tb.innerHTML='<tr><td colspan="8" class="empty">No impounds logged.</td></tr>'; return; }
   tb.innerHTML=list.map(i=>`<tr style="cursor:pointer" onclick="openImpoundModal(${i.id})">
     <td style="font-weight:600">${escapeHTML(i.vehicle)}${i.source==='auto'?' <span class="badge bg-blue" style="font-size:9px">AUTO</span>':''}</td>
     <td>${escapeHTML(i.plate||'—')}</td>
@@ -2573,7 +2577,6 @@ function renderImpounds(){
     <td style="color:var(--ts)">${escapeHTML(i.reason||'—')}</td>
     <td>${i.fee?money(i.fee):'—'}</td>
     <td style="color:var(--ts)">${escapeHTML(i.officer_name||'—')}</td>
-    <td><span class="badge ${sc(i.status)}">${escapeHTML(i.status)}</span></td>
     <td style="color:var(--ts);font-size:12px">${fmtDate(i.created_at)}</td>
     <td style="color:var(--red-l)">Edit</td></tr>`).join('');
 }
@@ -2584,12 +2587,11 @@ function openImpoundModal(id){
     $('impound-modal-title').textContent='Edit Impound #'+i.id;
     $('im-id').value=i.id; $('im-vehicle').value=i.vehicle||''; $('im-plate').value=i.plate||'';
     $('im-owner').value=i.owner_name||''; $('im-fee').value=i.fee||''; $('im-reason').value=i.reason||'';
-    $('im-location').value=i.location||''; $('im-status').value=i.status||'impounded'; $('im-officer').value=i.officer_name||'';
+    $('im-location').value=i.location||''; $('im-officer').value=i.officer_name||'';
     $('im-delete-btn').style.display='inline-block';
   } else {
     $('impound-modal-title').textContent='Log Impound';
     ['im-id','im-vehicle','im-plate','im-owner','im-fee','im-reason','im-location'].forEach(x=>$(x).value='');
-    $('im-status').value='impounded';
     $('im-officer').value = currentOfficer ? `${currentOfficer.callsign} (${currentOfficer.full_name})` : '';
     $('im-delete-btn').style.display='none';
   }
@@ -2601,7 +2603,7 @@ async function saveImpound(){
   const payload={
     vehicle:$('im-vehicle').value.trim(), plate:$('im-plate').value.trim(), owner_name:$('im-owner').value.trim(),
     reason:$('im-reason').value.trim(), fee:$('im-fee').value?Number($('im-fee').value):0,
-    location:$('im-location').value.trim(), status:$('im-status').value, officer_name:$('im-officer').value.trim()
+    location:$('im-location').value.trim(), officer_name:$('im-officer').value.trim()
   };
   const id=$('im-id').value; let error;
   if(id){ ({error}=await sb.from('impounds').update(payload).eq('id',id)); }
@@ -2624,21 +2626,20 @@ async function loadTickets(){
   if(error){ tb.innerHTML=`<tr><td colspan="8" class="empty">Error: ${escapeHTML(error.message)}</td></tr>`; return; }
   _tickets = data||[];
   renderTickets();
+  renderDmvStats();
 }
 function renderTickets(){
   const q=($('tickets-search').value||'').toLowerCase().trim();
   let list=_tickets;
   if(q) list=list.filter(t=>[t.recipient_name,t.plate,t.violation,t.officer_name].join(' ').toLowerCase().includes(q));
   const tb=$('tickets-table-body');
-  if(!list.length){ tb.innerHTML='<tr><td colspan="8" class="empty">No tickets issued.</td></tr>'; return; }
-  const sc = s=>({unpaid:'bg-red',paid:'bg-green',contested:'bg-amber',void:'bg-gray'}[s]||'bg-gray');
+  if(!list.length){ tb.innerHTML='<tr><td colspan="7" class="empty">No tickets issued.</td></tr>'; return; }
   tb.innerHTML=list.map(t=>`<tr style="cursor:pointer" onclick="openTicketModal(${t.id})">
     <td style="font-weight:600">${escapeHTML(t.recipient_name)}${t.source==='auto'?' <span class="badge bg-blue" style="font-size:9px">AUTO</span>':''}</td>
     <td>${escapeHTML(t.plate||'—')}</td>
     <td style="color:var(--ts)">${escapeHTML(t.violation||'—')}</td>
     <td>${t.fine?money(t.fine):'—'}</td>
     <td style="color:var(--ts)">${escapeHTML(t.officer_name||'—')}</td>
-    <td><span class="badge ${sc(t.status)}">${escapeHTML(t.status)}</span></td>
     <td style="color:var(--ts);font-size:12px">${fmtDate(t.created_at)}</td>
     <td style="color:var(--red-l)">Edit</td></tr>`).join('');
 }
@@ -2649,12 +2650,11 @@ function openTicketModal(id){
     $('ticket-modal-title').textContent='Edit Ticket #'+t.id;
     $('tk-id').value=t.id; $('tk-recipient').value=t.recipient_name||''; $('tk-plate').value=t.plate||'';
     $('tk-violation').value=t.violation||''; $('tk-fine').value=t.fine||''; $('tk-location').value=t.location||'';
-    $('tk-status').value=t.status||'unpaid'; $('tk-officer').value=t.officer_name||'';
+    $('tk-officer').value=t.officer_name||'';
     $('tk-delete-btn').style.display='inline-block';
   } else {
     $('ticket-modal-title').textContent='Issue Ticket';
     ['tk-id','tk-recipient','tk-plate','tk-violation','tk-fine','tk-location'].forEach(x=>$(x).value='');
-    $('tk-status').value='unpaid';
     $('tk-officer').value = currentOfficer ? `${currentOfficer.callsign} (${currentOfficer.full_name})` : '';
     $('tk-delete-btn').style.display='none';
   }
@@ -2666,7 +2666,7 @@ async function saveTicket(){
   const payload={
     recipient_name:$('tk-recipient').value.trim(), plate:$('tk-plate').value.trim(), violation:$('tk-violation').value.trim(),
     fine:$('tk-fine').value?Number($('tk-fine').value):0, location:$('tk-location').value.trim(),
-    status:$('tk-status').value, officer_name:$('tk-officer').value.trim()
+    officer_name:$('tk-officer').value.trim()
   };
   const id=$('tk-id').value; let error;
   if(id){ ({error}=await sb.from('tickets').update(payload).eq('id',id)); }
