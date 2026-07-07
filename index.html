@@ -64,10 +64,15 @@ body>nav{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.97);border-
 .recruit-num.red{color:var(--red-l)}.recruit-num.amber{color:var(--amber)}.recruit-num.green{color:var(--green)}.recruit-num.blue{color:var(--blue)}
 .recruit-lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--ts);margin-top:8px}
 
-.faq-item{margin-bottom:1.6rem;padding-bottom:1.6rem;border-bottom:1px solid var(--border-d)}
-.faq-item:last-child{border-bottom:none}
-.faq-item h3{font-size:15px;font-weight:700;margin-bottom:.5rem;color:var(--tp)}
-.faq-item p{font-size:13.5px;color:var(--ts);line-height:1.7}
+.faq-item{margin-bottom:1rem;border:1px solid var(--border-d);border-radius:8px;overflow:hidden}
+.faq-q{font-weight:700;font-size:14px;padding:14px 18px;background:rgba(193,53,44,.06);color:var(--red-l);cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;transition:background .15s}
+.faq-q:hover{background:rgba(193,53,44,.12)}
+.faq-q::after{content:'▾';font-size:12px;color:var(--ts);transition:transform .2s}
+.faq-item.open .faq-q::after{transform:rotate(-180deg)}
+.faq-a{font-size:13.5px;color:var(--ts);line-height:1.7;padding:0 18px;max-height:0;overflow:hidden;transition:max-height .28s ease,padding .28s ease}
+.faq-item.open .faq-a{max-height:400px;padding:14px 18px}
+.faq-a strong{color:var(--tp)}
+.faq-a code{background:rgba(255,255,255,.08);border-radius:4px;padding:1px 6px;font-family:monospace;font-size:12px;color:var(--red-l)}
 
 /* handbook */
 .hb-wrap{display:grid;grid-template-columns:220px 1fr;max-width:1150px;margin:0 auto;gap:2rem;padding:2rem}
@@ -429,16 +434,16 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
   <div class="sec" style="max-width:800px">
     <div class="tag">Frequently Asked Questions</div>
     <h2 style="font-size:22px;font-weight:700;margin-bottom:1.5rem">Common Questions</h2>
-    <div class="faq-item"><h3>How do I apply to a division?</h3><p>Use the Apply page and select Traffic, FTO, or SWAT. Vice Unit applications are handled separately at vice-unit.com. You can check your application status any time from the Apply page using the Discord or name you applied with.</p></div>
-    <div class="faq-item"><h3>How long does approval take?</h3><p>New officer accounts and applications are reviewed by department admins — timing depends on admin availability.</p></div>
-    <div class="faq-item"><h3>I logged in but can't log an arrest yet — why?</h3><p>New officer accounts start as "pending" and need admin approval before they can create records. Once approved, you have full access.</p></div>
-    <div class="faq-item"><h3>Why was a vehicle impounded — how is the reason decided?</h3><p>Impound reasons are based on the fee. An impound fee of <strong>$3,000 or more</strong> is for <strong>unpaid parking tickets</strong>. A fee <strong>below $3,000</strong> means the vehicle was <strong>used in a crime or had an illegal item found inside it</strong>. This is applied automatically when an impound is logged from the field.</p></div>
-    <div class="faq-item"><h3>How do impounds and tickets get onto the site?</h3><p>They're logged automatically from in-game. When an officer impounds a vehicle or issues a ticket, it appears on the DMV / Enforcement tab marked with an <strong>AUTO</strong> badge. Officers can also add records manually.</p></div>
-    <div class="faq-item"><h3>How do I log arrests from in-game?</h3><p>Approved officers use the in-game menu (open with <strong>/pd</strong> or the F6 key). Sign in with your badge number, then log arrests with charges, seizures, and biometrics — they sync straight to the site.</p></div>
-    <div class="faq-item"><h3>My in-game menu says my badge isn't approved — what do I do?</h3><p>Your badge or callsign must match an <strong>approved</strong> officer on the site. Set your badge number on your profile (My Stats → edit), and make sure an admin has approved your account.</p></div>
-    <div class="faq-item"><h3>What are Supervisory Logs?</h3><p>Command staff (Sergeant and above) can log 10-7 (off duty), reassignments, and High Speed Unit certifications. 10-7 and HSU entries can be given a duration and will automatically clear from the active list when the time runs out.</p></div>
-    <div class="faq-item"><h3>How do points work?</h3><p>Officers earn points for activity: arrests, seizures, biometrics collected, impounds, and tickets all contribute. The points leaderboard is on the dashboard Overview, and you can see your own total under My Stats.</p></div>
-    <div class="faq-item"><h3>Can the public see arrest and seizure logs?</h3><p>Yes — recent activity and department stats are shown publicly on the homepage. Full detail views require an approved officer login.</p></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do I apply to a division?</div><div class="faq-a">Use the Apply page and select Traffic, FTO, or SWAT. Vice Unit applications are handled separately at vice-unit.com. You can check your application status any time from the Apply page using the Discord or name you applied with.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How long does approval take?</div><div class="faq-a">New officer accounts and applications are reviewed by department admins — timing depends on admin availability.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">I logged in but can't log an arrest yet — why?</div><div class="faq-a">New officer accounts start as "pending" and need admin approval before they can create records. Once approved, you have full access.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Why was a vehicle impounded — how is the reason decided?</div><div class="faq-a">Impound reasons are based on the fee. An impound fee of <strong>$3,000 or more</strong> is for <strong>unpaid parking tickets</strong>. A fee <strong>below $3,000</strong> means the vehicle was <strong>used in a crime or had an illegal item found inside it</strong>. This is applied automatically when an impound is logged from the field.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do impounds and tickets get onto the site?</div><div class="faq-a">They're logged automatically from in-game. When an officer impounds a vehicle or issues a ticket, it appears on the DMV / Enforcement tab marked with an <strong>AUTO</strong> badge. Officers can also add records manually.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do I log arrests from in-game?</div><div class="faq-a">Approved officers use the in-game menu (open with <code>/pd</code> or the F6 key). Sign in with your badge number, then log arrests with charges, seizures, and biometrics — they sync straight to the site.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">My in-game menu says my badge isn't approved — what do I do?</div><div class="faq-a">Your badge or callsign must match an <strong>approved</strong> officer on the site. Set your badge number on your profile (My Stats → edit), and make sure an admin has approved your account.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What are Supervisory Logs?</div><div class="faq-a">Command staff (Sergeant and above) can log 10-7 (off duty), reassignments, and High Speed Unit certifications. 10-7 and HSU entries can be given a duration and will automatically clear from the active list when the time runs out.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do points work?</div><div class="faq-a">Officers earn points for activity: arrests, seizures, biometrics collected, impounds, and tickets all contribute. The points leaderboard is on the dashboard Overview, and you can see your own total under My Stats.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can the public see arrest and seizure logs?</div><div class="faq-a">Yes — recent activity and department stats are shown publicly on the homepage. Full detail views require an approved officer login.</div></div>
   </div>
 </div>
 
@@ -1459,6 +1464,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null, currentOfficer = null;
 
 function $(id){return document.getElementById(id)}
+function toggleFaq(el){ el.parentElement.classList.toggle('open'); }
 function escapeHTML(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function money(n){ return '$' + (Number(n)||0).toLocaleString(); }
 function fmtDate(d){ return d ? new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'; }
