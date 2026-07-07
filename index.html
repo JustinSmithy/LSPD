@@ -429,10 +429,16 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
   <div class="sec" style="max-width:800px">
     <div class="tag">Frequently Asked Questions</div>
     <h2 style="font-size:22px;font-weight:700;margin-bottom:1.5rem">Common Questions</h2>
-    <div class="faq-item"><h3>How do I apply to a division?</h3><p>Use the Apply page and select Traffic, FTO, or SWAT. Vice Unit applications are handled separately at vice-unit.com.</p></div>
+    <div class="faq-item"><h3>How do I apply to a division?</h3><p>Use the Apply page and select Traffic, FTO, or SWAT. Vice Unit applications are handled separately at vice-unit.com. You can check your application status any time from the Apply page using the Discord or name you applied with.</p></div>
     <div class="faq-item"><h3>How long does approval take?</h3><p>New officer accounts and applications are reviewed by department admins — timing depends on admin availability.</p></div>
-    <div class="faq-item"><h3>Can the public see arrest and seizure logs?</h3><p>Yes — recent activity is shown publicly on the homepage. Full detail views require an approved officer login.</p></div>
-    <div class="faq-item"><h3>I logged in but can't log an arrest yet — why?</h3><p>New officer accounts start as "pending" and need admin approval before they can create records.</p></div>
+    <div class="faq-item"><h3>I logged in but can't log an arrest yet — why?</h3><p>New officer accounts start as "pending" and need admin approval before they can create records. Once approved, you have full access.</p></div>
+    <div class="faq-item"><h3>Why was a vehicle impounded — how is the reason decided?</h3><p>Impound reasons are based on the fee. An impound fee of <strong>$3,000 or more</strong> is for <strong>unpaid parking tickets</strong>. A fee <strong>below $3,000</strong> means the vehicle was <strong>used in a crime or had an illegal item found inside it</strong>. This is applied automatically when an impound is logged from the field.</p></div>
+    <div class="faq-item"><h3>How do impounds and tickets get onto the site?</h3><p>They're logged automatically from in-game. When an officer impounds a vehicle or issues a ticket, it appears on the DMV / Enforcement tab marked with an <strong>AUTO</strong> badge. Officers can also add records manually.</p></div>
+    <div class="faq-item"><h3>How do I log arrests from in-game?</h3><p>Approved officers use the in-game menu (open with <strong>/pd</strong> or the F6 key). Sign in with your badge number, then log arrests with charges, seizures, and biometrics — they sync straight to the site.</p></div>
+    <div class="faq-item"><h3>My in-game menu says my badge isn't approved — what do I do?</h3><p>Your badge or callsign must match an <strong>approved</strong> officer on the site. Set your badge number on your profile (My Stats → edit), and make sure an admin has approved your account.</p></div>
+    <div class="faq-item"><h3>What are Supervisory Logs?</h3><p>Command staff (Sergeant and above) can log 10-7 (off duty), reassignments, and High Speed Unit certifications. 10-7 and HSU entries can be given a duration and will automatically clear from the active list when the time runs out.</p></div>
+    <div class="faq-item"><h3>How do points work?</h3><p>Officers earn points for activity: arrests, seizures, biometrics collected, impounds, and tickets all contribute. The points leaderboard is on the dashboard Overview, and you can see your own total under My Stats.</p></div>
+    <div class="faq-item"><h3>Can the public see arrest and seizure logs?</h3><p>Yes — recent activity and department stats are shown publicly on the homepage. Full detail views require an approved officer login.</p></div>
   </div>
 </div>
 
@@ -1076,7 +1082,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     <input class="fi" id="impounds-search" placeholder="🔍 Search vehicle, plate, owner, officer…" style="margin-bottom:1rem" oninput="renderImpounds()">
     <div class="tbl-wrap" style="margin-bottom:2.5rem">
       <table>
-        <thead><tr><th>Vehicle</th><th>Plate</th><th>Owner</th><th>Reason</th><th>Fee</th><th>Officer</th><th>Date</th><th></th></tr></thead>
+        <thead><tr><th>Vehicle</th><th>Plate</th><th>Owner</th><th>Reason</th><th>Fee</th><th>Officer</th><th>Status</th><th>Date</th><th></th></tr></thead>
         <tbody id="impounds-table-body"><tr><td colspan="9" class="empty">Loading…</td></tr></tbody>
       </table>
     </div>
@@ -1347,7 +1353,16 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
         <div class="fgrp"><label class="flbl">Impound Fee ($)</label><input class="fi" type="number" id="im-fee"></div>
       </div>
       <div class="fgrp"><label class="flbl">Reason</label><input class="fi" id="im-reason" placeholder="e.g. Illegal parking, contraband vehicle"></div>
-      <div class="fgrp"><label class="flbl">Location</label><input class="fi" id="im-location"></div>
+      <div class="frow">
+        <div class="fgrp"><label class="flbl">Location</label><input class="fi" id="im-location"></div>
+        <div class="fgrp"><label class="flbl">Status</label>
+          <select class="fi" id="im-status">
+            <option value="impounded">Impounded</option>
+            <option value="released">Released</option>
+            <option value="auctioned">Auctioned</option>
+          </select>
+        </div>
+      </div>
       <div class="fgrp"><label class="flbl">Officer</label><input class="fi" id="im-officer"></div>
     </div>
     <div class="modal-ft">
@@ -1397,9 +1412,10 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <div id="log-fields-offduty" style="display:none">
         <div class="fgrp"><label class="flbl">Reason</label><input class="fi" id="log-reason" placeholder="e.g. Break, end of shift"></div>
         <div class="frow">
-          <div class="fgrp"><label class="flbl">Duration</label><input class="fi" id="log-duration" placeholder="e.g. 30 min"></div>
+          <div class="fgrp"><label class="flbl">Duration (minutes)</label><input class="fi" type="number" id="log-duration" placeholder="e.g. 30 — blank = no expiry"></div>
           <div class="fgrp"><label class="flbl">Return Time</label><input class="fi" id="log-return" placeholder="e.g. 21:00"></div>
         </div>
+        <div class="fgrp" style="font-size:12px;color:var(--ts)">Entry auto-hides from the active list once the duration passes.</div>
       </div>
       <!-- reassignment fields -->
       <div id="log-fields-reassign" style="display:none">
@@ -1415,7 +1431,9 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
             <option value="revoked">Revoked</option>
           </select>
         </div>
+        <div class="fgrp"><label class="flbl">Valid For (minutes)</label><input class="fi" type="number" id="log-hsu-duration" placeholder="e.g. 60 — blank = no expiry"></div>
         <div class="fgrp"><label class="flbl">Notes</label><textarea class="fi" id="log-notes" placeholder="Certification notes…"></textarea></div>
+        <div class="fgrp" style="font-size:12px;color:var(--ts)">Cert auto-hides once the time passes.</div>
       </div>
     </div>
     <div class="modal-ft">
@@ -2569,7 +2587,8 @@ function renderImpounds(){
   let list=_impounds;
   if(q) list=list.filter(i=>[i.vehicle,i.plate,i.owner_name,i.officer_name,i.reason].join(' ').toLowerCase().includes(q));
   const tb=$('impounds-table-body');
-  if(!list.length){ tb.innerHTML='<tr><td colspan="8" class="empty">No impounds logged.</td></tr>'; return; }
+  if(!list.length){ tb.innerHTML='<tr><td colspan="9" class="empty">No impounds logged.</td></tr>'; return; }
+  const sc = s=>({impounded:'bg-red',released:'bg-gray',auctioned:'bg-green'}[s]||'bg-gray');
   tb.innerHTML=list.map(i=>`<tr style="cursor:pointer" onclick="openImpoundModal(${i.id})">
     <td style="font-weight:600">${escapeHTML(i.vehicle)}${i.source==='auto'?' <span class="badge bg-blue" style="font-size:9px">AUTO</span>':''}</td>
     <td>${escapeHTML(i.plate||'—')}</td>
@@ -2577,6 +2596,7 @@ function renderImpounds(){
     <td style="color:var(--ts)">${escapeHTML(i.reason||'—')}</td>
     <td>${i.fee?money(i.fee):'—'}</td>
     <td style="color:var(--ts)">${escapeHTML(i.officer_name||'—')}</td>
+    <td><span class="badge ${sc(i.status)}">${escapeHTML(i.status||'impounded')}</span></td>
     <td style="color:var(--ts);font-size:12px">${fmtDate(i.created_at)}</td>
     <td style="color:var(--red-l)">Edit</td></tr>`).join('');
 }
@@ -2587,11 +2607,12 @@ function openImpoundModal(id){
     $('impound-modal-title').textContent='Edit Impound #'+i.id;
     $('im-id').value=i.id; $('im-vehicle').value=i.vehicle||''; $('im-plate').value=i.plate||'';
     $('im-owner').value=i.owner_name||''; $('im-fee').value=i.fee||''; $('im-reason').value=i.reason||'';
-    $('im-location').value=i.location||''; $('im-officer').value=i.officer_name||'';
+    $('im-location').value=i.location||''; $('im-status').value=i.status||'impounded'; $('im-officer').value=i.officer_name||'';
     $('im-delete-btn').style.display='inline-block';
   } else {
     $('impound-modal-title').textContent='Log Impound';
     ['im-id','im-vehicle','im-plate','im-owner','im-fee','im-reason','im-location'].forEach(x=>$(x).value='');
+    $('im-status').value='impounded';
     $('im-officer').value = currentOfficer ? `${currentOfficer.callsign} (${currentOfficer.full_name})` : '';
     $('im-delete-btn').style.display='none';
   }
@@ -2603,7 +2624,7 @@ async function saveImpound(){
   const payload={
     vehicle:$('im-vehicle').value.trim(), plate:$('im-plate').value.trim(), owner_name:$('im-owner').value.trim(),
     reason:$('im-reason').value.trim(), fee:$('im-fee').value?Number($('im-fee').value):0,
-    location:$('im-location').value.trim(), officer_name:$('im-officer').value.trim()
+    location:$('im-location').value.trim(), status:$('im-status').value, officer_name:$('im-officer').value.trim()
   };
   const id=$('im-id').value; let error;
   if(id){ ({error}=await sb.from('impounds').update(payload).eq('id',id)); }
@@ -2847,24 +2868,57 @@ const LOG_CFG = {
 };
 let _logs = {offduty:[],reassign:[],hsu:[]};
 
-async function loadCommandLogs(){ ['offduty','reassign','hsu'].forEach(loadLog); }
+let _cmdLogTimer = null;
+async function loadCommandLogs(){
+  ['offduty','reassign','hsu'].forEach(loadLog);
+  // live tick: re-render every 15s so expired entries drop off and countdowns update
+  if(_cmdLogTimer) clearInterval(_cmdLogTimer);
+  _cmdLogTimer = setInterval(()=>{
+    const dash=$('dash-command');
+    if(!dash || dash.style.display==='none'){ clearInterval(_cmdLogTimer); _cmdLogTimer=null; return; }
+    ['offduty','hsu'].forEach(renderLog); // only the timed ones need re-render
+  }, 15000);
+}
+
+function timeRemaining(expiresAt){
+  if(!expiresAt) return null;
+  const ms = new Date(expiresAt).getTime() - Date.now();
+  if(ms <= 0) return 'expired';
+  const mins = Math.floor(ms/60000), secs = Math.floor((ms%60000)/1000);
+  if(mins >= 60){ const h=Math.floor(mins/60); return `${h}h ${mins%60}m left`; }
+  return mins > 0 ? `${mins}m ${secs}s left` : `${secs}s left`;
+}
+
 async function loadLog(kind){
   const cfg=LOG_CFG[kind];
   const {data,error}=await sb.from(cfg.table).select('*').order('created_at',{ascending:false});
   const tb=$(cfg.body);
   if(error){ tb.innerHTML=`<tr><td colspan="${cfg.cols+1}" class="empty">${escapeHTML(error.message)}</td></tr>`; return; }
   _logs[kind]=data||[];
-  if(!data.length){ tb.innerHTML=`<tr><td colspan="${cfg.cols+1}" class="empty">No entries yet.</td></tr>`; return; }
+  renderLog(kind);
+}
+
+function renderLog(kind){
+  const cfg=LOG_CFG[kind];
+  const tb=$(cfg.body);
+  if(!tb) return;
+  // hide entries whose expiry has passed (kept in DB, just not shown as active)
+  const all=_logs[kind]||[];
+  const data = all.filter(r => !r.expires_at || new Date(r.expires_at).getTime() > Date.now());
+  if(!data.length){ tb.innerHTML=`<tr><td colspan="${cfg.cols+1}" class="empty">No active entries.</td></tr>`; return; }
   const canEdit = isCommandStaff();
   const editCell = id => canEdit ? `<td style="color:var(--red-l);cursor:pointer" onclick="openLogModal('${kind}',${id})">Edit</td>` : '<td></td>';
   if(kind==='offduty'){
-    tb.innerHTML=data.map(r=>`<tr>
+    tb.innerHTML=data.map(r=>{
+      const rem=timeRemaining(r.expires_at);
+      const durCell = rem ? `<span class="badge bg-amber">${rem}</span>` : escapeHTML(r.duration||'—');
+      return `<tr>
       <td style="font-weight:600">${escapeHTML(r.officer_name)}${r.source==='auto'?' <span class="badge bg-blue" style="font-size:9px">AUTO</span>':''}</td>
       <td style="color:var(--ts)">${escapeHTML(r.reason||'—')}</td>
-      <td>${escapeHTML(r.duration||'—')}</td>
+      <td>${durCell}</td>
       <td>${escapeHTML(r.return_time||'—')}</td>
       <td style="color:var(--ts)">${escapeHTML(r.logged_by||'—')}</td>
-      <td style="color:var(--ts);font-size:12px">${fmtDate(r.created_at)}</td>${editCell(r.id)}</tr>`).join('');
+      <td style="color:var(--ts);font-size:12px">${fmtDate(r.created_at)}</td>${editCell(r.id)}</tr>`;}).join('');
   } else if(kind==='reassign'){
     tb.innerHTML=data.map(r=>`<tr>
       <td style="font-weight:600">${escapeHTML(r.officer_name)}</td>
@@ -2874,12 +2928,15 @@ async function loadLog(kind){
       <td style="color:var(--ts);font-size:12px">${fmtDate(r.created_at)}</td>${editCell(r.id)}</tr>`).join('');
   } else {
     const cs = s=>({authorized:'bg-green',pending:'bg-amber',revoked:'bg-red'}[s]||'bg-gray');
-    tb.innerHTML=data.map(r=>`<tr>
+    tb.innerHTML=data.map(r=>{
+      const rem=timeRemaining(r.expires_at);
+      const noteCell = rem ? `${escapeHTML(r.notes||'')} <span class="badge bg-amber">${rem}</span>` : escapeHTML(r.notes||'—');
+      return `<tr>
       <td style="font-weight:600">${escapeHTML(r.officer_name)}</td>
       <td><span class="badge ${cs(r.cert_status)}">${escapeHTML(r.cert_status)}</span></td>
-      <td style="color:var(--ts)">${escapeHTML(r.notes||'—')}</td>
+      <td style="color:var(--ts)">${noteCell}</td>
       <td style="color:var(--ts)">${escapeHTML(r.logged_by||'—')}</td>
-      <td style="color:var(--ts);font-size:12px">${fmtDate(r.created_at)}</td>${editCell(r.id)}</tr>`).join('');
+      <td style="color:var(--ts);font-size:12px">${fmtDate(r.created_at)}</td>${editCell(r.id)}</tr>`;}).join('');
   }
 }
 
@@ -2891,7 +2948,7 @@ function openLogModal(kind, id){
   $('log-modal-title').textContent = LOG_CFG[kind].title + ' Log';
   const rec = id ? _logs[kind].find(x=>x.id===id) : null;
   // reset
-  ['log-officer','log-reason','log-duration','log-return','log-comments','log-evidence','log-notes'].forEach(i=>{ if($(i))$(i).value=''; });
+  ['log-officer','log-reason','log-duration','log-return','log-comments','log-evidence','log-notes','log-hsu-duration'].forEach(i=>{ if($(i))$(i).value=''; });
   $('log-cert').value='authorized';
   $('log-id').value = rec?rec.id:'';
   if(rec){
@@ -2912,9 +2969,17 @@ async function saveLog(){
   if(!officer){ msg.innerHTML='<div class="msg msg-err">Officer name is required.</div>'; return; }
   const loggedBy = currentOfficer?`${currentOfficer.callsign} (${currentOfficer.rank})`:'command';
   let payload={officer_name:officer, logged_by:loggedBy};
-  if(kind==='offduty') payload={...payload, reason:$('log-reason').value.trim(), duration:$('log-duration').value.trim(), return_time:$('log-return').value.trim()};
+  if(kind==='offduty'){
+    const mins = parseInt($('log-duration').value,10);
+    payload={...payload, reason:$('log-reason').value.trim(), duration: mins>0?`${mins} min`:'', return_time:$('log-return').value.trim(),
+             expires_at: mins>0 ? new Date(Date.now()+mins*60000).toISOString() : null};
+  }
   if(kind==='reassign') payload={...payload, comments:$('log-comments').value.trim(), evidence:$('log-evidence').value.trim()};
-  if(kind==='hsu') payload={...payload, cert_status:$('log-cert').value, notes:$('log-notes').value.trim()};
+  if(kind==='hsu'){
+    const mins = parseInt($('log-hsu-duration').value,10);
+    payload={...payload, cert_status:$('log-cert').value, notes:$('log-notes').value.trim(),
+             expires_at: mins>0 ? new Date(Date.now()+mins*60000).toISOString() : null};
+  }
   const id=$('log-id').value; let error;
   if(id){ ({error}=await sb.from(cfg.table).update(payload).eq('id',id)); }
   else { payload.officer_id=currentUser.id; payload.source='manual'; ({error}=await sb.from(cfg.table).insert(payload)); }
