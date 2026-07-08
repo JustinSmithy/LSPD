@@ -1872,13 +1872,36 @@ async function loadOverview(){
 
 function togglePointsInfo(){ const el=$('lb-points-legend'); if(el) el.style.display = el.style.display==='none'?'block':'none'; }
 let _officerStats = [];
+let _roster = [];
 // Shared scoring — used by leaderboards AND officer profiles so they never diverge.
 async function computeOfficerStats(){
   if(_arrests.length===0){ try{ _arrests = await fetchArrestsWithSeizures(); }catch(e){} }
-  const byOfficer = {};
-  const offRec = key => byOfficer[key] = byOfficer[key] || {name:key, arrests:0, items:0, value:0, points:0, impounds:0, tickets:0, narc:0, firearm:0, dna:0, prints:0};
+  // Load the roster so we attribute records to real officers by ID.
+  let roster=_roster;
+  if(!roster || !roster.length){
+    try{ const {data}=await sb.from('officers').select('id,full_name,callsign,rank,division,status'); roster=data||[]; _roster=roster; }catch(e){ roster=[]; }
+  }
+  // Build a matcher: given a record's officer text, find the roster officer id.
+  const matchOfficer = (label) => {
+    if(!label) return null;
+    const n = label.toLowerCase();
+    // prefer callsign match (more unique), then full name
+    let hit = roster.find(o => o.callsign && n.includes(o.callsign.toLowerCase()));
+    if(!hit) hit = roster.find(o => o.full_name && n.includes(o.full_name.toLowerCase()));
+    return hit ? hit.id : null;
+  };
+  const byId = {};
+  const rec = (id, fallbackName) => {
+    const key = id || ('unmatched:'+fallbackName);
+    if(!byId[key]){
+      const off = id ? roster.find(o=>o.id===id) : null;
+      byId[key] = { id:id||null, name: off ? (off.callsign?`${off.callsign} (${off.full_name})`:off.full_name) : (fallbackName||'Unknown'),
+        matched: !!id, arrests:0, items:0, value:0, points:0, impounds:0, tickets:0, narc:0, firearm:0, dna:0, prints:0 };
+    }
+    return byId[key];
+  };
   _arrests.forEach(a=>{
-    const o = offRec(a.arresting_officer || 'Unknown');
+    const o = rec(matchOfficer(a.arresting_officer), a.arresting_officer || 'Unknown');
     o.arrests++;
     o.points += 10;
     if(a.arrest_type==='narcotics'||a.arrest_type==='firearms') o.points += 15;
@@ -1898,18 +1921,16 @@ async function computeOfficerStats(){
       sb.from('impounds').select('officer_name'),
       sb.from('tickets').select('officer_name')
     ]);
-    (imps||[]).forEach(i=>{ const o=offRec(i.officer_name||'Unknown'); o.points += 5; o.impounds++; });
-    (tks||[]).forEach(t=>{ const o=offRec(t.officer_name||'Unknown'); o.points += 3; o.tickets++; });
+    (imps||[]).forEach(i=>{ const o=rec(matchOfficer(i.officer_name), i.officer_name||'Unknown'); o.points += 5; o.impounds++; });
+    (tks||[]).forEach(t=>{ const o=rec(matchOfficer(t.officer_name), t.officer_name||'Unknown'); o.points += 3; o.tickets++; });
   }catch(e){}
-  _officerStats = Object.values(byOfficer);
+  _officerStats = Object.values(byId);
   return _officerStats;
 }
 
-// Match a roster officer to their activity stats. Arrests store the officer as a
-// text label like "1-Adam-12 (John Doe)", so we match on callsign or full name appearing in it.
+// Match a roster officer to their computed stats — now by ID (stable).
 function statsForOfficer(off){
-  const cs=(off.callsign||'').toLowerCase(), fn=(off.full_name||'').toLowerCase();
-  return _officerStats.find(s=>{ const n=s.name.toLowerCase(); return (cs&&n.includes(cs))||(fn&&n.includes(fn)); })
+  return _officerStats.find(s=>s.id===off.id)
     || {name:off.callsign||off.full_name, arrests:0,items:0,value:0,points:0,impounds:0,tickets:0,narc:0,firearm:0,dna:0,prints:0};
 }
 
@@ -2083,7 +2104,7 @@ function renderOfficers(){
 }
 
 function renderLeaderboard(elId, officers, field, fmt){
-  const sorted = officers.filter(o=>o[field]>0).sort((a,b)=>b[field]-a[field]).slice(0,5);
+  const sorted = officers.filter(o=>o.matched && o[field]>0).sort((a,b)=>b[field]-a[field]).slice(0,5);
   const el = $(elId);
   if(!sorted.length){ el.innerHTML = '<div class="empty">No data yet.</div>'; return; }
   el.innerHTML = sorted.map((o,i)=>`
@@ -3051,7 +3072,26 @@ function viewApplication(id){
   $('view-modal-overlay').style.display='block';
 }
 async function reviewApp(id,status){
+  const app = _applications.find(a=>a.id===id);
   await sb.from('applications').update({status, reviewed_by: currentOfficer?.callsign||'admin'}).eq('id',id);
+
+  // On acceptance, try to set the applicant's division on their officer record.
+  if(status==='accepted' && app && app.division){
+    const q = (app.applicant_name||'').trim();
+    if(q){
+      // match officer by callsign or full_name (case-insensitive)
+      const {data:matches} = await sb.from('officers').select('id,full_name,callsign,division')
+        .or(`callsign.ilike.${q},full_name.ilike.${q}`).limit(2);
+      if(matches && matches.length===1){
+        await sb.from('officers').update({division: app.division}).eq('id', matches[0].id);
+        alert(`Accepted. ${matches[0].full_name} assigned to ${app.division}.`);
+      } else if(matches && matches.length>1){
+        alert(`Accepted, but more than one officer matches "${q}". Set their division manually on their profile.`);
+      } else {
+        alert(`Accepted, but no officer matched "${q}". Set their division manually once they've registered (or check the name matches their profile).`);
+      }
+    }
+  }
   loadApplications();
 }
 
