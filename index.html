@@ -1005,7 +1005,14 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
 
   <!-- OVERVIEW -->
   <div class="sec" id="dash-overview">
-    <div class="sec-hd"><div><div class="tag">Overview</div><h2>Department Snapshot</h2></div></div>
+    <div class="sec-hd"><div><div class="tag">Overview</div><h2>Department Snapshot</h2></div>
+      <select class="fi" id="stats-range" style="max-width:170px" onchange="loadOverview()">
+        <option value="all">All time</option>
+        <option value="month">This month</option>
+        <option value="week">This week</option>
+        <option value="today">Today</option>
+      </select>
+    </div>
     <div class="sg">
       <div class="sc"><div class="sc-lbl">Total Arrests</div><div class="sc-val red" id="ov-arrests">0</div></div>
       <div class="sc"><div class="sc-lbl">Items Seized</div><div class="sc-val amber" id="ov-seizures">0</div></div>
@@ -1061,6 +1068,11 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
         <option value="narcotics">Narcotics</option>
         <option value="firearms">Firearms</option>
         <option value="both">Narcotics &amp; Firearms</option>
+      </select>
+      <select class="fi" id="arrests-source" style="max-width:160px" onchange="renderArrests()">
+        <option value="">All sources</option>
+        <option value="pd">PD only</option>
+        <option value="vice">Vice only</option>
       </select>
     </div>
     <div class="grid-cards" id="arrests-list"><div class="empty">Loading…</div></div>
@@ -1849,9 +1861,13 @@ async function loadOverview(){
   }
   const {count:oc} = await sb.from('officers').select('*',{count:'exact',head:true}).eq('status','approved');
 
-  const totalArrests = _arrests.length;
+  const _cut = statsRangeCutoff();
+  const _inR = ts => !_cut || (ts && new Date(ts).getTime() >= _cut);
+  const rangeArrests = _arrests.filter(a=>_inR(a.created_at));
+
+  const totalArrests = rangeArrests.length;
   let totalItems = 0, totalValue = 0;
-  _arrests.forEach(a=>{ a._seizures.forEach(s=>{ totalItems += Number(s.quantity)||0; totalValue += Number(s.line_value)||0; }); });
+  rangeArrests.forEach(a=>{ a._seizures.forEach(s=>{ totalItems += Number(s.quantity)||0; totalValue += Number(s.line_value)||0; }); });
 
   $('ov-arrests').textContent = totalArrests;
   $('ov-seizures').textContent = totalItems;
@@ -1896,6 +1912,9 @@ async function computeOfficerStats(){
     if(!hit) hit = roster.find(o => o.full_name && n.includes(o.full_name.toLowerCase()));
     return hit ? hit.id : null;
   };
+  // date-range cutoff (from the Overview selector)
+  const cutoff = statsRangeCutoff();
+  const inRange = ts => !cutoff || (ts && new Date(ts).getTime() >= cutoff);
   const byId = {};
   const rec = (id, fallbackName) => {
     const key = id || ('unmatched:'+fallbackName);
@@ -1906,7 +1925,7 @@ async function computeOfficerStats(){
     }
     return byId[key];
   };
-  _arrests.forEach(a=>{
+  _arrests.filter(a=>inRange(a.created_at)).forEach(a=>{
     const o = rec(matchOfficer(a.arresting_officer), a.arresting_officer || 'Unknown');
     o.arrests++;
     o.points += 10;
@@ -1924,14 +1943,25 @@ async function computeOfficerStats(){
   });
   try{
     const [{data:imps},{data:tks}] = await Promise.all([
-      sb.from('impounds').select('officer_name'),
-      sb.from('tickets').select('officer_name')
+      sb.from('impounds').select('officer_name,created_at'),
+      sb.from('tickets').select('officer_name,created_at')
     ]);
-    (imps||[]).forEach(i=>{ const o=rec(matchOfficer(i.officer_name), i.officer_name||'Unknown'); o.points += 5; o.impounds++; });
-    (tks||[]).forEach(t=>{ const o=rec(matchOfficer(t.officer_name), t.officer_name||'Unknown'); o.points += 3; o.tickets++; });
+    (imps||[]).filter(i=>inRange(i.created_at)).forEach(i=>{ const o=rec(matchOfficer(i.officer_name), i.officer_name||'Unknown'); o.points += 5; o.impounds++; });
+    (tks||[]).filter(t=>inRange(t.created_at)).forEach(t=>{ const o=rec(matchOfficer(t.officer_name), t.officer_name||'Unknown'); o.points += 3; o.tickets++; });
   }catch(e){}
   _officerStats = Object.values(byId);
   return _officerStats;
+}
+
+// Returns a timestamp (ms) cutoff based on the Overview range selector,
+// or null for "all time".
+function statsRangeCutoff(){
+  const sel = ($('stats-range')||{}).value || 'all';
+  const now = new Date();
+  if(sel==='today'){ const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()); return d.getTime(); }
+  if(sel==='week'){ const d=new Date(now); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); d.setHours(0,0,0,0); return d.getTime(); }
+  if(sel==='month'){ return new Date(now.getFullYear(),now.getMonth(),1).getTime(); }
+  return null;
 }
 
 // Match a roster officer to their computed stats — now by ID (stable).
@@ -1950,8 +1980,10 @@ async function viewOfficerProfile(officerId){
   const st = statsForOfficer(off);
   // find this officer's arrests by the same name match
   const cs=(off.callsign||'').toLowerCase(), fn=(off.full_name||'').toLowerCase();
-  const theirArrests=_arrests.filter(a=>{const n=(a.arresting_officer||'').toLowerCase(); return (cs&&n.includes(cs))||(fn&&n.includes(fn));})
+  const allTheirs=_arrests.filter(a=>{const n=(a.arresting_officer||'').toLowerCase(); return (cs&&n.includes(cs))||(fn&&n.includes(fn));})
     .sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  const theirArrests = allTheirs.filter(a=>a.source!=='vice');
+  const theirVice    = allTheirs.filter(a=>a.source==='vice');
   // rank on points board
   const ranked=[..._officerStats].sort((a,b)=>b.points-a.points);
   const rank=ranked.findIndex(s=>s.name===st.name)+1;
@@ -1982,14 +2014,23 @@ async function viewOfficerProfile(officerId){
         <div class="sc"><div class="sc-lbl">Impounds</div><div class="sc-val">${st.impounds}</div></div>
         <div class="sc"><div class="sc-lbl">Tickets</div><div class="sc-val">${st.tickets}</div></div>
       </div>
-      <div class="flbl">Arrest History (${theirArrests.length})</div>
+      <div class="flbl">PD Arrest History (${theirArrests.length})</div>
       ${theirArrests.length?`<div style="margin-top:6px">${theirArrests.slice(0,25).map(a=>`
         <div class="rap-row" onclick='closeModal("view-modal-overlay");viewArrest(${a.id})'>
           <span class="badge ${arrestTypeCls(a.arrest_type)}">${arrestTypeLabel(a.arrest_type)}</span>
           <span style="flex:1;font-size:13px">${escapeHTML(a.suspect_name)} — ${escapeHTML((a.charges||'—').split(',')[0])}</span>
           <span style="font-size:12px;color:var(--ts)">${fmtDate(a.occurred_at)}</span>
         </div>`).join('')}${theirArrests.length>25?`<div style="font-size:12px;color:var(--ts);text-align:center;padding:8px">+ ${theirArrests.length-25} more</div>`:''}</div>`
-        :'<div style="font-size:13px;color:var(--ts);margin-top:6px">No arrests logged under this officer yet.</div>'}
+        :'<div style="font-size:13px;color:var(--ts);margin-top:6px">No PD arrests logged under this officer yet.</div>'}
+
+      ${theirVice.length?`
+      <div class="flbl" style="margin-top:1.2rem">Vice Unit Work (${theirVice.length}) <span class="badge" style="font-size:9px;background:#7c3aed;color:#fff">VICE</span></div>
+      <div style="margin-top:6px">${theirVice.slice(0,25).map(a=>`
+        <div class="rap-row" onclick='closeModal("view-modal-overlay");viewArrest(${a.id})'>
+          <span class="badge ${arrestTypeCls(a.arrest_type)}">${arrestTypeLabel(a.arrest_type)}</span>
+          <span style="flex:1;font-size:13px">${escapeHTML(a.suspect_name)} — ${escapeHTML((a.charges||'—').split(',')[0])}</span>
+          <span style="font-size:12px;color:var(--ts)">${fmtDate(a.occurred_at)}</span>
+        </div>`).join('')}${theirVice.length>25?`<div style="font-size:12px;color:var(--ts);text-align:center;padding:8px">+ ${theirVice.length-25} more</div>`:''}</div>`:''}
 
       ${(currentOfficer && currentOfficer.id===off.id)?`
       <div class="admin-panel" style="border-color:var(--border-d);background:rgba(255,255,255,.02)">
@@ -2133,8 +2174,11 @@ async function loadArrests(){
 function renderArrests(){
   const q = ($('arrests-search').value||'').toLowerCase().trim();
   const filter = $('arrests-filter').value;
+  const srcFilter = ($('arrests-source')||{}).value||'';
   let list = _arrests;
   if(filter) list = list.filter(a=>a.arrest_type===filter);
+  if(srcFilter==='vice') list = list.filter(a=>a.source==='vice');
+  else if(srcFilter==='pd') list = list.filter(a=>a.source!=='vice');
   if(q) list = list.filter(a=>[a.suspect_name,a.arresting_officer,a.charges,a.location,a.narrative].join(' ').toLowerCase().includes(q));
   const el = $('arrests-list');
   if(!list.length){ el.innerHTML = '<div class="empty">No arrests match.</div>'; return; }
