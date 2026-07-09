@@ -1465,6 +1465,12 @@ let currentUser = null, currentOfficer = null;
 
 function $(id){return document.getElementById(id)}
 function toggleFaq(el){ el.parentElement.classList.toggle('open'); }
+// small badge showing where a record came from (game auto-log or Vice mirror)
+function sourceBadge(src){
+  if(src==='vice') return ' <span class="badge" style="font-size:9px;background:#7c3aed;color:#fff">VICE</span>';
+  if(src==='auto') return ' <span class="badge bg-blue" style="font-size:9px">AUTO</span>';
+  return '';
+}
 function escapeHTML(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function money(n){ return '$' + (Number(n)||0).toLocaleString(); }
 function fmtDate(d){ return d ? new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'; }
@@ -1572,7 +1578,7 @@ async function loadPublicActivity(){
     const typeCls = t => ({normal:'bg-gray',narcotics:'bg-red',firearms:'bg-blue',both:'bg-amber'}[t]||'bg-red');
     el.innerHTML = list.length ? `<table><tbody>${list.map(a=>`
       <tr><td><span class="badge ${typeCls(a.arrest_type)}">${typeLabel(a.arrest_type)}</span></td>
-      <td style="font-weight:600">${escapeHTML(a.suspect_name||'—')}</td>
+      <td style="font-weight:600">${escapeHTML(a.suspect_name||'—')}${sourceBadge(a.source)}</td>
       <td style="color:var(--ts)">${escapeHTML((a.charges||'').split(',')[0]||'—')}</td>
       <td style="color:var(--ts)">${escapeHTML(a.arresting_officer||'—')}</td>
       <td style="color:var(--ts);font-size:12px">${fmtDate(a.created_at)}</td></tr>`).join('')}</tbody></table>`
@@ -1863,7 +1869,7 @@ async function loadOverview(){
   const recent = _arrests.slice(0,8);
   $('ov-recent').innerHTML = recent.length ? `<table><tbody>${recent.map(a=>`
     <tr><td><span class="badge ${arrestTypeCls(a.arrest_type)}">${arrestTypeLabel(a.arrest_type)}</span></td>
-    <td style="font-weight:600">${escapeHTML(a.suspect_name||'—')}</td>
+    <td style="font-weight:600">${escapeHTML(a.suspect_name||'—')}${sourceBadge(a.source)}</td>
     <td style="color:var(--ts)">${escapeHTML((a.charges||'').split(',')[0]||'—')}</td>
     <td style="color:var(--ts)">${escapeHTML(a.arresting_officer||'—')}</td>
     <td style="color:var(--ts);font-size:12px">${fmtDate(a.created_at)}</td></tr>`).join('')}</tbody></table>`
@@ -2140,7 +2146,7 @@ function renderArrests(){
       ${mug?`<img class="ar-mug" src="${escapeHTML(mug)}">`:`<div class="ar-mug-ph">👤</div>`}
       <div class="ar-body">
         <div class="ar-top">
-          <div><div class="ar-name">${escapeHTML(a.suspect_name)}</div><div class="ar-meta">#${a.id} · ${fmtDate(a.occurred_at)}</div></div>
+          <div><div class="ar-name">${escapeHTML(a.suspect_name)}${sourceBadge(a.source)}</div><div class="ar-meta">#${a.id} · ${fmtDate(a.occurred_at)}</div></div>
           <span class="badge ${arrestTypeCls(a.arrest_type)}">${arrestTypeLabel(a.arrest_type)}</span>
         </div>
         <div class="ar-charges">${escapeHTML(a.charges||'No charges listed')}</div>
