@@ -2019,7 +2019,7 @@ async function viewOfficerProfile(officerId){
         <div class="rap-row" onclick='closeModal("view-modal-overlay");viewArrest(${a.id})'>
           <span class="badge ${arrestTypeCls(a.arrest_type)}">${arrestTypeLabel(a.arrest_type)}</span>
           <span style="flex:1;font-size:13px">${escapeHTML(a.suspect_name)} — ${escapeHTML((a.charges||'—').split(',')[0])}</span>
-          <span style="font-size:12px;color:var(--ts)">${fmtDate(a.occurred_at)}</span>
+          <span style="font-size:12px;color:var(--ts)">${fmtDate(a.occurred_at||a.created_at)}</span>
         </div>`).join('')}${theirArrests.length>25?`<div style="font-size:12px;color:var(--ts);text-align:center;padding:8px">+ ${theirArrests.length-25} more</div>`:''}</div>`
         :'<div style="font-size:13px;color:var(--ts);margin-top:6px">No PD arrests logged under this officer yet.</div>'}
 
@@ -2029,7 +2029,7 @@ async function viewOfficerProfile(officerId){
         <div class="rap-row" onclick='closeModal("view-modal-overlay");viewArrest(${a.id})'>
           <span class="badge ${arrestTypeCls(a.arrest_type)}">${arrestTypeLabel(a.arrest_type)}</span>
           <span style="flex:1;font-size:13px">${escapeHTML(a.suspect_name)} — ${escapeHTML((a.charges||'—').split(',')[0])}</span>
-          <span style="font-size:12px;color:var(--ts)">${fmtDate(a.occurred_at)}</span>
+          <span style="font-size:12px;color:var(--ts)">${fmtDate(a.occurred_at||a.created_at)}</span>
         </div>`).join('')}${theirVice.length>25?`<div style="font-size:12px;color:var(--ts);text-align:center;padding:8px">+ ${theirVice.length-25} more</div>`:''}</div>`:''}
 
       ${(currentOfficer && currentOfficer.id===off.id)?`
@@ -2190,7 +2190,7 @@ function renderArrests(){
       ${mug?`<img class="ar-mug" src="${escapeHTML(mug)}">`:`<div class="ar-mug-ph">👤</div>`}
       <div class="ar-body">
         <div class="ar-top">
-          <div><div class="ar-name">${escapeHTML(a.suspect_name)}${sourceBadge(a.source)}</div><div class="ar-meta">#${a.id} · ${fmtDate(a.occurred_at)}</div></div>
+          <div><div class="ar-name">${escapeHTML(a.suspect_name)}${sourceBadge(a.source)}</div><div class="ar-meta">#${a.id} · ${fmtDate(a.occurred_at||a.created_at)}</div></div>
           <span class="badge ${arrestTypeCls(a.arrest_type)}">${arrestTypeLabel(a.arrest_type)}</span>
         </div>
         <div class="ar-charges">${escapeHTML(a.charges||'No charges listed')}</div>
@@ -2500,12 +2500,12 @@ async function viewArrest(id){
   $('view-modal-content').innerHTML = `
     <div class="modal-hd" style="display:flex;gap:14px;align-items:center">
       ${mug?`<img class="ar-mug" style="width:56px;height:56px" src="${escapeHTML(mug)}">`:`<div class="ar-mug-ph" style="width:56px;height:56px">👤</div>`}
-      <div><div class="tag">Arrest #${a.id} · ${arrestTypeLabel(a.arrest_type)}</div><h3 style="font-size:19px;font-weight:700">${escapeHTML(a.suspect_name)}</h3></div>
+      <div><div class="tag">Arrest #${a.id} · ${arrestTypeLabel(a.arrest_type)}</div><h3 style="font-size:19px;font-weight:700">${escapeHTML(a.suspect_name)}${sourceBadge(a.source)}</h3></div>
     </div>
     <div class="modal-bd">
       <div class="frow" style="margin-bottom:1.1rem">
         <div><div class="flbl">Status</div><div style="font-size:14px">${escapeHTML((a.status||'').replace('_',' '))}</div></div>
-        <div><div class="flbl">Date</div><div style="font-size:14px">${fmtDate(a.occurred_at)}</div></div>
+        <div><div class="flbl">Date</div><div style="font-size:14px">${fmtDate(a.occurred_at||a.created_at)}</div></div>
       </div>
       <div style="margin-bottom:1.1rem"><div class="flbl">Charges</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">${chargesList.map(c=>`<span class="charge-tag" style="cursor:default">${escapeHTML(c)}</span>`).join('')||'<span style="font-size:13px;color:var(--ts)">None</span>'}</div></div>
       <div class="frow" style="margin-bottom:1.1rem">
@@ -2584,7 +2584,7 @@ function viewSuspect(id){
         <div class="rap-row" onclick='closeModal("view-modal-overlay");viewArrest(${a.id})'>
           <span class="badge ${arrestTypeCls(a.arrest_type)}">${arrestTypeLabel(a.arrest_type)}</span>
           <span style="flex:1;font-size:13px">${escapeHTML((a.charges||'—').split(',').slice(0,2).join(', '))}</span>
-          <span style="font-size:12px;color:var(--ts)">${fmtDate(a.occurred_at)}</span>
+          <span style="font-size:12px;color:var(--ts)">${fmtDate(a.occurred_at||a.created_at)}</span>
         </div>`).join('')}</div>`:'<div style="font-size:13px;color:var(--ts);margin-top:6px">No arrests linked to this file yet.</div>'}
       ${canEdit?`<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-d);display:flex;gap:8px">
         <button class="btn" onclick='closeModal("view-modal-overlay");openSuspectModal(${s.id})'>✏️ Edit File</button>
