@@ -990,9 +990,9 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <button class="btn" onclick="showDash('arrests')">Arrests</button>
       <button class="btn" onclick="showDash('dmv')">DMV / Enforcement</button>
       <button class="btn" onclick="showDash('suspects')">Suspects</button>
-      <button class="btn" onclick="showDash('officers')">Officers</button>
+      <button class="btn" onclick="showDash('officers')">Officers <span id="pending-count" style="display:none;background:var(--amber);color:#1a1d21;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700;margin-left:4px"></span></button>
       <button class="btn" onclick="showDash('analysis')">Analysis</button>
-      <button class="btn" onclick="showDash('applications')" id="nav-apps-btn" style="display:none">Applications</button>
+      <button class="btn" onclick="showDash('applications')" id="nav-apps-btn" style="display:none">Applications <span id="apps-count" style="display:none;background:var(--amber);color:#1a1d21;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700;margin-left:4px"></span></button>
       <button class="btn" onclick="showDash('command')" id="nav-command-btn" style="display:none">Supervisory Logs</button>
       <button class="btn ghost" onclick="showPage('home')">Public Site ↗</button>
       <button class="btn danger" onclick="doLogout()">Log Out</button>
@@ -1477,6 +1477,17 @@ let currentUser = null, currentOfficer = null;
 
 function $(id){return document.getElementById(id)}
 function toggleFaq(el){ el.parentElement.classList.toggle('open'); }
+// Pop-and-fade toast notification. type: 'ok' | 'err' | 'info'
+function toast(message, type){
+  const wrap = $('toast-wrap'); if(!wrap) return;
+  const colors = { ok:'#3fa66b', err:'#c1352c', info:'#4a8fe0' };
+  const el = document.createElement('div');
+  el.style.cssText = `pointer-events:auto;min-width:220px;max-width:340px;padding:12px 16px;border-radius:8px;background:#1a1d21;border-left:3px solid ${colors[type]||colors.info};color:#e8eaed;font-size:13.5px;box-shadow:0 4px 20px rgba(0,0,0,.4);opacity:0;transform:translateX(20px);transition:opacity .25s,transform .25s`;
+  el.textContent = message;
+  wrap.appendChild(el);
+  requestAnimationFrame(()=>{ el.style.opacity='1'; el.style.transform='translateX(0)'; });
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateX(20px)'; setTimeout(()=>el.remove(),300); }, 3200);
+}
 // small badge showing where a record came from (game auto-log or Vice mirror)
 function sourceBadge(src){
   if(src==='vice') return ' <span class="badge" style="font-size:9px;background:#7c3aed;color:#fff">VICE</span>';
@@ -1732,8 +1743,10 @@ async function loadSession(){
   $('pending-banner').style.display = officer.status==='approved' ? 'none':'flex';
   const approved = officer.status==='approved';
   ['new-arrest-btn','new-impound-btn','new-ticket-btn','new-suspect-btn'].forEach(id=>{ const b=$(id); if(b) b.style.display = approved ? 'inline-block':'none'; });
-  $('nav-apps-btn').style.display = officer.role==='admin' ? 'inline-block':'none';
+  $('nav-apps-btn').style.display = (officer.role==='admin' || canReviewAnyApp(officer)) ? 'inline-block':'none';
   $('nav-command-btn').style.display = isCommandStaff(officer) ? 'inline-block':'none';
+  if(officer.role==='admin') refreshPendingCount();
+  if(canReviewAnyApp(officer)) refreshPendingApps();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   $('pg-dash').classList.add('active');
   showDash('overview');
@@ -1818,6 +1831,31 @@ function conflictsWith(c){
 const RANKS = ['Cadet','Officer','Officer II','Sergeant','Lieutenant','Captain I','Captain II','Deputy Chief','Assistant Chief','Chief of Police'];
 const COMMAND_RANKS = ['Sergeant','Lieutenant','Captain I','Captain II','Deputy Chief','Assistant Chief','Chief of Police'];
 function isCommandStaff(off){ off=off||currentOfficer; return !!off && (off.role==='admin' || COMMAND_RANKS.includes(off.rank)); }
+
+// Division-command roles that can approve/decline applications for their division.
+const COMMAND_ROLES = ['officer','admin','SWAT Command','TE Command','FTO Command'];
+// Maps a command role to the division name it governs (as stored on applications).
+const ROLE_DIVISION = {
+  'SWAT Command': 'SWAT',
+  'TE Command': 'Traffic Enforcement (TE)',
+  'FTO Command': 'Field Training (FTO)',
+};
+// Can this officer approve/decline a given application?
+function canReviewApp(app, off){
+  off = off || currentOfficer;
+  if(!off) return false;
+  if(off.role==='admin') return true;                 // admin: all apps
+  const gov = ROLE_DIVISION[off.role];                // e.g. SWAT Command -> SWAT
+  if(!gov || !app) return false;
+  // match against the application's division (loose contains, handles "SWAT" vs full label)
+  const appDiv = (app.division||'').toLowerCase();
+  return appDiv.includes(gov.toLowerCase()) || gov.toLowerCase().includes(appDiv);
+}
+// Does this officer have review power over ANY application (controls nav/badge visibility)?
+function canReviewAnyApp(off){
+  off = off || currentOfficer;
+  return !!off && (off.role==='admin' || !!ROLE_DIVISION[off.role]);
+}
 const DIVISIONS = ['Patrol','Field Training (FTO)','Traffic Enforcement (TE)','SWAT','Internal Affairs (IA)','Vice Unit'];
 
 let _arrests = [];       // cached arrest list (with nested seizures)
@@ -2014,6 +2052,9 @@ async function viewOfficerProfile(officerId){
         <div class="sc"><div class="sc-lbl">Impounds</div><div class="sc-val">${st.impounds}</div></div>
         <div class="sc"><div class="sc-lbl">Tickets</div><div class="sc-val">${st.tickets}</div></div>
       </div>
+      ${vsAverageHtml(st)}
+      <div class="flbl" style="margin-top:1.2rem">Activity (last 8 weeks)</div>
+      <div style="height:180px;margin:8px 0 1.2rem"><canvas id="off-activity-chart"></canvas></div>
       <div class="flbl">PD Arrest History (${theirArrests.length})</div>
       ${theirArrests.length?`<div style="margin-top:6px">${theirArrests.slice(0,25).map(a=>`
         <div class="rap-row" onclick='closeModal("view-modal-overlay");viewArrest(${a.id})'>
@@ -2068,6 +2109,9 @@ async function viewOfficerProfile(officerId){
             <label class="flbl">Role</label>
             <select class="fi" id="ap-role-sel">
               <option value="officer"${off.role==='officer'?' selected':''}>officer</option>
+              <option value="SWAT Command"${off.role==='SWAT Command'?' selected':''}>SWAT Command</option>
+              <option value="TE Command"${off.role==='TE Command'?' selected':''}>TE Command</option>
+              <option value="FTO Command"${off.role==='FTO Command'?' selected':''}>FTO Command</option>
               <option value="admin"${off.role==='admin'?' selected':''}>admin</option>
             </select>
           </div>
@@ -2077,6 +2121,58 @@ async function viewOfficerProfile(officerId){
       </div>`:''}
     </div>`;
   $('view-modal-overlay').style.display='block';
+  renderOfficerActivityChart(allTheirs);
+}
+
+// Line chart of arrests + seizures per week for the last 8 weeks.
+function renderOfficerActivityChart(records){
+  const ctx = $('off-activity-chart'); if(!ctx || typeof Chart==='undefined') return;
+  const weeks = 8, now = new Date();
+  const buckets = [];
+  for(let i=weeks-1;i>=0;i--){
+    const d=new Date(now); d.setDate(d.getDate()-i*7); const day=(d.getDay()+6)%7;
+    d.setDate(d.getDate()-day); d.setHours(0,0,0,0);
+    buckets.push({start:d.getTime(), label:d.toLocaleDateString('en-US',{month:'short',day:'numeric'}), arrests:0, items:0});
+  }
+  records.forEach(a=>{
+    const t=new Date(a.created_at).getTime();
+    for(let i=buckets.length-1;i>=0;i--){ if(t>=buckets[i].start){ buckets[i].arrests++; buckets[i].items += (a._seizures||[]).reduce((s,x)=>s+(Number(x.quantity)||0),0); break; } }
+  });
+  makeChart('off-activity-chart', {
+    type:'line',
+    data:{ labels:buckets.map(b=>b.label), datasets:[
+      { label:'Arrests', data:buckets.map(b=>b.arrests), borderColor:CHART_RED, backgroundColor:'rgba(193,53,44,.12)', fill:true, tension:.3 },
+      { label:'Items Seized', data:buckets.map(b=>b.items), borderColor:'#4a8fe0', backgroundColor:'rgba(74,143,224,.10)', fill:true, tension:.3 },
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ boxWidth:12, font:{size:11} } } },
+      scales:{ y:{ beginAtZero:true, grid:{color:GRID}, ticks:{precision:0} }, x:{ grid:{color:GRID} } } }
+  });
+}
+
+// Compares an officer's key stats to the department average of matched officers.
+function vsAverageHtml(st){
+  const peers = _officerStats.filter(o=>o.matched);
+  if(peers.length<2) return '';
+  const avg = (k)=> peers.reduce((s,o)=>s+(o[k]||0),0)/peers.length;
+  const row = (label, val, av)=>{
+    const pct = av>0 ? Math.round((val/av-1)*100) : (val>0?100:0);
+    const up = pct>=0;
+    const col = up ? 'var(--green)' : 'var(--red-l)';
+    const arrow = up ? '▲' : '▼';
+    const shown = label==='Seized Value' ? money(val) : val;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border-d)">
+      <span style="font-size:13px">${label}</span>
+      <span style="font-size:13px;color:var(--ts)">${shown} <span style="font-size:11px">vs ${av<10?av.toFixed(1):Math.round(av)} avg</span>
+        <span style="color:${col};margin-left:8px;font-weight:600">${arrow} ${Math.abs(pct)}%</span></span>
+    </div>`;
+  };
+  return `<div class="flbl" style="margin-top:1.2rem">Vs Department Average</div>
+    <div style="margin-top:4px">
+      ${row('Points', st.points, avg('points'))}
+      ${row('Arrests', st.arrests, avg('arrests'))}
+      ${row('Seized Value', st.value, avg('value'))}
+    </div>`;
 }
 
 async function saveSelfDetails(id){
@@ -2181,7 +2277,7 @@ function renderArrests(){
   else if(srcFilter==='pd') list = list.filter(a=>a.source!=='vice');
   if(q) list = list.filter(a=>[a.suspect_name,a.arresting_officer,a.charges,a.location,a.narrative].join(' ').toLowerCase().includes(q));
   const el = $('arrests-list');
-  if(!list.length){ el.innerHTML = '<div class="empty">No arrests match.</div>'; return; }
+  if(!list.length){ el.innerHTML = '<div class="empty">No arrests match. Officers log arrests in-game with <b>/pd</b>.</div>'; return; }
   el.innerHTML = list.map(a=>{
     const mug = a.mugshot_url || mugForSuspect(a.suspect_id);
     const bio = [a.dna&&'🧬', a.fingerprints&&'🖐'].filter(Boolean).join(' ');
@@ -2482,9 +2578,10 @@ async function saveArrest(){
 async function deleteArrest(){
   const id = $('ar-id').value;
   if(!id || !confirm('Delete this arrest and its seizures?')) return;
-  await sb.from('arrests').delete().eq('id',id); // seizures cascade
+  const {error} = await sb.from('arrests').delete().eq('id',id); // seizures cascade
   closeModal('arrest-modal-overlay');
   loadArrests();
+  toast(error?'Failed to delete arrest':'Arrest deleted', error?'err':'ok');
 }
 
 /* ---------------- VIEW ARREST (detail) ---------------- */
@@ -2536,7 +2633,7 @@ function renderSuspects(){
   let list=_suspects;
   if(q) list=list.filter(s=>s.name.toLowerCase().includes(q));
   const el=$('suspects-list');
-  if(!list.length){ el.innerHTML='<div class="empty">No suspects on file.</div>'; return; }
+  if(!list.length){ el.innerHTML='<div class="empty">No suspects on file yet. Suspect files are created automatically when you log an arrest.</div>'; return; }
   el.innerHTML=list.map(s=>{
     const sArrests=_arrests.filter(a=>a.suspect_id===s.id);
     const arrests=sArrests.length;
@@ -2664,7 +2761,7 @@ function renderImpounds(){
   let list=_impounds;
   if(q) list=list.filter(i=>[i.vehicle,i.plate,i.owner_name,i.officer_name,i.reason].join(' ').toLowerCase().includes(q));
   const tb=$('impounds-table-body');
-  if(!list.length){ tb.innerHTML='<tr><td colspan="9" class="empty">No impounds logged.</td></tr>'; return; }
+  if(!list.length){ tb.innerHTML='<tr><td colspan="9" class="empty">No impounds logged. These auto-log from in-game, or add one manually.</td></tr>'; return; }
   const sc = s=>({impounded:'bg-red',released:'bg-gray',auctioned:'bg-green'}[s]||'bg-gray');
   tb.innerHTML=list.map(i=>`<tr style="cursor:pointer" onclick="openImpoundModal(${i.id})">
     <td style="font-weight:600">${escapeHTML(i.vehicle)}${i.source==='auto'?' <span class="badge bg-blue" style="font-size:9px">AUTO</span>':''}</td>
@@ -2731,7 +2828,7 @@ function renderTickets(){
   let list=_tickets;
   if(q) list=list.filter(t=>[t.recipient_name,t.plate,t.violation,t.officer_name].join(' ').toLowerCase().includes(q));
   const tb=$('tickets-table-body');
-  if(!list.length){ tb.innerHTML='<tr><td colspan="7" class="empty">No tickets issued.</td></tr>'; return; }
+  if(!list.length){ tb.innerHTML='<tr><td colspan="7" class="empty">No tickets issued. These auto-log from in-game, or add one manually.</td></tr>'; return; }
   tb.innerHTML=list.map(t=>`<tr style="cursor:pointer" onclick="openTicketModal(${t.id})">
     <td style="font-weight:600">${escapeHTML(t.recipient_name)}${t.source==='auto'?' <span class="badge bg-blue" style="font-size:9px">AUTO</span>':''}</td>
     <td>${escapeHTML(t.plate||'—')}</td>
@@ -3088,7 +3185,7 @@ async function loadApplications(){
       <td style="color:var(--ts);font-size:12px">${fmtDate(a.created_at)}</td>
       <td style="white-space:nowrap">
         <button class="btn" style="padding:4px 10px;font-size:11px" onclick="viewApplication(${a.id})">View</button>
-        ${a.status==='pending' ? `
+        ${(a.status==='pending' && canReviewApp(a)) ? `
           <button class="btn success" style="padding:4px 10px;font-size:11px" onclick="reviewApp(${a.id},'accepted')">Accept</button>
           <button class="btn danger" style="padding:4px 10px;font-size:11px" onclick="reviewApp(${a.id},'denied')">Deny</button>
         ` : ''}
@@ -3114,16 +3211,19 @@ function viewApplication(id){
       <div style="margin-bottom:1.2rem"><div class="flbl">Relevant Experience</div><div style="font-size:14px;line-height:1.7;white-space:pre-wrap">${escapeHTML(a.experience||'— none provided —')}</div></div>
       <div style="margin-bottom:1.2rem"><div class="flbl">Why this division?</div><div style="font-size:14px;line-height:1.7;white-space:pre-wrap">${escapeHTML(a.reason||'— none provided —')}</div></div>
       <div><div class="flbl">Submitted</div><div style="font-size:13px;color:var(--ts)">${fmtDate(a.created_at)}</div></div>
-      ${a.status==='pending'?`<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-d);display:flex;gap:8px">
+      ${(a.status==='pending' && canReviewApp(a))?`<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-d);display:flex;gap:8px">
         <button class="btn success" onclick="reviewApp(${a.id},'accepted');closeModal('view-modal-overlay')">✓ Accept</button>
         <button class="btn danger" onclick="reviewApp(${a.id},'denied');closeModal('view-modal-overlay')">✕ Deny</button>
-      </div>`:''}
+      </div>`:(a.status==='pending'?`<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-d);font-size:12px;color:var(--ts)">Only ${escapeHTML(a.division)} command or an admin can action this application.</div>`:'')}
     </div>`;
   $('view-modal-overlay').style.display='block';
 }
 async function reviewApp(id,status){
   const app = _applications.find(a=>a.id===id);
-  await sb.from('applications').update({status, reviewed_by: currentOfficer?.callsign||'admin'}).eq('id',id);
+  if(!canReviewApp(app)){ toast('You do not have permission to action this application','err'); return; }
+  const {error} = await sb.from('applications').update({status, reviewed_by: currentOfficer?.callsign||'admin'}).eq('id',id);
+  if(error){ toast('Failed to update application','err'); return; }
+  toast(`Application ${status}`, status==='accepted'?'ok':'info');
 
   // On acceptance, try to set the applicant's division on their officer record.
   if(status==='accepted' && app && app.division){
@@ -3143,9 +3243,32 @@ async function reviewApp(id,status){
     }
   }
   loadApplications();
+  refreshPendingApps();
 }
-
-/* ---------------- ADMIN: ROSTER ---------------- */
+async function refreshPendingCount(){
+  try{
+    const {count} = await sb.from('officers').select('*',{count:'exact',head:true}).eq('status','pending');
+    const el=$('pending-count'); if(!el) return;
+    if(count>0){ el.textContent=count; el.style.display='inline-block'; }
+    else el.style.display='none';
+  }catch(e){}
+}
+async function refreshPendingApps(){
+  try{
+    // count pending apps this officer can actually review
+    let q = sb.from('applications').select('division',{count:'exact'}).eq('status','pending');
+    const {data,count} = await q;
+    let n = count||0;
+    // division command only counts their own division
+    if(currentOfficer && currentOfficer.role!=='admin'){
+      const gov = ROLE_DIVISION[currentOfficer.role];
+      n = (data||[]).filter(a=>{ const d=(a.division||'').toLowerCase(); return gov && (d.includes(gov.toLowerCase())||gov.toLowerCase().includes(d)); }).length;
+    }
+    const el=$('apps-count'); if(!el) return;
+    if(n>0){ el.textContent=n; el.style.display='inline-block'; }
+    else el.style.display='none';
+  }catch(e){}
+}
 async function loadRoster(){
   const {data,error} = await sb.from('officers').select('*').order('created_at',{ascending:false});
   const tbody = $('roster-table-body');
@@ -3167,8 +3290,10 @@ async function loadRoster(){
     </tr>`).join('');
 }
 async function setOfficerStatus(id,status){
-  await sb.from('officers').update({status}).eq('id',id);
+  const {error} = await sb.from('officers').update({status}).eq('id',id);
   loadRoster();
+  refreshPendingCount();
+  toast(error?'Failed to update status':`Officer ${status}`, error?'err':'ok');
 }
 
 /* ---------------- INIT ---------------- */
@@ -3201,5 +3326,6 @@ document.addEventListener('change', e=>{
   await loadSession();
 })();
 </script>
+<div id="toast-wrap" style="position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none"></div>
 </body>
 </html>
