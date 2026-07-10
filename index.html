@@ -968,9 +968,11 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <div id="auth-register-form" style="display:none">
         <div class="frow">
           <div class="fgrp"><label class="flbl">Full Name</label><input class="fi" id="re-name"></div>
-          <div class="fgrp"><label class="flbl">Callsign</label><input class="fi" id="re-callsign" placeholder="1-Adam-12"></div>
+          <div class="fgrp"><label class="flbl">Officer Rank</label>
+            <select class="fi" id="re-rank"></select>
+          </div>
         </div>
-        <div class="fgrp"><label class="flbl">Badge Number</label><input class="fi" id="re-badge"></div>
+        <div class="fgrp"><label class="flbl">Badge Number</label><input class="fi" id="re-badge" placeholder="e.g. V-2185"></div>
         <div class="fgrp"><label class="flbl">Email</label><input class="fi" id="re-email" type="email"></div>
         <div class="fgrp"><label class="flbl">Password</label><input class="fi" id="re-pass" type="password"></div>
         <button class="sbtn" onclick="doRegister()">Create Account</button>
@@ -1679,13 +1681,18 @@ async function submitApplication(){
 /* ---------------- AUTH ---------------- */
 async function doRegister(){
   const email=$('re-email').value.trim(), pass=$('re-pass').value;
-  const name=$('re-name').value.trim(), callsign=$('re-callsign').value.trim(), badge=$('re-badge').value.trim();
-  if(!email||!pass||!name||!callsign){ authMsg('auth-msg','Please fill out all fields.',false); return; }
+  const name=$('re-name').value.trim(), badge=$('re-badge').value.trim();
+  let rank=($('re-rank')||{}).value || 'Cadet';
+  // enforce: registrants can't self-assign above Sergeant (block console tampering)
+  if(!SELF_SELECT_RANKS.includes(rank)) rank = 'Cadet';
+  if(!email||!pass||!name||!badge){ authMsg('auth-msg','Please fill out all fields.',false); return; }
   const {data,error} = await sb.auth.signUp({email,password:pass});
   if(error){ authMsg('auth-msg',error.message,false); return; }
   const uid = data.user?.id;
   if(uid){
-    await sb.from('officers').insert({id:uid, full_name:name, callsign, badge_number:badge, status:'pending', role:'officer'});
+    // callsign mirrors the badge number (same identifier) so everything
+    // that displays/matches on callsign keeps working.
+    await sb.from('officers').insert({id:uid, full_name:name, callsign:badge, badge_number:badge, rank, status:'pending', role:'officer'});
   }
   authMsg('auth-msg','Account created! Pending admin approval. You can log in now.',true);
   setTimeout(()=>switchAuthTab('login'),1200);
@@ -1829,6 +1836,8 @@ function conflictsWith(c){
   return _chargeTags.filter(t => set.has(t) || (CHARGE_CONFLICTS[t]||[]).includes(c));
 }
 const RANKS = ['Cadet','Officer','Officer II','Sergeant','Lieutenant','Captain I','Captain II','Deputy Chief','Assistant Chief','Chief of Police'];
+// Ranks a new registrant may self-select; anything above Sergeant is admin-granted only.
+const SELF_SELECT_RANKS = ['Cadet','Officer','Officer II','Sergeant'];
 const COMMAND_RANKS = ['Sergeant','Lieutenant','Captain I','Captain II','Deputy Chief','Assistant Chief','Chief of Police'];
 function isCommandStaff(off){ off=off||currentOfficer; return !!off && (off.role==='admin' || COMMAND_RANKS.includes(off.rank)); }
 
@@ -3322,6 +3331,9 @@ document.addEventListener('change', e=>{
 });
 
 (async function init(){
+  // fill the register-form rank dropdown (self-select up to Sergeant only)
+  const rr=$('re-rank');
+  if(rr) rr.innerHTML = SELF_SELECT_RANKS.map(r=>`<option value="${r}"${r==='Cadet'?' selected':''}>${r}</option>`).join('');
   loadHomeStats();
   await loadSession();
 })();
