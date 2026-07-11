@@ -325,6 +325,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <div class="nb-title">LSPD OPERATIONS</div>
       <div class="nb-sub">Los Santos Police Dept</div>
     </div>
+    <div style="font-size:11px;color:var(--red-l);letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-left:12px;padding-left:12px;border-left:1px solid var(--border)">Horizon Gaming</div>
   </div>
   <div class="nl">
     <button class="btn ghost" onclick="showPage('home')">Home</button>
@@ -346,7 +347,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <text x="50" y="70" font-family="Segoe UI,sans-serif" font-size="6" font-weight="700" fill="#8f9198" text-anchor="middle" opacity=".4">AND TO SERVE</text>
       <text x="50" y="82" font-family="Segoe UI,sans-serif" font-size="8" font-weight="800" fill="#e6e8ec" text-anchor="middle" opacity=".55">LSPD</text>
     </svg>
-    <div class="hero-eyebrow">Los Santos Police Department</div>
+    <div class="hero-eyebrow">Horizon Gaming · Los Santos Police Department</div>
     <h1>Department<br><span>Operations</span> Hub</h1>
     <p>Arrest reporting. Suspect intelligence. Seizure tracking. And command oversight — built for the streets of San Andreas.</p>
     <div class="hero-strip">
@@ -996,6 +997,7 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
       <button class="btn" onclick="showDash('analysis')">Analysis</button>
       <button class="btn" onclick="showDash('applications')" id="nav-apps-btn" style="display:none">Applications <span id="apps-count" style="display:none;background:var(--amber);color:#1a1d21;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700;margin-left:4px"></span></button>
       <button class="btn" onclick="showDash('command')" id="nav-command-btn" style="display:none">Supervisory Logs</button>
+      <button class="btn" onclick="showDash('downloads')">Downloads</button>
       <button class="btn ghost" onclick="showPage('home')">Public Site ↗</button>
       <button class="btn danger" onclick="doLogout()">Log Out</button>
     </div>
@@ -1212,6 +1214,38 @@ footer{margin-top:auto;padding:2rem;text-align:center;font-size:11px;color:var(-
     <div class="tbl-wrap">
       <table><thead><tr><th>Officer</th><th>Certification</th><th>Notes</th><th>Logged By</th><th>Date</th><th></th></tr></thead>
       <tbody id="log-hsu-body"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- DOWNLOADS (officers) -->
+  <div class="sec" id="dash-downloads" style="display:none">
+    <div class="sec-hd"><div><div class="tag">Horizon Gaming · LSPD</div><h2>Downloads</h2><p>Official LSPD Operations in-game tools. Approved officers only.</p></div></div>
+
+    <div class="grid-cards" style="grid-template-columns:1fr;gap:1rem;max-width:760px">
+      <div class="card" style="padding:1.4rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--tp)">LSPD Operations — MoonLoader Suite</div>
+            <div style="font-size:13px;color:var(--ts);margin-top:4px">Arrest menu (/pd), impound & ticket auto-logger, command tools.</div>
+          </div>
+          <a class="sbtn" style="margin:0;text-decoration:none;white-space:nowrap" href="https://www.mediafire.com/folder/9043gz1el8bq8/LSPD" target="_blank" rel="noopener">⬇ Download</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-hd" style="margin-top:2.2rem"><div><div class="tag">Setup</div><h3 style="font-size:17px">Installation</h3></div></div>
+    <div class="card" style="padding:1.4rem;max-width:760px;font-size:13.5px;line-height:1.8;color:var(--ts)">
+      <div style="margin-bottom:10px"><b style="color:var(--tp)">Requirements:</b> GTA:SA with MoonLoader + the <code>mimgui</code> and <code>samp.events</code> libraries.</div>
+      <ol style="margin:0;padding-left:20px">
+        <li>Download the suite from the link above and extract it.</li>
+        <li>Place the <code>.lua</code> files into your <code>moonloader</code> folder.</li>
+        <li>Make sure your <b>badge number</b> is set on your profile (My Stats → Edit).</li>
+        <li>In-game, type <code>/reloadall</code>, then <code>/pd</code> (or press <b>F6</b>) to open the arrest menu.</li>
+        <li>Sign in with your badge number — your account must be <b>approved</b>.</li>
+      </ol>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-d);font-size:12px;color:var(--ts)">
+        These tools are for approved LSPD officers only. Do not share outside the department.
+      </div>
     </div>
   </div>
 
@@ -1874,7 +1908,7 @@ let _chargeActiveIdx = -1;
 
 /* ---------------- DASHBOARD NAV ---------------- */
 function showDash(section){
-  ['overview','arrests','dmv','suspects','officers','analysis','command','applications'].forEach(s=>{
+  ['overview','arrests','dmv','suspects','officers','analysis','command','applications','downloads'].forEach(s=>{
     const el = $('dash-'+s); if(el) el.style.display = s===section ? 'block':'none';
   });
   if(section==='overview') loadOverview();
